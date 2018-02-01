@@ -42,16 +42,16 @@ dependencies {
 	compile('org.springframework.cloud:spring-cloud-starter-oauth2')
 	compile('de.codecentric:spring-boot-admin-starter-client')
 	compile('de.codecentric:spring-boot-admin-starter-server')
-	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	//compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-data-mongodb')
 	compile('org.springframework.boot:spring-boot-starter-data-rest')
 	compile('org.springframework.retry:spring-retry')
-	compile('org.springframework.boot:spring-boot-starter-security')
+	//compile('org.springframework.boot:spring-boot-starter-security')
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}")
 	compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
 	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('org.springframework.security:spring-security-test')
+	//testCompile('org.springframework.security:spring-security-test')
 }
 
 dependencyManagement {
