@@ -39,10 +39,14 @@ ext {
 }
 
 dependencies {
+
+	compile('com.graphql-java:graphql-spring-boot-starter:3.9.2')
+
+	compile('com.graphql-java:graphiql-spring-boot-starter:3.9.2')
+	compile('com.graphql-java:graphql-java-tools:4.3.0')
 	compile('org.springframework.cloud:spring-cloud-starter-oauth2')
 	compile('de.codecentric:spring-boot-admin-starter-client')
 	compile('de.codecentric:spring-boot-admin-starter-server')
-	//compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-data-mongodb')
 	compile('org.springframework.boot:spring-boot-starter-data-rest')
 	compile('org.springframework.retry:spring-retry')
