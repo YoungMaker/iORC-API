@@ -14,7 +14,7 @@ class ExampleController {
     @RequestMapping("/")
     @ResponseBody
     fun index(): String {
-        val character = characterRepository.findByName("Test Orc")
+        val character = characterRepository.findByName("Test Man")
         return character.toString()
     }
 }

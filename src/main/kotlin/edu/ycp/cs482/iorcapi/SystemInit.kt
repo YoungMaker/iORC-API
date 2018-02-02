@@ -2,6 +2,7 @@ package edu.ycp.cs482.iorcapi
 
 import edu.ycp.cs482.iorcapi.model.Character
 import edu.ycp.cs482.iorcapi.model.attributes.Ability
+import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -24,8 +25,14 @@ class SystemInit {
                                 int = 3,
                                 wis = 9,
                                 cha = 3
+                        ),
+                        race = Race(
+                                id = 1,
+                                name = "ORC",
+                                description = "TESTORC"
                         )
                 ),
+
                 Character(
                         id = 1,
                         name = "Test Man",
@@ -36,7 +43,16 @@ class SystemInit {
                                 int = 8,
                                 wis = 4,
                                 cha = 2
-                        )
+                        ),
+                        race = Race(
+                                id = 1,
+                                name = "Human",
+                                description = "Of all the civilized races, humans are the most adapt-\n" +
+                                        "able and diverse. Human settlements can be found\n" +
+                                        "\n" +
+                                        "almost anywhere, and human morals, customs, and\n" +
+                                        "interests vary greatly."
+                                )
                 )
         ))
     }

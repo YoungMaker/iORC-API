@@ -6,5 +6,6 @@ import org.springframework.data.annotation.Id
 data class Character(
         @Id val id: Int,
         val name: String,
-        val abilityPoints: Ability
+        val abilityPoints: Ability,
+        val race: Race
 )
