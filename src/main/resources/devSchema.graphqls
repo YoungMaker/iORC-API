@@ -1,8 +1,58 @@
 schema {
     query: Query
+    mutation: Mutation
 }
+
+type Race {
+    name: String!
+    description: String!
+    version: String!
+}
+
+type Ability {
+    str: Int!
+    con: Int!
+    dex: Int!
+    int: Int!
+    wis: Int!
+    cha: Int!
+}
+
+input AbilityInput{
+    str: Int!
+    con: Int!
+    dex: Int!
+    int: Int!
+    wis: Int!
+    cha: Int!
+}
+
+
+input RaceInput {
+    name: String!
+    description: String!
+    version: String!
+}
+
+
+type Character {
+    id: ID!
+    name: String!
+    abilityPoints: Ability!
+    race: Race
+}
+
 
 type Query {
     #the API version string
     version: String!
 }
+
+type Mutation {
+    createCharacter( name: String!, abilityPoints: AbilityInput!, race: RaceInput!) : Character!
+}
+
+extend type Query {
+    getCharacterByName(name: String!): Character
+}
+

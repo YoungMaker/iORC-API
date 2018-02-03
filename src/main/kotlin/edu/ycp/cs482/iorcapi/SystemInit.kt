@@ -14,7 +14,7 @@ class SystemInit {
 
     fun addTestCharacters() {
         characterRepository.deleteAll()
-        characterRepository.insert(listOf(
+        characterRepository.save(listOf(
                 Character(
                         id = 0,
                         name = "Test Orc",
@@ -27,8 +27,9 @@ class SystemInit {
                                 cha = 3
                         ),
                         race = Race(
-                                id = 1,
-                                name = "ORC",
+                                id = 0,
+                                name = "Orc",
+                                version = "TEST",
                                 description = "TESTORC"
                         )
                 ),
@@ -46,12 +47,12 @@ class SystemInit {
                         ),
                         race = Race(
                                 id = 1,
+                                version = "4e",
                                 name = "Human",
-                                description = "Of all the civilized races, humans are the most adapt-\n" +
-                                        "able and diverse. Human settlements can be found\n" +
-                                        "\n" +
-                                        "almost anywhere, and human morals, customs, and\n" +
-                                        "interests vary greatly."
+                                description = "Of all the civilized races, humans are the most adaptable"
+                                            +   " and diverse. Human settlements can be found" +
+                                                "almost anywhere, and human morals, customs, and" +
+                                                "interests vary greatly."
                                 )
                 )
         ))
