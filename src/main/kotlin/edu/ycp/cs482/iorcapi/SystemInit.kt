@@ -16,7 +16,7 @@ class SystemInit {
         characterRepository.deleteAll()
         characterRepository.save(listOf(
                 Character(
-                        id = 0,
+                        id = "0",
                         name = "Test Orc",
                         abilityPoints = Ability(
                                 str = 5,
@@ -35,7 +35,7 @@ class SystemInit {
                 ),
 
                 Character(
-                        id = 1,
+                        id = "1",
                         name = "Test Man",
                         abilityPoints = Ability(
                                 str = 4,

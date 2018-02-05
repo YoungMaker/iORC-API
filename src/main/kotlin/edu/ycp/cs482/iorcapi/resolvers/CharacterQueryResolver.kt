@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 class CharacterQueryResolver(
         private val characterRepo: CharacterRepository
 ) : GraphQLQueryResolver {
-    fun getCharacterByName(name: String) = characterRepo.findByName(name)
+    fun getCharacterById(id: String) = characterRepo.findById(id)
+    fun getCharactersByName(name: String) = characterRepo.findByName(name)
     fun getAllCharacters() = characterRepo.findAll()
 }
