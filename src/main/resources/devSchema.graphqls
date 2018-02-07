@@ -51,10 +51,11 @@ type Query {
 
 type Mutation {
     createCharacter( name: String!, abilityPoints: AbilityInput!, race: RaceInput!) : Character!,
+    updateName(id: ID!, name: String!): Character!
 }
 
 extend type Query {
-    getCharacterById(id: String!) : Character
+    getCharacterById(id: ID!) : Character
     getCharactersByName(name: String!): [Character!]!
 }
 

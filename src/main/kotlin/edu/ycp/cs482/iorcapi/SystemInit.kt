@@ -13,7 +13,7 @@ class SystemInit {
     lateinit var characterRepository: CharacterRepository
 
     fun addTestCharacters() {
-        characterRepository.deleteAll()
+        //characterRepository.deleteAll()
         characterRepository.save(listOf(
                 Character(
                         id = "0",
@@ -50,10 +50,10 @@ class SystemInit {
                                 version = "4e",
                                 name = "Human",
                                 description = "Of all the civilized races, humans are the most adaptable"
-                                            +   " and diverse. Human settlements can be found" +
-                                                "almost anywhere, and human morals, customs, and" +
-                                                "interests vary greatly."
-                                )
+                                        + " and diverse. Human settlements can be found" +
+                                        "almost anywhere, and human morals, customs, and" +
+                                        "interests vary greatly."
+                        )
                 )
         ))
     }
