@@ -33,6 +33,8 @@ class SecurityConfig(builder : AuthenticationManagerBuilder, userDetailService: 
 
         http.authorizeRequests()
                 .antMatchers("/graphql").permitAll()
+
+        http.csrf().disable() //TODO: PUT THIS BACK BEFORE PRODUCTION
     }
 
     init {
