@@ -3,7 +3,9 @@ package edu.ycp.cs482.iorcapi
 import edu.ycp.cs482.iorcapi.model.Character
 import edu.ycp.cs482.iorcapi.model.attributes.Ability
 import edu.ycp.cs482.iorcapi.model.Race
+import edu.ycp.cs482.iorcapi.model.User
 import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
+import edu.ycp.cs482.iorcapi.repositories.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -11,6 +13,9 @@ import org.springframework.stereotype.Component
 class SystemInit {
     @Autowired
     lateinit var characterRepository: CharacterRepository
+
+    @Autowired
+    lateinit var userRepository: UserRepository
 
     fun addTestCharacters() {
         //characterRepository.deleteAll()
@@ -56,5 +61,14 @@ class SystemInit {
                         )
                 )
         ))
+
+        userRepository.save(listOf(
+                User(
+                        username = "test",
+                        password="password",
+                        authorities = "USER"
+                )
+        ))
+
     }
 }
