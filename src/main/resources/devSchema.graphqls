@@ -4,6 +4,7 @@ schema {
 }
 
 type Race {
+    id : ID!
     name: String!
     description: String!
     version: String!
@@ -50,12 +51,18 @@ type Query {
 }
 
 type Mutation {
-    createCharacter( name: String!, abilityPoints: AbilityInput!, race: RaceInput!) : Character!,
+    createCharacter( name: String!, abilityPoints: AbilityInput!, race: RaceInput!) : Character!
     updateName(id: ID!, name: String!): Character
+
+    createRace(name: String!, version: String!,  dsecription: String!): Race!
+    updateRace(id: ID!, name: String!, version: String!, dsecription: String!): Race
 }
 
 extend type Query {
     getCharacterById(id: ID!) : Character
-    getCharactersByName(name: String!): [Character!]!
+    getCharactersByName(name: String!): [Character]!
+    getRaceById(id: ID!): Race
+    getRacesByName(name: String!) : [Race]!
 }
+
 

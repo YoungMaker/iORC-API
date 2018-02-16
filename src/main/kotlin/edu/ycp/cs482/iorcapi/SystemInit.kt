@@ -27,7 +27,7 @@ class SystemInit {
                                 cha = 3
                         ),
                         race = Race(
-                                id = 0,
+                                id = "0",
                                 name = "Orc",
                                 version = "TEST",
                                 description = "TESTORC"
@@ -46,7 +46,7 @@ class SystemInit {
                                 cha = 2
                         ),
                         race = Race(
-                                id = 1,
+                                id = "1",
                                 version = "4e",
                                 name = "Human",
                                 description = "Of all the civilized races, humans are the most adaptable"

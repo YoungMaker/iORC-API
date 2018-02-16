@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoRepositories(basePackages = ["edu.ycp.cs482.iorcapi.repositories"])
 open class ApplicationConfig : AbstractMongoConfiguration(){
     override fun getDatabaseName(): String {
-        return "test"
+        return "iOrcDb"
     }
 
     override fun mongo(): Mongo {

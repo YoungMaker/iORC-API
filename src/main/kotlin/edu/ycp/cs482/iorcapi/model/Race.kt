@@ -6,7 +6,7 @@ import org.springframework.data.annotation.Id
 
 
 data class Race (
-    @Id val id: Int,
+    @Id val id: String,
     val version: String,
     val name: String,
     val description: String,
