@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 
 
-
+//TODO: pasword hashing? Creating user accounts?
 @Component
 class OrcUserDetailsService : UserDetailsService {
 

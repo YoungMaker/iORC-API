@@ -4,7 +4,7 @@ import edu.ycp.cs482.iorcapi.model.attributes.Modifier
 import org.springframework.data.annotation.Id
 
 
-//TODO: add mutators once mutators are implemented.
+
 data class Race (
     @Id val id: Int,
     val version: String,

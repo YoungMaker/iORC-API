@@ -31,7 +31,7 @@ class SecurityConfig(builder : AuthenticationManagerBuilder, userDetailService: 
                 .logout()
                 .permitAll()
 
-        http.authorizeRequests()
+        http.authorizeRequests() //TODO: Secure graphql requests
                 .antMatchers("/graphql").permitAll()
 
         http.csrf().disable() //TODO: PUT THIS BACK BEFORE PRODUCTION
