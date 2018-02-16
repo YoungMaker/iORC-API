@@ -14,7 +14,6 @@ class ExampleController {
     @RequestMapping("/")
     @ResponseBody
     fun index(): String {
-        val character = characterRepository.findByName("Test Man")
-        return character.toString()
+        return "this is the landing page of the iOrc-API. Proceed to /graphiql for active content"
     }
 }
