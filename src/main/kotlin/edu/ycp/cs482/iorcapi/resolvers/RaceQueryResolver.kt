@@ -10,5 +10,5 @@ class RaceQueryResolver(
 ) : GraphQLQueryResolver {
     fun getRaceById(id: String) = detailFactory.getRaceById(id)
     fun getRacesByName(name: String) = detailFactory.getRacesByName(name)
-    fun getAllRaces() = detailFactory.getAllRaces()
+    fun getRacesByVersion(version: String) = detailFactory.getRacesByVersion(version)
 }

@@ -3,6 +3,7 @@ package edu.ycp.cs482.iorcapi.resolvers
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import edu.ycp.cs482.iorcapi.factories.DetailFactory
 import edu.ycp.cs482.iorcapi.model.Race
+import edu.ycp.cs482.iorcapi.model.attributes.Modifier
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import org.springframework.stereotype.Component
 
@@ -14,4 +15,9 @@ class RaceMutationResolver(
             : Race = detailFactory.createNewRace(name, version, description)
     fun updateRace(id: String, name: String, version: String, description: String )
             : Race = detailFactory.updateRace(id, name, version, description)
+
+    fun addRaceModifier(id: String, key: String, value: Int) : Race {
+        val mod = Modifier(key, value)
+        return detailFactory.addRaceModifiers(id, listOf(mod))
+    }
 }

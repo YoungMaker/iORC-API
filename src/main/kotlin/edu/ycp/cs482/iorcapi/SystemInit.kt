@@ -4,6 +4,7 @@ import edu.ycp.cs482.iorcapi.model.Character
 import edu.ycp.cs482.iorcapi.model.attributes.Ability
 import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
+import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -11,6 +12,27 @@ import org.springframework.stereotype.Component
 class SystemInit {
     @Autowired
     lateinit var characterRepository: CharacterRepository
+
+    @Autowired
+    lateinit var raceRepository: RaceRepository
+
+    fun addTestRaces() {
+        raceRepository.save(listOf(
+                Race(
+                        id = "1",
+                        version = "TEST",
+                        name = "Human",
+                        description = "TESTHUMAN"
+                ),
+                Race(
+                        id = "0",
+                        name = "Orc",
+                        version = "TEST",
+                        description = "TESTORC"
+                )
+        ))
+
+    }
 
     fun addTestCharacters() {
         //characterRepository.deleteAll()
@@ -26,12 +48,8 @@ class SystemInit {
                                 wis = 9,
                                 cha = 3
                         ),
-                        race = Race(
-                                id = "0",
-                                name = "Orc",
-                                version = "TEST",
-                                description = "TESTORC"
-                        )
+                        raceid = "0"
+
                 ),
 
                 Character(
@@ -45,15 +63,8 @@ class SystemInit {
                                 wis = 4,
                                 cha = 2
                         ),
-                        race = Race(
-                                id = "1",
-                                version = "4e",
-                                name = "Human",
-                                description = "Of all the civilized races, humans are the most adaptable"
-                                        + " and diverse. Human settlements can be found" +
-                                        "almost anywhere, and human morals, customs, and" +
-                                        "interests vary greatly."
-                        )
+                        raceid = "1"
+
                 )
         ))
     }

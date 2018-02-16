@@ -6,6 +6,8 @@ import org.springframework.data.mongodb.repository.MongoRepository
 interface RaceRepository : MongoRepository<Race, Int> {
     fun findByName(name: String): List<Race>
     fun findByDescription(Description: String): Race
-    override fun findAll(): List<Race>
+    //override fun findAll(): List<Race>
     fun findById(id: String): Race?
+    fun findByVersion(version: String): List<Race>
+    //fun findByNameAndVersion(name: String, version: String): List<Race>
 }

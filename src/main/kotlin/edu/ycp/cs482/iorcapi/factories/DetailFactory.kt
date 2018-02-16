@@ -2,6 +2,7 @@ package edu.ycp.cs482.iorcapi.factories
 
 import edu.ycp.cs482.iorcapi.error.QueryException
 import edu.ycp.cs482.iorcapi.model.Race
+import edu.ycp.cs482.iorcapi.model.attributes.Modifier
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import graphql.ErrorType
 import org.springframework.stereotype.Component
@@ -26,7 +27,20 @@ class DetailFactory(
         return newRace
     }
 
+    fun addRaceModifiers(id : String, mods: List<Modifier>): Race {
+       val race = raceRepository.findById(id) ?: throw QueryException("Race does not exist with that id", ErrorType.DataFetchingException)
+
+        val newRace = Race(id,
+                name = race.name,
+                description = race.description,
+                version = race.version,
+                modifiers = (race.modifiers + mods)) // creates new one based on old one with new modifer(s)
+        raceRepository.save(newRace) // this should write over the old one with the new parameters
+        return newRace
+    }
+
     fun getRaceById(id: String) = raceRepository.findById(id)
     fun getRacesByName(name: String) = raceRepository.findByName(name)
-    fun getAllRaces() = raceRepository.findAll()
+    fun getRacesByVersion(version: String) = raceRepository.findByVersion(version)
+
 }

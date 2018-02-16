@@ -13,6 +13,7 @@ open class IorcApiApplication : CommandLineRunner {
     lateinit var systemInit: SystemInit
 
     override fun run(vararg args: String?) {
+        systemInit.addTestRaces()
         systemInit.addTestCharacters()
     }
 

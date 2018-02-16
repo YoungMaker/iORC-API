@@ -7,8 +7,8 @@ import org.springframework.data.annotation.Id
 
 data class Race (
     @Id val id: String,
-    val version: String,
     val name: String,
     val description: String,
+    val version: String,
     val modifiers: List<Modifier> = listOf<Modifier>()
 )
