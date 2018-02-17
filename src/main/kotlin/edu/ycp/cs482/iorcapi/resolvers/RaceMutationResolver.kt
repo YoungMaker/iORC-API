@@ -13,8 +13,8 @@ class RaceMutationResolver(
              = detailFactory.createNewRace(name, version, description)
     fun updateRace(id: String, name: String, version: String, description: String )
             = detailFactory.updateRace(id, name, version, description)
-    fun addRaceModifier(id: String, key: String, value: Int) =
-            detailFactory.addRaceModifiers(id, hashMapOf(Pair(key.toLowerCase(), value)))
-    fun removeRaceModifier(id: String, key: String) =
-            detailFactory.removeRaceModifier(id, key.toLowerCase())
+//    fun addRaceModifier(id: String, key: String, value: Int) =
+//            detailFactory.addRaceModifiers(id, hashMapOf(Pair(key.toLowerCase(), value)))
+//    fun removeRaceModifier(id: String, key: String) =
+//            detailFactory.removeRaceModifier(id, key.toLowerCase())
 }
