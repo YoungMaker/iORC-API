@@ -10,5 +10,13 @@ data class Race (
     val name: String,
     val description: String,
     val version: String,
-    val modifiers: List<Modifier> = listOf<Modifier>()
+    val modifiers: Map<String, Int> = mapOf()
+)
+
+data class RaceQL(
+        @Id val id: String,
+        val name: String,
+        val description: String,
+        val version: String,
+        val modifiers: List<Modifier> = listOf()
 )

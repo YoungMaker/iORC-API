@@ -65,6 +65,7 @@ type Mutation {
     createRace(name: String!, dsecription: String!, version: String!): Race!
     updateRace(id: ID!, name: String!, version: String!, dsecription: String!): Race
     addRaceModifier(id: ID!, key: String, value: Int): Race
+    removeRaceModifier(id: ID!, key: String!): Race
 }
 
 extend type Query {

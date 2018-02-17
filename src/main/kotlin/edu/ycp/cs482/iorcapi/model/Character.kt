@@ -7,14 +7,12 @@ data class Character( //DB type
         @Id val id: String,
         val name: String,
         val abilityPoints: Ability,
-        val raceid: String,
-        val hp: Int = 0
+        val raceid: String
 )
 
 data class CharacterQL ( //output type
         @Id val id: String,
         val name: String,
         val abilityPoints: Ability,
-        val race: Race,
-        val hp: Int = 0
+        val race: RaceQL
 )
