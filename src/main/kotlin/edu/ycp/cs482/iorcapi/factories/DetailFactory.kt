@@ -119,6 +119,26 @@ class DetailFactory(
         return hydrateClass(newClass)
     }
 
+
+    fun removeClassModifier(id: String, key: String ): ClassQL {
+        val rpgClass = classRepository.findById(id) ?: throw QueryException("Class does not exist with that id", ErrorType.DataFetchingException)
+
+        val newClass = ClassRpg(id,
+                name = rpgClass.name,
+                role = rpgClass.role,
+                description =rpgClass.description,
+                version = rpgClass.version,
+                modifiers = modTools.removeModifier(rpgClass.modifiers, key)) // creates new one based on old one with new modifer(s)
+
+        classRepository.save(newClass) // this should write over the old one with the new parameters
+        return hydrateClass(newClass)
+    }
+
+    fun getClassById(id: String) : ClassQL{
+        val rpgClass = classRepository.findById(id) ?: throw throw QueryException("Race does not exist with that id", ErrorType.DataFetchingException)
+        return hydrateClass(rpgClass)
+    }
+
     fun getClassesByName(name: String) = hydrateClasses(classRepository.findByName(name))
     fun getClassesByVersion(version: String) = hydrateClasses(classRepository.findByVersion(version))
 
@@ -141,6 +161,9 @@ class DetailFactory(
                 version = rpgClass.version,
                 modifiers = outputList)
     }
+
+
+    /** additional helper method **/
 
 
 

@@ -93,6 +93,10 @@ extend type Query {
     getRaceById(id: ID!): Race
     getRacesByName(name: String!) : [Race]!
     getRacesByVersion(version: String!) : [Race]!
+
+    getClassById(id:ID!): Class!
+    getClassesByVersion(version: String): [Class]!
+    getClassesByName(name: String): [Class]!
 }
 
 

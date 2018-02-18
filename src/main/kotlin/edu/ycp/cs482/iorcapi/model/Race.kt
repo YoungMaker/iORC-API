@@ -12,8 +12,9 @@ data class Race(
     val description: String,
     val version: String,
     val modifiers: Map<String, Int> = mapOf(),
-    val type: ObjType = ObjType.RACE
+    val type : ObjType = ObjType.RACE
 )
+
 
 data class RaceQL(
         @Id val id: String,

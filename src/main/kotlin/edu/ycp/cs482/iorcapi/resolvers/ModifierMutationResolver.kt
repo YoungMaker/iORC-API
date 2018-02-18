@@ -20,4 +20,15 @@ class ModifierMutationResolver(
             else -> {null}
         }
     }
+    //TODO: Support list removal/addition for fewer queries
+
+    fun removeModifier(id: String, type: ObjType, key: String): Any? {
+
+        return when(type) {
+            ObjType.RACE -> detailFactory.removeRaceModifier(id, key.toLowerCase())
+            ObjType.CLASS -> detailFactory.removeClassModifier(id, key.toLowerCase())
+        //TODO: Add the rest when implemented
+            else -> {null}
+        }
+    }
 }
