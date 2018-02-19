@@ -24,19 +24,24 @@ class CharacterFactory(
 //        return char
 //    }
 
-    fun createNewCharacter(name: String, abilityPoints: Ability, raceid: String) : CharacterQL {
+    fun createNewCharacter(name: String, abilityPoints: Ability, raceid: String, classid: String) : CharacterQL {
         val race = detailFactory.getRaceById(raceid) //this is to check if it exists, this will throw a query exception
+        val classql = detailFactory.getClassById(classid)
 
-        val char = Character(UUID.randomUUID().toString(), name = name, abilityPoints = abilityPoints, raceid = race.id)
+        val char = Character(UUID.randomUUID().toString(),
+                name = name,
+                abilityPoints = abilityPoints,
+                raceid = race.id,
+                classid = classql.id)
         characterRepo.insert(char)
 
-        return CharacterQL(char.id, char.name, char.abilityPoints, race)
+        return hydrateChar(char)
     }
 
     fun updateName(id: String, name: String) : CharacterQL {
         val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
 
-        val newChar = Character(id, name, char.abilityPoints, char.raceid) // creates new one based on old one
+        val newChar = Character(id, name, char.abilityPoints, char.raceid, char.classid) // creates new one based on old one
         characterRepo.save(newChar) // this should write over the old one with the new name
         return hydrateChar(newChar)
     }
@@ -59,6 +64,7 @@ class CharacterFactory(
     //converts referential persistence object to graphQL full representation
     fun hydrateChar(char: Character) : CharacterQL {
         val race = detailFactory.getRaceById(char.raceid)
-        return CharacterQL(char.id, char.name, char.abilityPoints, race)
+        val classql = detailFactory.getClassById(char.classid)
+        return CharacterQL(char.id, char.name, char.abilityPoints, race, classql)
     }
 }

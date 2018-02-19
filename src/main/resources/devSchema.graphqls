@@ -72,18 +72,18 @@ type Query {
 }
 
 type Mutation {
-    #createCharacter( name: String!, abilityPoints: AbilityInput!, race: RaceInput!) : Character!
+
     updateName(id: ID!, name: String!): Character
-    createCharacter( name: String!, abilityPoints: AbilityInput!, raceid: String!) : Character!
+    createCharacter( name: String!, abilityPoints: AbilityInput!, raceid: String!, classid: String!) : Character!
 
     createRace(name: String!, dsecription: String!, version: String!): Race!
     updateRace(id: ID!, name: String!, version: String!, dsecription: String!): Race
 
     createClass(name: String!, role: String!, version: String!, description: String! ): Class!
     updateClass(id: ID! name: String!, role: String!, version: String!, description: String! ): Class
-    #addRaceModifier(id: ID!, key: String, value: Int): Race
-    #removeRaceModifier(id: ID!, key: String!): Race
+
     addModifier(id: ID!, type: ObjType!, key: String!, value: Int!) : ModifierResult
+    removeModifier(id: ID!, type: ObjType!, key: String!) : ModifierResult
 }
 
 extend type Query {

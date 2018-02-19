@@ -16,7 +16,8 @@ class CharacterMutationResolver(
         private val characterFactory: CharacterFactory
 ) : GraphQLMutationResolver {
     //TODO: add validation so that the scalar values submitted with the AbilityPoints cannot be negative.
-    //fun createCharacter(name: String, abilityPoints: Ability, race: Race ) : Character  = characterFactory.createNewCharacter(name, abilityPoints, race)
-    fun createCharacter(name: String, abilityPoints: Ability, raceid: String ) = characterFactory.createNewCharacter(name, abilityPoints, raceid)
+
+    fun createCharacter(name: String, abilityPoints: Ability, raceid: String, classid: String )
+            = characterFactory.createNewCharacter(name, abilityPoints, raceid, classid)
     fun updateName(id: String, name: String) = characterFactory.updateName(id, name)
 }
