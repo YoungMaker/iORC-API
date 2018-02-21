@@ -1,9 +1,11 @@
 package edu.ycp.cs482.iorcapi
 
 import edu.ycp.cs482.iorcapi.model.Character
+import edu.ycp.cs482.iorcapi.model.ClassRpg
 import edu.ycp.cs482.iorcapi.model.attributes.Ability
 import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
+import edu.ycp.cs482.iorcapi.repositories.ClassRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -16,16 +18,40 @@ class SystemInit {
     @Autowired
     lateinit var raceRepository: RaceRepository
 
+    @Autowired
+    lateinit var classRepository: ClassRepository
+
+    fun addTestClasses() {
+        classRepository.save(listOf(
+                ClassRpg(
+                        id = "1.1",
+                        version = "TEST",
+                        role = "Combatant",
+                        name = "Ranger",
+                        description = "TESTRANGER"
+                ),
+                ClassRpg(
+                        id = "0.1",
+                        name = "Cleric",
+                        role= "Healer",
+                        version = "TEST",
+                        description = "TESTCLERIC"
+                )
+        ))
+
+    }
+
+
     fun addTestRaces() {
         raceRepository.save(listOf(
                 Race(
-                        id = "1",
+                        id = "1.0",
                         version = "TEST",
                         name = "Human",
                         description = "TESTHUMAN"
                 ),
                 Race(
-                        id = "0",
+                        id = "0.0",
                         name = "Orc",
                         version = "TEST",
                         description = "TESTORC"
@@ -48,7 +74,8 @@ class SystemInit {
                                 wis = 9,
                                 cha = 3
                         ),
-                        raceid = "0"
+                        raceid = "0.0",
+                        classid = "0.1"
 
                 ),
 
@@ -63,7 +90,8 @@ class SystemInit {
                                 wis = 4,
                                 cha = 2
                         ),
-                        raceid = "1"
+                        raceid = "1.0",
+                        classid = "1.1"
 
                 )
         ))
