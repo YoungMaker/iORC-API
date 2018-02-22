@@ -10,4 +10,5 @@ interface ClassRepository : MongoRepository<ClassRpg, String> {
     fun findByDescription(Description: String): ClassRpg
     fun findById(id: String): ClassRpg?
     fun findByVersion(version: String): List<ClassRpg>
+    fun findByVersionAndName(version: String, name: String)
 }

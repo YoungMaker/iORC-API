@@ -33,7 +33,7 @@ class CharacterFactory(
                 abilityPoints = abilityPoints,
                 raceid = race.id,
                 classid = classql.id)
-        characterRepo.insert(char)
+        characterRepo.save(char) //should this be insert?
 
         return hydrateChar(char)
     }

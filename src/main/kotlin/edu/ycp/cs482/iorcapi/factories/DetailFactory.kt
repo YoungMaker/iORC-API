@@ -21,7 +21,7 @@ class DetailFactory(
     //TODO: validation?
     fun createNewRace(name: String, description: String, version: String = "") : RaceQL {
         val race = Race(UUID.randomUUID().toString(), name = name, description = description, version = version)
-        raceRepository.save(race)
+        raceRepository.save(race) //should this be insert??
         return hydrateRace(race)
     }
 
