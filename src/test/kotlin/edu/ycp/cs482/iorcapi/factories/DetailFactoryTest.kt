@@ -93,10 +93,11 @@ class DetailFactoryTest {
         assertThat(race.version,  `is`(equalTo("TEST")))
         assertThat(race.description,  `is`(equalTo("TESTHALFELF")))
 
+        //this assumes that the first return will be our own, do not insert anything with this name before here
         val repoRace = raceRepository.findByName("Half-Elf")[0]
 
         assertThat(repoRace, notNullValue())
-        assertThat(race.name, `is`(equalTo(race.name)))
+        assertThat(repoRace.name, `is`(equalTo(race.name)))
         assertThat(repoRace.version,  `is`(equalTo(race.version)))
         assertThat(repoRace.description,  `is`(equalTo(race.description)))
 
@@ -131,6 +132,29 @@ class DetailFactoryTest {
         val raceList = detailFactory.getRacesByVersion("TEST")
         assertThat(raceList.count(), `is`(not(equalTo(0))))
         assert(raceList.containsAll(detailFactory.hydrateRaces(raceRepository.findAll())))
+    }
+
+    @Test
+    fun createNewClass(){
+        val classRpg = detailFactory.createNewClass(
+                name = "Fighter",
+                version = "TEST",
+                role = "DEFENDER",
+                description = "TESTFIGHTER"
+        )
+        assertThat(classRpg.name, `is`(equalTo("Fighter")))
+        assertThat(classRpg.version,  `is`(equalTo("TEST")))
+        assertThat(classRpg.role,  `is`(equalTo("DEFENDER")))
+        assertThat(classRpg.description,  `is`(equalTo("TESTFIGHTER")))
+
+        //this assumes that the first return will be our own, do not insert anything with this name before here
+        val repoClass = classRepository.findByName("Fighter")[0]
+
+        assertThat(repoClass, notNullValue())
+        assertThat(repoClass.name, `is`(equalTo(classRpg.name)))
+        assertThat(repoClass.version,  `is`(equalTo(classRpg.version)))
+        assertThat(repoClass.role,  `is`(equalTo(classRpg.role)))
+        assertThat(repoClass.description,  `is`(equalTo(classRpg.description)))
     }
 
 

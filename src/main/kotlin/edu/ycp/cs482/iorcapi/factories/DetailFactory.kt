@@ -89,7 +89,7 @@ class DetailFactory(
                 version = version,
                 description =  description)
 
-        classRepository.insert(rpgClass)
+        classRepository.save(rpgClass) //should this be insert??
         return hydrateClass(rpgClass)
     }
 
