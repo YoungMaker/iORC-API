@@ -106,17 +106,25 @@ class DetailFactoryTest {
     @Test
     fun getRaceById() {
         val race = detailFactory.getRaceById("0.0")
+        val race2 = detailFactory.getRaceById("1.0")
 
         assertThat(race.name,  `is`(equalTo("Orc")))
         assertThat(race.version,  `is`(equalTo("TEST")))
         assertThat(race.description,  `is`(equalTo("TESTORC")))
         assertThat(race.modifiers[0], `is`(equalTo(Modifier("dex", 2))) )
         assertThat(race.modifiers[1], `is`(equalTo(Modifier("int", 2))) )
+
+        assertThat(race2.name,  `is`(equalTo("Human")))
+        assertThat(race2.version,  `is`(equalTo("TEST")))
+        assertThat(race2.description,  `is`(equalTo("TESTHUMAN")))
+        assertThat(race2.modifiers[0], `is`(equalTo(Modifier("int", 2))) )
+        assertThat(race2.modifiers[1], `is`(equalTo(Modifier("wis", 2))) )
     }
 
     @Test
     fun getRacesByName() {
         val raceList = detailFactory.getRacesByName("Orc")
+        val raceList2 = detailFactory.getRacesByName("Human")
         assertThat(raceList.count(), `is`(not(equalTo(0))))
 
         assertThat(raceList[0].name,  `is`(equalTo("Orc")))
@@ -125,6 +133,11 @@ class DetailFactoryTest {
         assertThat(raceList[0].modifiers[0], `is`(equalTo(Modifier("dex", 2))) )
         assertThat(raceList[0].modifiers[1], `is`(equalTo(Modifier("int", 2))) )
 
+        assertThat(raceList2[0].name, `is`(equalTo("Human")))
+        assertThat(raceList2[0].version, `is`(equalTo("TEST")))
+        assertThat(raceList2[0].description, `is`(equalTo("TESTHUMAN")))
+        assertThat(raceList2[0].modifiers[0], `is`(equalTo(Modifier("int", 2))))
+        assertThat(raceList2[0].modifiers[1], `is`(equalTo(Modifier("wis", 2))))
     }
 
     @Test

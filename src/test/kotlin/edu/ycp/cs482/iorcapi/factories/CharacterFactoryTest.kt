@@ -9,10 +9,13 @@ import edu.ycp.cs482.iorcapi.model.attributes.Ability
 import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
 import edu.ycp.cs482.iorcapi.repositories.ClassRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
+import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
 import org.hamcrest.CoreMatchers
+import org.hamcrest.CoreMatchers.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.springframework.boot.test.context.SpringBootTest
 import org.junit.runner.RunWith
 
 import org.junit.Assert.*
@@ -111,7 +114,9 @@ class CharacterFactoryTest {
     fun createNewCharacter() {
         val character = characterFactory.createNewCharacter(
                 abilityPoints = Ability(13,12,11,15,14,16),
-                name = "Harold"
+                name = "Harold",
+                classid = "Ranger",
+                raceid = "Orc"
         )
         assertThat(character.name, CoreMatchers.`is`(CoreMatchers.equalTo("Harold")))
         assertThat(character.abilityPoints.str, CoreMatchers.`is`(CoreMatchers.equalTo(13)))
@@ -131,6 +136,12 @@ class CharacterFactoryTest {
 
     @Test
     fun getCharacterById() {
+        val character = characterFactory.getCharacterById("1.2")
+
+        assertThat(character.name,  `is`(equalTo("Cregan the Destroyer of Worlds")))
+        assertThat(character.abilityPoints,  `is`(equalTo(Ability(12, 14, 15, 11, 12, 14))))
+        assertThat(character.race.id,  `is`(equalTo("Orc")))
+
     }
 
     @Test
