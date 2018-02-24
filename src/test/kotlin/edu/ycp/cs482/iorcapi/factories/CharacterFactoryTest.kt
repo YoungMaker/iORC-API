@@ -97,15 +97,15 @@ class CharacterFactoryTest {
                         id = "1.2",
                         name = "Cregan the Destroyer of Worlds",
                         abilityPoints = Ability(12, 14,15,11,12,14),
-                        raceid = "Orc",
-                        classid = "Ranger"
+                        raceid = "0.0",
+                        classid = "1.1"
                 ),
                 Character(
                         id = "13.0",
                         name = "Del",
                         abilityPoints = Ability(14, 13,15,17,16,11),
-                        raceid = "Human",
-                        classid = "Cleric"
+                        raceid = "1.0",
+                        classid = "0.1"
                 )
         ))
     }
@@ -115,21 +115,21 @@ class CharacterFactoryTest {
         val character = characterFactory.createNewCharacter(
                 abilityPoints = Ability(13,12,11,15,14,16),
                 name = "Harold",
-                classid = "Ranger",
-                raceid = "Orc"
+                classid = "1.1",
+                raceid = "0.0"
         )
-        assertThat(character.name, CoreMatchers.`is`(CoreMatchers.equalTo("Harold")))
-        assertThat(character.abilityPoints.str, CoreMatchers.`is`(CoreMatchers.equalTo(13)))
-        assertThat(character.abilityPoints.con, CoreMatchers.`is`(CoreMatchers.equalTo(12)))
-        assertThat(character.abilityPoints.dex, CoreMatchers.`is`(CoreMatchers.equalTo(11)))
-        assertThat(character.abilityPoints.int, CoreMatchers.`is`(CoreMatchers.equalTo(15)))
-        assertThat(character.abilityPoints.wis, CoreMatchers.`is`(CoreMatchers.equalTo(14)))
-        assertThat(character.abilityPoints.cha, CoreMatchers.`is`(CoreMatchers.equalTo(16)))
+        assertThat(character.name, CoreMatchers.`is`(equalTo("Harold")))
+        assertThat(character.abilityPoints.str, `is`(equalTo(13)))
+        assertThat(character.abilityPoints.con, `is`(equalTo(12)))
+        assertThat(character.abilityPoints.dex, `is`(equalTo(11)))
+        assertThat(character.abilityPoints.int, `is`(equalTo(15)))
+        assertThat(character.abilityPoints.wis, `is`(equalTo(14)))
+        assertThat(character.abilityPoints.cha, `is`(equalTo(16)))
     }
 
     @Test
     fun updateName() {
-        var nameUpdate = characterFactory.updateName("1.2","Gerald")
+        val nameUpdate = characterFactory.updateName("1.2","Gerald")
         nameUpdate.name
         assertThat(nameUpdate.name, CoreMatchers.`is`(CoreMatchers.equalTo("Gerald")))
     }
@@ -140,7 +140,7 @@ class CharacterFactoryTest {
 
         assertThat(character.name,  `is`(equalTo("Cregan the Destroyer of Worlds")))
         assertThat(character.abilityPoints,  `is`(equalTo(Ability(12, 14, 15, 11, 12, 14))))
-        assertThat(character.race.id,  `is`(equalTo("Orc")))
+        assertThat(character.race.name,  `is`(equalTo("Orc")))
 
     }
 
