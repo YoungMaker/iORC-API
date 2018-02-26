@@ -23,8 +23,6 @@ import org.junit.Assert.*
 
 class CharacterFactoryTest {
 
-    //TODO: Mock the repos required and create a factory instance.
-    //TODO: write tests.
     lateinit var classRepository: ClassRepository
     lateinit var raceRepository: RaceRepository
     lateinit var characterRepository: CharacterRepository

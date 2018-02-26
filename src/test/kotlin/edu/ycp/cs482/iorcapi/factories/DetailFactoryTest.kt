@@ -43,14 +43,17 @@ class DetailFactoryTest {
                         version = "TEST",
                         role = "Combatant",
                         name = "Ranger",
-                        description = "TESTRANGER"
+                        description = "TESTRANGER",
+                        modifiers = mapOf( Pair("hp", 12), Pair("will", 2))
                 ),
                 ClassRpg(
                         id = "0.1",
                         name = "Cleric",
                         role= "Healer",
                         version = "TEST",
-                        description = "TESTCLERIC"
+                        description = "TESTCLERIC",
+                        modifiers = mapOf( Pair("hp", 12), Pair("fort", 2))
+
                 )
         ))
 
@@ -102,6 +105,40 @@ class DetailFactoryTest {
         assertThat(repoRace.description,  `is`(equalTo(race.description)))
 
     }
+    @Test
+    fun updateRace(){
+        val race = detailFactory.updateRace(
+                id = "1.0",
+                version = "TEST",
+                name = "Human",
+                description = "TESTHUMAN1"
+        )
+
+        assertThat(race.name, `is`(equalTo("Human")))
+        assertThat(race.version,  `is`(equalTo("TEST")))
+        assertThat(race.description,  `is`(equalTo("TESTHUMAN1")))
+
+        //this assumes that the first return will be our own, do not insert anything with this name before here
+        val repoRace = raceRepository.findByName("Human")[0]
+
+        assertThat(repoRace, notNullValue())
+        assertThat(repoRace.name, `is`(equalTo(race.name)))
+        assertThat(repoRace.version,  `is`(equalTo(race.version)))
+        assertThat(repoRace.description,  `is`(equalTo(race.description)))
+
+
+        val raceRevert = detailFactory.updateRace(
+                id = "1.0",
+                version = "TEST",
+                name = "Human",
+                description = "TESTHUMAN"
+        )
+
+        assertThat(raceRevert.name, `is`(equalTo("Human")))
+        assertThat(raceRevert.version,  `is`(equalTo("TEST")))
+        assertThat(raceRevert.description,  `is`(equalTo("TESTHUMAN")))
+
+    }
 
     @Test
     fun getRaceById() {
@@ -111,14 +148,14 @@ class DetailFactoryTest {
         assertThat(race.name,  `is`(equalTo("Orc")))
         assertThat(race.version,  `is`(equalTo("TEST")))
         assertThat(race.description,  `is`(equalTo("TESTORC")))
-        assertThat(race.modifiers[0], `is`(equalTo(Modifier("dex", 2))) )
-        assertThat(race.modifiers[1], `is`(equalTo(Modifier("int", 2))) )
+        assertThat(race.modifiers.contains(Modifier("dex", 2)), `is`(true))
+        assertThat(race.modifiers.contains(Modifier("int", 2)), `is`(true))
 
         assertThat(race2.name,  `is`(equalTo("Human")))
         assertThat(race2.version,  `is`(equalTo("TEST")))
         assertThat(race2.description,  `is`(equalTo("TESTHUMAN")))
-        assertThat(race2.modifiers[0], `is`(equalTo(Modifier("int", 2))) )
-        assertThat(race2.modifiers[1], `is`(equalTo(Modifier("wis", 2))) )
+        assertThat(race2.modifiers.contains(Modifier("wis", 2)), `is`(true))
+        assertThat(race2.modifiers.contains(Modifier("int", 2)), `is`(true))
     }
 
     @Test
@@ -130,14 +167,14 @@ class DetailFactoryTest {
         assertThat(raceList[0].name,  `is`(equalTo("Orc")))
         assertThat(raceList[0].version,  `is`(equalTo("TEST")))
         assertThat(raceList[0].description,  `is`(equalTo("TESTORC")))
-        assertThat(raceList[0].modifiers[0], `is`(equalTo(Modifier("dex", 2))) )
-        assertThat(raceList[0].modifiers[1], `is`(equalTo(Modifier("int", 2))) )
+        assertThat(raceList[0].modifiers.contains(Modifier("dex", 2)), `is`(true))
+        assertThat(raceList[0].modifiers.contains(Modifier("int", 2)), `is`(true))
 
         assertThat(raceList2[0].name, `is`(equalTo("Human")))
         assertThat(raceList2[0].version, `is`(equalTo("TEST")))
         assertThat(raceList2[0].description, `is`(equalTo("TESTHUMAN")))
-        assertThat(raceList2[0].modifiers[0], `is`(equalTo(Modifier("int", 2))))
-        assertThat(raceList2[0].modifiers[1], `is`(equalTo(Modifier("wis", 2))))
+        assertThat(raceList2[0].modifiers.contains(Modifier("wis", 2)), `is`(true))
+        assertThat(raceList2[0].modifiers.contains(Modifier("int", 2)), `is`(true))
     }
 
     @Test
@@ -170,5 +207,137 @@ class DetailFactoryTest {
         assertThat(repoClass.description,  `is`(equalTo(classRpg.description)))
     }
 
+    @Test
+    fun updateClass(){
+        val classRpg = detailFactory.updateClass(
+                id = "0.1",
+                name = "Cleric",
+                role= "Healer",
+                version = "TEST",
+                description = "TESTCLERIC2"
+        )
+
+        assertThat(classRpg.name, `is`(equalTo("Cleric")))
+        assertThat(classRpg.version,  `is`(equalTo("TEST")))
+        assertThat(classRpg.description,  `is`(equalTo("TESTCLERIC2")))
+
+        //this assumes that the first return will be our own, do not insert anything with this name before here
+        val repoClassRpg = classRepository.findByName("Cleric")[0]
+
+        assertThat(repoClassRpg, notNullValue())
+        assertThat(repoClassRpg.name, `is`(equalTo(classRpg.name)))
+        assertThat(repoClassRpg.version,  `is`(equalTo(classRpg.version)))
+        assertThat(repoClassRpg.description,  `is`(equalTo(classRpg.description)))
+
+
+        val classRevert = detailFactory.updateClass(
+                id = "0.1",
+                name = "Cleric",
+                role= "Healer",
+                version = "TEST",
+                description = "TESTCLERIC"
+        )
+        assertThat(classRevert.name, `is`(equalTo("Cleric")))
+        assertThat(classRevert.version,  `is`(equalTo("TEST")))
+        assertThat(classRevert.description,  `is`(equalTo("TESTCLERIC")))
+
+    }
+    @Test
+    fun getClassById(){
+        val classRpg = detailFactory.getClassById("1.1")
+        val classRpg2 = detailFactory.getClassById("0.1")
+
+        assertThat(classRpg.name,  `is`(equalTo("Ranger")))
+        assertThat(classRpg.version,  `is`(equalTo("TEST")))
+        assertThat(classRpg.description,  `is`(equalTo("TESTRANGER")))
+        assertThat(classRpg.role, `is`(equalTo("Combatant")))
+        assertThat(classRpg.modifiers.contains(Modifier("hp", 12)), `is`(true))
+        assertThat(classRpg.modifiers.contains(Modifier("will", 2)), `is`(true))
+
+        assertThat(classRpg2.name,  `is`(equalTo("Cleric")))
+        assertThat(classRpg2.version,  `is`(equalTo("TEST")))
+        assertThat(classRpg2.description,  `is`(equalTo("TESTCLERIC")))
+        assertThat(classRpg2.role, `is`(equalTo("Healer")))
+        assertThat(classRpg2.modifiers.contains(Modifier("hp", 12)), `is`(true))
+        assertThat(classRpg2.modifiers.contains(Modifier("fort", 2)), `is`(true))
+    }
+
+
+    @Test
+    fun getClassesByName(){
+        val classRpgList1 = detailFactory.getClassesByName("Ranger")
+        val classRpgList2 = detailFactory.getClassesByName("Cleric")
+
+        assertThat(classRpgList1.count(), `is`(not(equalTo(0))))
+        assertThat(classRpgList1.count(), `is`(not(equalTo(0))))
+
+        val classRpg = classRpgList1[0]
+        val classRpg2 = classRpgList2[0]
+
+        assertThat(classRpg.name,  `is`(equalTo("Ranger")))
+        assertThat(classRpg.version,  `is`(equalTo("TEST")))
+        assertThat(classRpg.description,  `is`(equalTo("TESTRANGER")))
+        assertThat(classRpg.role, `is`(equalTo("Combatant")))
+        assertThat(classRpg.modifiers.contains(Modifier("hp", 12)), `is`(true))
+        assertThat(classRpg.modifiers.contains(Modifier("will", 2)), `is`(true))
+
+        assertThat(classRpg2.name,  `is`(equalTo("Cleric")))
+        assertThat(classRpg2.version,  `is`(equalTo("TEST")))
+        assertThat(classRpg2.description,  `is`(equalTo("TESTCLERIC")))
+        assertThat(classRpg2.role, `is`(equalTo("Healer")))
+        assertThat(classRpg2.modifiers.contains(Modifier("hp", 12)), `is`(true))
+        assertThat(classRpg2.modifiers.contains(Modifier("fort", 2)), `is`(true))
+    }
+
+    @Test
+    fun getClassesByVersion() {
+        val classList = detailFactory.getClassesByVersion("TEST")
+        assertThat(classList.count(), `is`(not(equalTo(0))))
+        assert(classList.containsAll(detailFactory.hydrateClasses(classRepository.findAll())))
+    }
+
+    @Test
+    fun addRemoveModifiers(){
+        val race = detailFactory.addRaceModifiers("0.0", hashMapOf(Pair("wis", 2)))
+
+        assertThat(race.modifiers.count(), `is`(equalTo(3)) )
+
+        assertThat(race.name,  `is`(equalTo("Orc")))
+        assertThat(race.version,  `is`(equalTo("TEST")))
+        assertThat(race.description,  `is`(equalTo("TESTORC")))
+        assertThat(race.modifiers.contains(Modifier("wis", 2)), `is`(true))
+        assertThat(race.modifiers.contains(Modifier("dex", 2)), `is`(true))
+        assertThat(race.modifiers.contains(Modifier("int", 2)), `is`(true))
+
+        val race2 = detailFactory.removeRaceModifier("0.0", "wis")
+
+
+        assertThat(race2.modifiers.count(), `is`(equalTo(2)) )
+
+        assertThat(race2.modifiers.contains(Modifier("dex", 2)), `is`(true))
+        assertThat(race2.modifiers.contains(Modifier("int", 2)), `is`(true))
+        assertThat(race2.modifiers.contains(Modifier("wis", 2)), `is`(false))
+
+        val classRpg = detailFactory.addClassModifiers("1.1", hashMapOf(Pair("wis", 2)))
+
+        assertThat(classRpg.modifiers.count(), `is`(equalTo(3)) )
+
+        assertThat(classRpg.name,  `is`(equalTo("Ranger")))
+        assertThat(classRpg.version,  `is`(equalTo("TEST")))
+        assertThat(classRpg.description,  `is`(equalTo("TESTRANGER")))
+        assertThat(classRpg.role, `is`(equalTo("Combatant")))
+        assertThat(classRpg.modifiers.contains(Modifier("hp", 12)), `is`(true))
+        assertThat(classRpg.modifiers.contains(Modifier("will", 2)), `is`(true))
+        assertThat(classRpg.modifiers.contains(Modifier("wis", 2)), `is`(true))
+
+        val classRpg2 = detailFactory.removeClassModifier("1.1", "wis")
+
+        assertThat(classRpg2.modifiers.count(), `is`(equalTo(2)) )
+        assertThat(classRpg2.modifiers.contains(Modifier("hp", 12)), `is`(true))
+        assertThat(classRpg2.modifiers.contains(Modifier("will", 2)), `is`(true))
+        assertThat(classRpg2.modifiers.contains(Modifier("wis", 2)), `is`(false))
+
+
+    }
 
 }
