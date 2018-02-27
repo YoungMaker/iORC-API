@@ -5,7 +5,7 @@ import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.model.attributes.Ability
 import org.springframework.data.mongodb.repository.MongoRepository
 
-interface CharacterRepository : MongoRepository<Character, Int> { //TODO: Should the second parpameter be string?
+interface CharacterRepository : MongoRepository<Character, String> {
     fun findByName(name: String): List<Character>
     fun findById(id: String): Character?
 }
