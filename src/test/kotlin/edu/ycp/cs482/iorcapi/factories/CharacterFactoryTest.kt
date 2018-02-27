@@ -116,6 +116,7 @@ class CharacterFactoryTest {
                 classid = "1.1",
                 raceid = "0.0"
         )
+        val classRpg = detailFactory.getClassById("1.1")
         assertThat(character.name, CoreMatchers.`is`(equalTo("Harold")))
         assertThat(character.abilityPoints.str, `is`(equalTo(13)))
         assertThat(character.abilityPoints.con, `is`(equalTo(12)))
@@ -123,13 +124,13 @@ class CharacterFactoryTest {
         assertThat(character.abilityPoints.int, `is`(equalTo(15)))
         assertThat(character.abilityPoints.wis, `is`(equalTo(14)))
         assertThat(character.abilityPoints.cha, `is`(equalTo(16)))
+        assertThat(character.classql, `is`(equalTo(classRpg)))
     }
 
     @Test
     fun updateName() {
         val nameUpdate = characterFactory.updateName("1.2","Gerald")
-        nameUpdate.name
-        assertThat(nameUpdate.name, CoreMatchers.`is`(CoreMatchers.equalTo("Gerald")))
+        assertThat(nameUpdate.name, `is`(equalTo("Gerald")))
     }
 
     @Test
@@ -144,6 +145,16 @@ class CharacterFactoryTest {
 
     @Test
     fun getCharactersByName() {
+        val characterList = characterFactory.getCharactersByName("Cregan the Destroyer of Worlds")
+
+        assertThat(characterList.count(), `is`(equalTo(1)))
+
+        val character = characterList[0]
+
+        assertThat(character.name,  `is`(equalTo("Cregan the Destroyer of Worlds")))
+        assertThat(character.abilityPoints,  `is`(equalTo(Ability(12, 14, 15, 11, 12, 14))))
+        assertThat(character.race.name,  `is`(equalTo("Orc")))
+
     }
 
 
