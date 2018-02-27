@@ -60,9 +60,11 @@ union ModifierResult = Race | Class
 
 type Character {
     id: ID!
+    version: String!
     name: String!
     abilityPoints: Ability!
     race: Race
+    classql: Class
 }
 
 
@@ -74,7 +76,7 @@ type Query {
 type Mutation {
 
     updateName(id: ID!, name: String!): Character
-    createCharacter( name: String!, abilityPoints: AbilityInput!, raceid: String!, classid: String!) : Character!
+    createCharacter( name: String!, abilityPoints: AbilityInput!, raceid: String!, classid: String!, version: String!) : Character!
 
     createRace(name: String!, dsecription: String!, version: String!): Race!
     updateRace(id: ID!, name: String!, version: String!, dsecription: String!): Race

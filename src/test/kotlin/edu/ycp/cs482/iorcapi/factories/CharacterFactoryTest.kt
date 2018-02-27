@@ -55,14 +55,17 @@ class CharacterFactoryTest {
                         version = "TEST",
                         role = "Combatant",
                         name = "Ranger",
-                        description = "TESTRANGER"
+                        description = "TESTRANGER",
+                        modifiers = mapOf( Pair("hp", 12), Pair("will", 2))
                 ),
                 ClassRpg(
                         id = "0.1",
                         name = "Cleric",
                         role= "Healer",
                         version = "TEST",
-                        description = "TESTCLERIC"
+                        description = "TESTCLERIC",
+                        modifiers = mapOf( Pair("hp", 12), Pair("fort", 2))
+
                 )
         ))
 
@@ -96,14 +99,16 @@ class CharacterFactoryTest {
                         name = "Cregan the Destroyer of Worlds",
                         abilityPoints = Ability(12, 14,15,11,12,14),
                         raceid = "0.0",
-                        classid = "1.1"
+                        classid = "1.1",
+                        version = "TEST"
                 ),
                 Character(
                         id = "13.0",
                         name = "Del",
                         abilityPoints = Ability(14, 13,15,17,16,11),
                         raceid = "1.0",
-                        classid = "0.1"
+                        classid = "0.1",
+                        version = "TEST"
                 )
         ))
     }
@@ -114,7 +119,8 @@ class CharacterFactoryTest {
                 abilityPoints = Ability(13,12,11,15,14,16),
                 name = "Harold",
                 classid = "1.1",
-                raceid = "0.0"
+                raceid = "0.0",
+                version = "TEST"
         )
         val classRpg = detailFactory.getClassById("1.1")
         assertThat(character.name, CoreMatchers.`is`(equalTo("Harold")))

@@ -14,6 +14,7 @@ open class IorcApiApplication : CommandLineRunner {
 
     override fun run(vararg args: String?) {
         systemInit.addTestRaces()
+        systemInit.addTestClasses()
         systemInit.addTestCharacters()
     }
 

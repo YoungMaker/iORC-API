@@ -21,6 +21,8 @@ class SystemInit {
     @Autowired
     lateinit var classRepository: ClassRepository
 
+
+
     fun addTestClasses() {
         classRepository.save(listOf(
                 ClassRpg(
@@ -28,14 +30,17 @@ class SystemInit {
                         version = "TEST",
                         role = "Combatant",
                         name = "Ranger",
-                        description = "TESTRANGER"
+                        description = "TESTRANGER",
+                        modifiers = mapOf( Pair("hp", 12), Pair("will", 2))
                 ),
                 ClassRpg(
                         id = "0.1",
                         name = "Cleric",
                         role= "Healer",
                         version = "TEST",
-                        description = "TESTCLERIC"
+                        description = "TESTCLERIC",
+                        modifiers = mapOf( Pair("hp", 12), Pair("fort", 2))
+
                 )
         ))
 
@@ -48,13 +53,15 @@ class SystemInit {
                         id = "1.0",
                         version = "TEST",
                         name = "Human",
-                        description = "TESTHUMAN"
+                        description = "TESTHUMAN",
+                        modifiers = mapOf( Pair("int", 2), Pair("wis", 2))
                 ),
                 Race(
                         id = "0.0",
                         name = "Orc",
                         version = "TEST",
-                        description = "TESTORC"
+                        description = "TESTORC",
+                        modifiers = mapOf( Pair("dex", 2), Pair("int", 2))
                 )
         ))
 
@@ -75,7 +82,8 @@ class SystemInit {
                                 cha = 3
                         ),
                         raceid = "0.0",
-                        classid = "0.1"
+                        classid = "0.1",
+                        version = "TEST"
 
                 ),
 
@@ -91,8 +99,8 @@ class SystemInit {
                                 cha = 2
                         ),
                         raceid = "1.0",
-                        classid = "1.1"
-
+                        classid = "1.1",
+                        version = "TEST"
                 )
         ))
     }
