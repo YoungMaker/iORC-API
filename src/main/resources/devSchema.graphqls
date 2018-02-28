@@ -14,7 +14,7 @@ enum ObjType {
     ITEM_MISC
 }
 type Stat{
-    id: String!
+    name: String!
     description: String!
     modifiers: [Modifier]
 }
@@ -88,8 +88,8 @@ type Mutation {
     updateName(id: ID!, name: String!): Character
     createCharacter( name: String!, abilityPoints: AbilityInput!, raceid: String!, classid: String!, version: String!) : Character!
 
-    createRace(name: String!, dsecription: String!, version: String!): Race!
-    updateRace(id: ID!, name: String!, version: String!, dsecription: String!): Race
+    createRace(name: String!, description: String!, version: String!): Race!
+    updateRace(id: ID!, name: String!, version: String!, description: String!): Race
 
     createClass(name: String!, role: String!, version: String!, description: String! ): Class!
     updateClass(id: ID! name: String!, role: String!, version: String!, description: String! ): Class
@@ -98,8 +98,8 @@ type Mutation {
     removeModifier(id: ID!, type: ObjType!, key: String!) : ModifierResult
 
     addStatToVersion(name: String!, description: String!, version: String!) : Version
-    addStatBaseCalcModifier(id: String!, key: String!, value: Float!): Stat
-    removeStatBaseCalcModifier(id: String!, key: String!): Stat
+    addStatBaseCalcModifier(name: String!, version: String!, key: String!, value: Float!): Stat
+    removeStatBaseCalcModifier(name: String!, version: String!, key: String!): Stat
 }
 
 extend type Query {

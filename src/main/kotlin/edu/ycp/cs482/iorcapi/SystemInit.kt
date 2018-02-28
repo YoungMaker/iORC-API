@@ -7,6 +7,7 @@ import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
 import edu.ycp.cs482.iorcapi.repositories.ClassRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
+import edu.ycp.cs482.iorcapi.repositories.StatRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -20,7 +21,6 @@ class SystemInit {
 
     @Autowired
     lateinit var classRepository: ClassRepository
-
 
 
     fun addTestClasses() {

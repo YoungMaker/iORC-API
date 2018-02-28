@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id
 class Stat(
         @Id
         val id: String,
+        val name: String,
         val description: String,
         val version: String,
         modifiers: Map<String, Float> = mapOf()
@@ -12,9 +13,9 @@ class Stat(
 
 
 data class StatQL( //doesn't need version because it will be added to the version object sent out to QL
-        private val id: String,
+        private val name: String,
         private val description: String,
         private val modifiers: List<Modifier>
 ){
-    constructor(stat: Stat) : this(stat.id, stat.description, stat.convertToModifiers())
+    constructor(stat: Stat) : this(stat.name, stat.description, stat.convertToModifiers())
 }

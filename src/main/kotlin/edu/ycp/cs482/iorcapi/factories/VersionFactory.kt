@@ -13,22 +13,22 @@ class VersionFactory(
         private val statRepository: StatRepository
 ) {
 
-    fun addStatToVersion(id: String, description: String, version: String): Version {
-        val stat = Stat(id, description, version)
+    fun addStatToVersion(name: String, description: String, version: String): Version {
+        val stat = Stat((name+version), name, description, version)
         statRepository.save(stat)
         return constructVersionSheet(version)
     }
 
-    fun addStatModifiers(id : String, mods: HashMap<String, Float>): StatQL {
-        val stat = statRepository.findById(id) ?: throw QueryException("Stat does not exist with that id", ErrorType.DataFetchingException)
+    fun addStatModifiers(name : String, version: String, mods: HashMap<String, Float>): StatQL {
+        val stat = statRepository.findById((name+version)) ?: throw QueryException("Stat does not exist with that id", ErrorType.DataFetchingException)
 
         stat.unionModifiers(mods)
         statRepository.save(stat) // this should write over the old one with the new parameters
         return StatQL(stat)
     }
 
-    fun removeStatModifier(id: String, key: String): StatQL {
-        val stat = statRepository.findById(id) ?: throw QueryException("Stat does not exist with that id", ErrorType.DataFetchingException)
+    fun removeStatModifier(name : String, version: String,  key: String): StatQL {
+        val stat = statRepository.findById((name+version)) ?: throw QueryException("Stat does not exist with that id", ErrorType.DataFetchingException)
 
         stat.removeModifier(key)
         statRepository.save(stat) // this should write over the old one with the new parameters

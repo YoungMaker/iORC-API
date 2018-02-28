@@ -9,11 +9,12 @@ class VersionMutationResolver(
         private val versionFactory: VersionFactory
 ): GraphQLMutationResolver{
     fun addStatToVersion(name: String, description: String, version: String)
-            = versionFactory.addStatToVersion(name, description,version)
+            = versionFactory.addStatToVersion(name.toLowerCase(), description, version.toLowerCase())
 
-    fun addStatBaseCalcModifier(name: String, key: String, value: Float)
-            = versionFactory.addStatModifiers(name, hashMapOf(Pair(key.toLowerCase(), value)))
+    fun addStatBaseCalcModifier(name: String, version: String, key: String, value: Float)
+            = versionFactory.addStatModifiers(name.toLowerCase(), version.toLowerCase(),
+                                                    hashMapOf(Pair(key.toLowerCase(), value)))
 
-    fun removeStatBaseCalcModifier(name: String, key: String)
-            = versionFactory.removeStatModifier(name, key)
+    fun removeStatBaseCalcModifier(name: String, version: String, key: String)
+            = versionFactory.removeStatModifier(name.toLowerCase(), version.toLowerCase(), key)
 }
