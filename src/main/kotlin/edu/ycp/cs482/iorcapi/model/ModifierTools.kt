@@ -6,14 +6,14 @@ import org.springframework.stereotype.Component
 @Component
 class ModTools{
 
-    fun unionModifiers(modifiers: Map<String, Int>, mods: Map<String, Int>): Map<String, Int> {
-        val finalMods = HashMap<String, Int>(modifiers)
+    fun unionModifiers(modifiers: Map<String, Float>, mods: Map<String, Float>): Map<String, Float> {
+        val finalMods = HashMap<String, Float>(modifiers)
         finalMods.putAll(mods)
         return finalMods
     }
 
-    fun removeModifiers(modifiers: Map<String, Int>, mods: Map<String, Int>): Map<String, Int> {
-        val finalMods = HashMap<String, Int>(modifiers)
+    fun removeModifiers(modifiers: Map<String, Float>, mods: Map<String, Float>): Map<String, Float> {
+        val finalMods = HashMap<String, Float>(modifiers)
         for((key, value) in mods) {
             if(finalMods.containsKey(key))
                 finalMods.remove(key)
@@ -21,12 +21,12 @@ class ModTools{
         return finalMods
     }
 
-    fun removeModifier(modifiers: Map<String, Int>, key: String): Map<String, Int> {
-        val rMap = mapOf(Pair(key, 0))
+    fun removeModifier(modifiers: Map<String, Float>, key: String): Map<String, Float> {
+        val rMap = mapOf(Pair(key, 0.0f))
         return removeModifiers(modifiers,rMap)
     }
 
-    fun convertToModifiers(modifiers: Map<String, Int>) : List<Modifier> {
+    fun convertToModifiers(modifiers: Map<String, Float>) : List<Modifier> {
         val outputList = mutableListOf<Modifier>()
         for((key, value) in  modifiers) {
             outputList.add(Modifier(key, value))

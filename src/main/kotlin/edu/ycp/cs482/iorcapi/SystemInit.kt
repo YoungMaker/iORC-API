@@ -31,7 +31,7 @@ class SystemInit {
                         role = "Combatant",
                         name = "Ranger",
                         description = "TESTRANGER",
-                        modifiers = mapOf( Pair("hp", 12), Pair("will", 2))
+                        modifiers = mapOf( Pair("hp", 12f), Pair("will", 2f))
                 ),
                 ClassRpg(
                         id = "0.1",
@@ -39,7 +39,7 @@ class SystemInit {
                         role= "Healer",
                         version = "TEST",
                         description = "TESTCLERIC",
-                        modifiers = mapOf( Pair("hp", 12), Pair("fort", 2))
+                        modifiers = mapOf( Pair("hp", 12f), Pair("fort", 2f))
 
                 )
         ))
@@ -54,14 +54,14 @@ class SystemInit {
                         version = "TEST",
                         name = "Human",
                         description = "TESTHUMAN",
-                        modifiers = mapOf( Pair("int", 2), Pair("wis", 2))
+                        modifiers = mapOf( Pair("int", 2f), Pair("wis", 2f))
                 ),
                 Race(
                         id = "0.0",
                         name = "Orc",
                         version = "TEST",
                         description = "TESTORC",
-                        modifiers = mapOf( Pair("dex", 2), Pair("int", 2))
+                        modifiers = mapOf( Pair("dex", 2f), Pair("int", 2f))
                 )
         ))
 

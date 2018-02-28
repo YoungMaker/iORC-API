@@ -12,7 +12,7 @@ class Race(
     val name: String,
     val description: String,
     val version: String,
-    modifiers: Map<String, Int> = mapOf(),
+    modifiers: Map<String, Float> = mapOf(),
     val type : ObjType = ObjType.RACE
 ) : Modifiable(modifiers)
 

@@ -13,10 +13,20 @@ enum ObjType {
     ITEM_ARMOR,
     ITEM_MISC
 }
+type Stat{
+    id: String!
+    description: String!
+    modifiers: [Modifier]
+}
+
+type Version{
+    version: String!
+    stats: [Stat]
+}
 
 type Modifier {
     key: String!
-    value: Int!
+    value: Float!
 }
 
 type Race {
@@ -86,6 +96,10 @@ type Mutation {
 
     addModifier(id: ID!, type: ObjType!, key: String!, value: Int!) : ModifierResult
     removeModifier(id: ID!, type: ObjType!, key: String!) : ModifierResult
+
+    addStatToVersion(name: String!, description: String!, version: String!) : Version
+    addStatBaseCalcModifier(id: String!, key: String!, value: Float!): Stat
+    removeStatBaseCalcModifier(id: String!, key: String!): Stat
 }
 
 extend type Query {
@@ -99,6 +113,8 @@ extend type Query {
     getClassById(id:ID!): Class!
     getClassesByVersion(version: String): [Class]!
     getClassesByName(name: String): [Class]!
+
+    getVersionSheet(version: String!): Version
 }
 
 

@@ -34,7 +34,7 @@ class DetailFactory(
         return RaceQL(newRace)
     }
 
-    fun addRaceModifiers(id : String, mods: HashMap<String, Int>): RaceQL {
+    fun addRaceModifiers(id : String, mods: HashMap<String, Float>): RaceQL {
        val race = raceRepository.findById(id) ?: throw QueryException("Race does not exist with that id", ErrorType.DataFetchingException)
 
         race.unionModifiers(mods)
@@ -98,7 +98,7 @@ class DetailFactory(
         return ClassQL(rpgClass)
     }
 
-    fun addClassModifiers(id: String, mods: HashMap<String, Int>): ClassQL {
+    fun addClassModifiers(id: String, mods: HashMap<String, Float>): ClassQL {
         val rpgClass = classRepository.findById(id) ?: throw QueryException("Class does not exist with that id", ErrorType.DataFetchingException)
 
         rpgClass.unionModifiers(mods)

@@ -3,16 +3,16 @@ package edu.ycp.cs482.iorcapi.model.attributes
 import org.springframework.data.annotation.Id
 
 open class Modifiable(
-        var modifiers: Map<String, Int> = mapOf()
+        var modifiers: Map<String, Float> = mapOf()
 ) {
-    fun unionModifiers(mods: Map<String, Int>){
-        val finalMods = HashMap<String, Int>(modifiers)
+    fun unionModifiers(mods: Map<String, Float>){
+        val finalMods = HashMap<String, Float>(modifiers)
         finalMods.putAll(mods)
         modifiers = finalMods
     }
 
-    fun removeModifiers(mods: Map<String, Int>){
-        val finalMods = HashMap<String, Int>(modifiers)
+    fun removeModifiers(mods: Map<String, Float>){
+        val finalMods = HashMap<String, Float>(modifiers)
         for((key, value) in mods) {
             if(finalMods.containsKey(key))
                 finalMods.remove(key)
@@ -21,7 +21,7 @@ open class Modifiable(
     }
 
     fun removeModifier(key: String) {
-        val rMap = mapOf(Pair(key, 0))
+        val rMap = mapOf(Pair(key, 0.0f))
          removeModifiers(rMap)
     }
 
@@ -34,9 +34,10 @@ open class Modifiable(
     }
 }
 
+//these are now floats because we have multiplier modifiers for the stat sheet.
 //stores modifiers in key,value format. such as "AC",+5
 data class Modifier(
        // @Id val id: String,
         val key: String,
-        val value: Int
+        val value: Float
 )

@@ -10,7 +10,7 @@ class ClassRpg (
         val name: String,
         val role: String,
         val description: String,
-        modifiers: Map<String, Int> = mapOf(),
+        modifiers: Map<String, Float> = mapOf(),
         val version: String,
         val type: ObjType = ObjType.CLASS
 
