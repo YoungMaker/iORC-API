@@ -10,6 +10,8 @@ import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
 import edu.ycp.cs482.iorcapi.repositories.ClassRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
+import edu.ycp.cs482.iorcapi.model.attributes.Stat
+import edu.ycp.cs482.iorcapi.repositories.StatRepository
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.*
 import org.junit.After
@@ -28,16 +30,21 @@ class CharacterFactoryTest {
     lateinit var characterRepository: CharacterRepository
     lateinit var characterFactory: CharacterFactory
     lateinit var detailFactory: DetailFactory
+    lateinit var statRepository: StatRepository
+    lateinit var versionFactory: VersionFactory
 
     @Before
     fun setUp() {
         classRepository = RepositoryFactoryBuilder.builder().mock(ClassRepository::class.java)
         raceRepository = RepositoryFactoryBuilder.builder().mock(RaceRepository::class.java)
         characterRepository = RepositoryFactoryBuilder.builder().mock(CharacterRepository::class.java)
+        statRepository = RepositoryFactoryBuilder.builder().mock(StatRepository::class.java)
+        versionFactory = VersionFactory(statRepository)
+        addTestVersion()
         addTestClasses()
         addTestRaces()
         addTestCharacters()
-        detailFactory = DetailFactory(raceRepository, classRepository, ModTools())
+        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory)
         characterFactory = CharacterFactory(characterRepository, detailFactory)
     }
 
@@ -46,6 +53,34 @@ class CharacterFactoryTest {
         characterRepository.deleteAll()
         classRepository.deleteAll()
         raceRepository.deleteAll()
+    }
+
+
+    fun addTestVersion(){
+        versionFactory.initializeVersion("TEST")
+        statRepository.save(listOf(
+                Stat(
+                        id= "hpTEST",
+                        name= "hp",
+                        description = "health points",
+                        version = "TEST",
+                        skill = false
+                ),
+                Stat(
+                        id= "willTEST",
+                        name= "will",
+                        description = "Willpower",
+                        version = "TEST",
+                        skill = false
+                ),
+                Stat(
+                        id= "fortTEST",
+                        name= "fort",
+                        description = "Fortitude",
+                        version = "TEST",
+                        skill = false
+                )
+        ))
     }
 
     fun addTestClasses() {

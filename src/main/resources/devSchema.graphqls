@@ -16,6 +16,7 @@ enum ObjType {
 type Stat{
     name: String!
     description: String!
+    skill: Boolean
     modifiers: [Modifier]
 }
 
@@ -97,7 +98,7 @@ type Mutation {
     addModifier(id: ID!, type: ObjType!, key: String!, value: Int!) : ModifierResult
     removeModifier(id: ID!, type: ObjType!, key: String!) : ModifierResult
 
-    addStatToVersion(name: String!, description: String!, version: String!) : Version
+    addStatToVersion(name: String!, description: String!, version: String!, skill: Boolean!) : Version
     addStatBaseCalcModifier(name: String!, version: String!, key: String!, value: Float!): Stat
     removeStatBaseCalcModifier(name: String!, version: String!, key: String!): Stat
 }
@@ -115,6 +116,7 @@ extend type Query {
     getClassesByName(name: String): [Class]!
 
     getVersionSheet(version: String!): Version
+    getVersionSkills(version: String!): Version
 }
 
 

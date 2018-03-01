@@ -14,7 +14,7 @@ import java.util.UUID
 class DetailFactory(
     private val raceRepository: RaceRepository,
     private val classRepository: ClassRepository,
-    private val modTools: ModTools
+    private val versionFactory: VersionFactory
 ){
 
     /** Race functionality **/
@@ -36,6 +36,10 @@ class DetailFactory(
 
     fun addRaceModifiers(id : String, mods: HashMap<String, Float>): RaceQL {
        val race = raceRepository.findById(id) ?: throw QueryException("Race does not exist with that id", ErrorType.DataFetchingException)
+
+        if(!versionFactory.checkStatsInVersion(mods, race.version)){
+            throw QueryException("This Modifier is not in the version sheet!", ErrorType.MutationNotSupported)
+        }
 
         race.unionModifiers(mods)
         raceRepository.save(race) // this should write over the old one with the new parameters
@@ -67,11 +71,11 @@ class DetailFactory(
     }
 
     //depreciated
-    fun hydrateRace(race: Race): RaceQL =
-            RaceQL(race.id, race.name,
-                    race.description,
-                    race.version,
-                    modTools.convertToModifiers(race.modifiers))
+//    fun hydrateRace(race: Race): RaceQL =
+//            RaceQL(race.id, race.name,
+//                    race.description,
+//                    race.version,
+//                    modTools.convertToModifiers(race.modifiers))
 
     /** Class functionality: **/
 
@@ -100,6 +104,10 @@ class DetailFactory(
 
     fun addClassModifiers(id: String, mods: HashMap<String, Float>): ClassQL {
         val rpgClass = classRepository.findById(id) ?: throw QueryException("Class does not exist with that id", ErrorType.DataFetchingException)
+
+        if(!versionFactory.checkStatsInVersion(mods, rpgClass.version)){
+            throw QueryException("This Modifier is not in the version sheet!", ErrorType.MutationNotSupported)
+        }
 
         rpgClass.unionModifiers(mods)
 
@@ -133,15 +141,15 @@ class DetailFactory(
     }
 
     //depreciated
-    fun hydrateClass(rpgClass: ClassRpg): ClassQL {
-
-        return ClassQL(id = rpgClass.id,
-                name = rpgClass.name,
-                role = rpgClass.role,
-                description = rpgClass.description,
-                version = rpgClass.version,
-                modifiers = modTools.convertToModifiers(rpgClass.modifiers))
-    }
+//    fun hydrateClass(rpgClass: ClassRpg): ClassQL {
+//
+//        return ClassQL(id = rpgClass.id,
+//                name = rpgClass.name,
+//                role = rpgClass.role,
+//                description = rpgClass.description,
+//                version = rpgClass.version,
+//                modifiers = modTools.convertToModifiers(rpgClass.modifiers))
+//    }
 
 
     /** additional helper method **/

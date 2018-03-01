@@ -13,11 +13,14 @@ import org.junit.Assert.*
 import org.springframework.boot.test.context.SpringBootTest
 
 import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
+import edu.ycp.cs482.iorcapi.error.QueryException
 import edu.ycp.cs482.iorcapi.model.ModTools
 import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.model.RaceQL
 import edu.ycp.cs482.iorcapi.model.attributes.Modifier
+import edu.ycp.cs482.iorcapi.model.attributes.Stat
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
+import edu.ycp.cs482.iorcapi.repositories.StatRepository
 
 
 @SpringBootTest
@@ -26,14 +29,46 @@ class DetailFactoryTest {
     lateinit var classRepository: ClassRepository
     lateinit var raceRepository: RaceRepository
     lateinit var detailFactory: DetailFactory
+    lateinit var statRepository: StatRepository
+    lateinit var versionFactory: VersionFactory
 
     @Before
     fun setUp() {
         classRepository = RepositoryFactoryBuilder.builder().mock(ClassRepository::class.java)
         raceRepository = RepositoryFactoryBuilder.builder().mock(RaceRepository::class.java)
+        statRepository = RepositoryFactoryBuilder.builder().mock(StatRepository::class.java)
+        versionFactory = VersionFactory(statRepository)
+        addTestVersion()
         addTestClasses()
         addTestRaces()
-        detailFactory = DetailFactory(raceRepository, classRepository, ModTools())
+        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory)
+    }
+
+    fun addTestVersion(){
+        versionFactory.initializeVersion("TEST")
+        statRepository.save(listOf(
+                Stat(
+                        id= "hpTEST",
+                        name= "hp",
+                        description = "health points",
+                        version = "TEST",
+                        skill = false
+                ),
+                Stat(
+                        id= "willTEST",
+                        name= "will",
+                        description = "Willpower",
+                        version = "TEST",
+                        skill = false
+                ),
+                Stat(
+                        id= "fortTEST",
+                        name= "fort",
+                        description = "Fortitude",
+                        version = "TEST",
+                        skill = false
+                )
+        ))
     }
 
     fun addTestClasses() {
@@ -83,6 +118,8 @@ class DetailFactoryTest {
     @After
     fun tearDown() {
         classRepository.deleteAll()
+        raceRepository.deleteAll()
+        statRepository.deleteAll()
     }
 
     @Test
@@ -311,6 +348,11 @@ class DetailFactoryTest {
 
         val race2 = detailFactory.removeRaceModifier("0.0", "wis")
 
+        try {
+            detailFactory.addRaceModifiers("0.0", hashMapOf(Pair("kit", 2f)))
+        } catch (e: QueryException) {
+            assertThat(e.message, `is`(equalTo("This Modifier is not in the version sheet!")))
+        }
 
         assertThat(race2.modifiers.count(), `is`(equalTo(2)) )
 

@@ -6,4 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository
 interface StatRepository: MongoRepository<Stat, String> {
     fun findById(id: String): Stat?
     fun findByVersion(version: String): List<Stat>
+    fun findByVersionAndSkill(version: String, skill: Boolean): List<Stat>
 }

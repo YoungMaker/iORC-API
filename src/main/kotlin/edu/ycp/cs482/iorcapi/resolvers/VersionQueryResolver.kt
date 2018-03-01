@@ -10,4 +10,5 @@ class VersionQueryResolver(
 ) : GraphQLQueryResolver {
 
     fun getVersionSheet(version: String) = versionFactory.constructVersionSheet(version)
+    fun getVersionSkills(version: String) = versionFactory.getVersionSkills(version)
 }

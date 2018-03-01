@@ -8,6 +8,7 @@ class Stat(
         val name: String,
         val description: String,
         val version: String,
+        val skill: Boolean = false,
         modifiers: Map<String, Float> = mapOf()
 ): Modifiable(modifiers)
 
@@ -15,7 +16,8 @@ class Stat(
 data class StatQL( //doesn't need version because it will be added to the version object sent out to QL
         private val name: String,
         private val description: String,
+        private val skill: Boolean,
         private val modifiers: List<Modifier>
 ){
-    constructor(stat: Stat) : this(stat.name, stat.description, stat.convertToModifiers())
+    constructor(stat: Stat) : this(stat.name, stat.description, stat.skill, stat.convertToModifiers())
 }
