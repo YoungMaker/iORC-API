@@ -7,6 +7,7 @@ import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
 import edu.ycp.cs482.iorcapi.repositories.ClassRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
+import edu.ycp.cs482.iorcapi.repositories.StatRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -21,6 +22,7 @@ class SystemInit {
     @Autowired
     lateinit var classRepository: ClassRepository
 
+
     fun addTestClasses() {
         classRepository.save(listOf(
                 ClassRpg(
@@ -28,14 +30,17 @@ class SystemInit {
                         version = "TEST",
                         role = "Combatant",
                         name = "Ranger",
-                        description = "TESTRANGER"
+                        description = "TESTRANGER",
+                        modifiers = mapOf( Pair("hp", 12f), Pair("will", 2f))
                 ),
                 ClassRpg(
                         id = "0.1",
                         name = "Cleric",
                         role= "Healer",
                         version = "TEST",
-                        description = "TESTCLERIC"
+                        description = "TESTCLERIC",
+                        modifiers = mapOf( Pair("hp", 12f), Pair("fort", 2f))
+
                 )
         ))
 
@@ -48,13 +53,15 @@ class SystemInit {
                         id = "1.0",
                         version = "TEST",
                         name = "Human",
-                        description = "TESTHUMAN"
+                        description = "TESTHUMAN",
+                        modifiers = mapOf( Pair("int", 2f), Pair("wis", 2f))
                 ),
                 Race(
                         id = "0.0",
                         name = "Orc",
                         version = "TEST",
-                        description = "TESTORC"
+                        description = "TESTORC",
+                        modifiers = mapOf( Pair("dex", 2f), Pair("int", 2f))
                 )
         ))
 
@@ -75,7 +82,8 @@ class SystemInit {
                                 cha = 3
                         ),
                         raceid = "0.0",
-                        classid = "0.1"
+                        classid = "0.1",
+                        version = "TEST"
 
                 ),
 
@@ -91,8 +99,8 @@ class SystemInit {
                                 cha = 2
                         ),
                         raceid = "1.0",
-                        classid = "1.1"
-
+                        classid = "1.1",
+                        version = "TEST"
                 )
         ))
     }

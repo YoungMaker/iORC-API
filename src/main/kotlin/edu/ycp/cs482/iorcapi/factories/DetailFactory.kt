@@ -2,6 +2,7 @@ package edu.ycp.cs482.iorcapi.factories
 
 import edu.ycp.cs482.iorcapi.error.QueryException
 import edu.ycp.cs482.iorcapi.model.*
+import edu.ycp.cs482.iorcapi.model.attributes.Modifiable
 import edu.ycp.cs482.iorcapi.model.attributes.Modifier
 import edu.ycp.cs482.iorcapi.repositories.ClassRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
@@ -13,7 +14,7 @@ import java.util.UUID
 class DetailFactory(
     private val raceRepository: RaceRepository,
     private val classRepository: ClassRepository,
-    private val modTools: ModTools
+    private val versionFactory: VersionFactory
 ){
 
     /** Race functionality **/
@@ -22,7 +23,7 @@ class DetailFactory(
     fun createNewRace(name: String, description: String, version: String = "") : RaceQL {
         val race = Race(UUID.randomUUID().toString(), name = name, description = description, version = version)
         raceRepository.save(race) //should this be insert??
-        return hydrateRace(race)
+        return RaceQL(race)
     }
 
     fun updateRace(id: String, name: String, description: String, version: String = "") : RaceQL {
@@ -30,37 +31,32 @@ class DetailFactory(
 
         val newRace = Race(id, name = name, description = description, version = version) // creates new one based on old one
         raceRepository.save(newRace) // this should write over the old one with the new parameters
-        return hydrateRace(newRace)
+        return RaceQL(newRace)
     }
 
-    fun addRaceModifiers(id : String, mods: HashMap<String, Int>): RaceQL {
+    fun addRaceModifiers(id : String, mods: HashMap<String, Float>): RaceQL {
        val race = raceRepository.findById(id) ?: throw QueryException("Race does not exist with that id", ErrorType.DataFetchingException)
 
-        val newRace = Race(id,
-                name = race.name,
-                description = race.description,
-                version = race.version,
-                modifiers =  modTools.unionModifiers(race.modifiers, mods))
-        // creates new one based on old one with new modifer(s)
-        raceRepository.save(newRace) // this should write over the old one with the new parameters
-        return hydrateRace(newRace)
+        if(!versionFactory.checkStatsInVersion(mods, race.version)){
+            throw QueryException("This Modifier is not in the version sheet!", ErrorType.MutationNotSupported)
+        }
+
+        race.unionModifiers(mods)
+        raceRepository.save(race) // this should write over the old one with the new parameters
+        return RaceQL(race)
     }
 
     fun removeRaceModifier(id: String, key: String): RaceQL {
         val race = raceRepository.findById(id) ?: throw QueryException("Race does not exist with that id", ErrorType.DataFetchingException)
 
-        val newRace = Race(id,
-                name = race.name,
-                description = race.description,
-                version = race.version,
-                modifiers = modTools.removeModifier(race.modifiers, key)) // creates new one based on old one with new modifer(s)
-        raceRepository.save(newRace) // this should write over the old one with the new parameters
-        return hydrateRace(newRace)
+        race.removeModifier(key)
+        raceRepository.save(race) // this should write over the old one with the new parameters
+        return RaceQL(race)
     }
 
     fun getRaceById(id: String) : RaceQL{
         val race = raceRepository.findById(id) ?: throw throw QueryException("Race does not exist with that id", ErrorType.DataFetchingException)
-        return hydrateRace(race)
+        return RaceQL(race)
     }
 
     fun getRacesByName(name: String) = hydrateRaces(raceRepository.findByName(name))
@@ -70,15 +66,16 @@ class DetailFactory(
 
     fun hydrateRaces(races: List<Race>) : List<RaceQL> {
         val output = mutableListOf<RaceQL>()
-        races.mapTo(output){hydrateRace(it)}
+        races.mapTo(output){RaceQL(it)}
         return output
     }
 
-    fun hydrateRace(race: Race): RaceQL =
-            RaceQL(race.id, race.name,
-                    race.description,
-                    race.version,
-                    modTools.convertToModifiers(race.modifiers))
+    //depreciated
+//    fun hydrateRace(race: Race): RaceQL =
+//            RaceQL(race.id, race.name,
+//                    race.description,
+//                    race.version,
+//                    modTools.convertToModifiers(race.modifiers))
 
     /** Class functionality: **/
 
@@ -90,11 +87,11 @@ class DetailFactory(
                 description =  description)
 
         classRepository.save(rpgClass) //should this be insert??
-        return hydrateClass(rpgClass)
+        return ClassQL(rpgClass)
     }
 
     fun updateClass(id: String, name: String, role: String, version: String, description: String): ClassQL {
-        val oldClass = classRepository.findById(id) ?: throw QueryException("Class does not exist with that id", ErrorType.DataFetchingException)
+        classRepository.findById(id) ?: throw QueryException("Class does not exist with that id", ErrorType.DataFetchingException)
         val rpgClass = ClassRpg(id = id,
                 name = name,
                 role = role,
@@ -102,41 +99,35 @@ class DetailFactory(
                 description =  description)
 
         classRepository.save(rpgClass)
-        return hydrateClass(rpgClass)
+        return ClassQL(rpgClass)
     }
 
-    fun addClassModifiers(id: String, mods: HashMap<String, Int>): ClassQL {
+    fun addClassModifiers(id: String, mods: HashMap<String, Float>): ClassQL {
         val rpgClass = classRepository.findById(id) ?: throw QueryException("Class does not exist with that id", ErrorType.DataFetchingException)
 
-        val newClass = ClassRpg(id,
-                name = rpgClass.name,
-                role = rpgClass.role,
-                description =rpgClass.description,
-                version = rpgClass.version,
-                modifiers = modTools.unionModifiers(rpgClass.modifiers, mods)) // creates new one based on old one with new modifer(s)
+        if(!versionFactory.checkStatsInVersion(mods, rpgClass.version)){
+            throw QueryException("This Modifier is not in the version sheet!", ErrorType.MutationNotSupported)
+        }
 
-        classRepository.save(newClass) // this should write over the old one with the new parameters
-        return hydrateClass(newClass)
+        rpgClass.unionModifiers(mods)
+
+        classRepository.save(rpgClass) // this should write over the old one with the new parameters
+        return ClassQL(rpgClass)
     }
 
 
     fun removeClassModifier(id: String, key: String ): ClassQL {
         val rpgClass = classRepository.findById(id) ?: throw QueryException("Class does not exist with that id", ErrorType.DataFetchingException)
 
-        val newClass = ClassRpg(id,
-                name = rpgClass.name,
-                role = rpgClass.role,
-                description =rpgClass.description,
-                version = rpgClass.version,
-                modifiers = modTools.removeModifier(rpgClass.modifiers, key)) // creates new one based on old one with new modifer(s)
+        rpgClass.removeModifier(key)
 
-        classRepository.save(newClass) // this should write over the old one with the new parameters
-        return hydrateClass(newClass)
+        classRepository.save(rpgClass) // this should write over the old one with the new parameters
+        return ClassQL(rpgClass)
     }
 
     fun getClassById(id: String) : ClassQL{
         val rpgClass = classRepository.findById(id) ?: throw throw QueryException("Race does not exist with that id", ErrorType.DataFetchingException)
-        return hydrateClass(rpgClass)
+        return ClassQL(rpgClass)
     }
 
     fun getClassesByName(name: String) = hydrateClasses(classRepository.findByName(name))
@@ -145,22 +136,20 @@ class DetailFactory(
 
     fun hydrateClasses(classes: List<ClassRpg>) : List<ClassQL> {
         val output = mutableListOf<ClassQL>()
-        classes.mapTo(output){hydrateClass(it)}
+        classes.mapTo(output){ClassQL(it)}
         return output
     }
 
-    fun hydrateClass(rpgClass: ClassRpg): ClassQL {
-        val outputList = mutableListOf<Modifier>()
-        for((key, value) in rpgClass.modifiers) {
-            outputList.add(Modifier(key, value))
-        }
-        return ClassQL(id = rpgClass.id,
-                name = rpgClass.name,
-                role = rpgClass.role,
-                description = rpgClass.description,
-                version = rpgClass.version,
-                modifiers = outputList)
-    }
+    //depreciated
+//    fun hydrateClass(rpgClass: ClassRpg): ClassQL {
+//
+//        return ClassQL(id = rpgClass.id,
+//                name = rpgClass.name,
+//                role = rpgClass.role,
+//                description = rpgClass.description,
+//                version = rpgClass.version,
+//                modifiers = modTools.convertToModifiers(rpgClass.modifiers))
+//    }
 
 
     /** additional helper method **/

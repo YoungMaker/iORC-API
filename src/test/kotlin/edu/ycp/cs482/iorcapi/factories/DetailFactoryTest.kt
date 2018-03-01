@@ -13,11 +13,14 @@ import org.junit.Assert.*
 import org.springframework.boot.test.context.SpringBootTest
 
 import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
+import edu.ycp.cs482.iorcapi.error.QueryException
 import edu.ycp.cs482.iorcapi.model.ModTools
 import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.model.RaceQL
 import edu.ycp.cs482.iorcapi.model.attributes.Modifier
+import edu.ycp.cs482.iorcapi.model.attributes.Stat
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
+import edu.ycp.cs482.iorcapi.repositories.StatRepository
 
 
 @SpringBootTest
@@ -26,14 +29,46 @@ class DetailFactoryTest {
     lateinit var classRepository: ClassRepository
     lateinit var raceRepository: RaceRepository
     lateinit var detailFactory: DetailFactory
+    lateinit var statRepository: StatRepository
+    lateinit var versionFactory: VersionFactory
 
     @Before
     fun setUp() {
         classRepository = RepositoryFactoryBuilder.builder().mock(ClassRepository::class.java)
         raceRepository = RepositoryFactoryBuilder.builder().mock(RaceRepository::class.java)
+        statRepository = RepositoryFactoryBuilder.builder().mock(StatRepository::class.java)
+        versionFactory = VersionFactory(statRepository)
+        addTestVersion()
         addTestClasses()
         addTestRaces()
-        detailFactory = DetailFactory(raceRepository, classRepository, ModTools())
+        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory)
+    }
+
+    fun addTestVersion(){
+        versionFactory.initializeVersion("TEST")
+        statRepository.save(listOf(
+                Stat(
+                        id= "hpTEST",
+                        name= "hp",
+                        description = "health points",
+                        version = "TEST",
+                        skill = false
+                ),
+                Stat(
+                        id= "willTEST",
+                        name= "will",
+                        description = "Willpower",
+                        version = "TEST",
+                        skill = false
+                ),
+                Stat(
+                        id= "fortTEST",
+                        name= "fort",
+                        description = "Fortitude",
+                        version = "TEST",
+                        skill = false
+                )
+        ))
     }
 
     fun addTestClasses() {
@@ -44,7 +79,7 @@ class DetailFactoryTest {
                         role = "Combatant",
                         name = "Ranger",
                         description = "TESTRANGER",
-                        modifiers = mapOf( Pair("hp", 12), Pair("will", 2))
+                        modifiers = mapOf( Pair("hp", 12f), Pair("will", 2f))
                 ),
                 ClassRpg(
                         id = "0.1",
@@ -52,7 +87,7 @@ class DetailFactoryTest {
                         role= "Healer",
                         version = "TEST",
                         description = "TESTCLERIC",
-                        modifiers = mapOf( Pair("hp", 12), Pair("fort", 2))
+                        modifiers = mapOf( Pair("hp", 12f), Pair("fort", 2f))
 
                 )
         ))
@@ -67,14 +102,14 @@ class DetailFactoryTest {
                         version = "TEST",
                         name = "Human",
                         description = "TESTHUMAN",
-                        modifiers = mapOf( Pair("int", 2), Pair("wis", 2))
+                        modifiers = mapOf( Pair("int", 2f), Pair("wis", 2f))
                 ),
                 Race(
                         id = "0.0",
                         name = "Orc",
                         version = "TEST",
                         description = "TESTORC",
-                        modifiers = mapOf( Pair("dex", 2), Pair("int", 2))
+                        modifiers = mapOf( Pair("dex", 2f), Pair("int", 2f))
                 )
         ))
 
@@ -83,6 +118,8 @@ class DetailFactoryTest {
     @After
     fun tearDown() {
         classRepository.deleteAll()
+        raceRepository.deleteAll()
+        statRepository.deleteAll()
     }
 
     @Test
@@ -148,14 +185,14 @@ class DetailFactoryTest {
         assertThat(race.name,  `is`(equalTo("Orc")))
         assertThat(race.version,  `is`(equalTo("TEST")))
         assertThat(race.description,  `is`(equalTo("TESTORC")))
-        assertThat(race.modifiers.contains(Modifier("dex", 2)), `is`(true))
-        assertThat(race.modifiers.contains(Modifier("int", 2)), `is`(true))
+        assertThat(race.modifiers.contains(Modifier("dex", 2f)), `is`(true))
+        assertThat(race.modifiers.contains(Modifier("int", 2f)), `is`(true))
 
         assertThat(race2.name,  `is`(equalTo("Human")))
         assertThat(race2.version,  `is`(equalTo("TEST")))
         assertThat(race2.description,  `is`(equalTo("TESTHUMAN")))
-        assertThat(race2.modifiers.contains(Modifier("wis", 2)), `is`(true))
-        assertThat(race2.modifiers.contains(Modifier("int", 2)), `is`(true))
+        assertThat(race2.modifiers.contains(Modifier("wis", 2f)), `is`(true))
+        assertThat(race2.modifiers.contains(Modifier("int", 2f)), `is`(true))
     }
 
     @Test
@@ -167,14 +204,14 @@ class DetailFactoryTest {
         assertThat(raceList[0].name,  `is`(equalTo("Orc")))
         assertThat(raceList[0].version,  `is`(equalTo("TEST")))
         assertThat(raceList[0].description,  `is`(equalTo("TESTORC")))
-        assertThat(raceList[0].modifiers.contains(Modifier("dex", 2)), `is`(true))
-        assertThat(raceList[0].modifiers.contains(Modifier("int", 2)), `is`(true))
+        assertThat(raceList[0].modifiers.contains(Modifier("dex", 2f)), `is`(true))
+        assertThat(raceList[0].modifiers.contains(Modifier("int", 2f)), `is`(true))
 
         assertThat(raceList2[0].name, `is`(equalTo("Human")))
         assertThat(raceList2[0].version, `is`(equalTo("TEST")))
         assertThat(raceList2[0].description, `is`(equalTo("TESTHUMAN")))
-        assertThat(raceList2[0].modifiers.contains(Modifier("wis", 2)), `is`(true))
-        assertThat(raceList2[0].modifiers.contains(Modifier("int", 2)), `is`(true))
+        assertThat(raceList2[0].modifiers.contains(Modifier("wis", 2f)), `is`(true))
+        assertThat(raceList2[0].modifiers.contains(Modifier("int", 2f)), `is`(true))
     }
 
     @Test
@@ -251,15 +288,15 @@ class DetailFactoryTest {
         assertThat(classRpg.version,  `is`(equalTo("TEST")))
         assertThat(classRpg.description,  `is`(equalTo("TESTRANGER")))
         assertThat(classRpg.role, `is`(equalTo("Combatant")))
-        assertThat(classRpg.modifiers.contains(Modifier("hp", 12)), `is`(true))
-        assertThat(classRpg.modifiers.contains(Modifier("will", 2)), `is`(true))
+        assertThat(classRpg.modifiers.contains(Modifier("hp", 12f)), `is`(true))
+        assertThat(classRpg.modifiers.contains(Modifier("will", 2f)), `is`(true))
 
         assertThat(classRpg2.name,  `is`(equalTo("Cleric")))
         assertThat(classRpg2.version,  `is`(equalTo("TEST")))
         assertThat(classRpg2.description,  `is`(equalTo("TESTCLERIC")))
         assertThat(classRpg2.role, `is`(equalTo("Healer")))
-        assertThat(classRpg2.modifiers.contains(Modifier("hp", 12)), `is`(true))
-        assertThat(classRpg2.modifiers.contains(Modifier("fort", 2)), `is`(true))
+        assertThat(classRpg2.modifiers.contains(Modifier("hp", 12f)), `is`(true))
+        assertThat(classRpg2.modifiers.contains(Modifier("fort", 2f)), `is`(true))
     }
 
 
@@ -278,15 +315,15 @@ class DetailFactoryTest {
         assertThat(classRpg.version,  `is`(equalTo("TEST")))
         assertThat(classRpg.description,  `is`(equalTo("TESTRANGER")))
         assertThat(classRpg.role, `is`(equalTo("Combatant")))
-        assertThat(classRpg.modifiers.contains(Modifier("hp", 12)), `is`(true))
-        assertThat(classRpg.modifiers.contains(Modifier("will", 2)), `is`(true))
+        assertThat(classRpg.modifiers.contains(Modifier("hp", 12f)), `is`(true))
+        assertThat(classRpg.modifiers.contains(Modifier("will", 2f)), `is`(true))
 
         assertThat(classRpg2.name,  `is`(equalTo("Cleric")))
         assertThat(classRpg2.version,  `is`(equalTo("TEST")))
         assertThat(classRpg2.description,  `is`(equalTo("TESTCLERIC")))
         assertThat(classRpg2.role, `is`(equalTo("Healer")))
-        assertThat(classRpg2.modifiers.contains(Modifier("hp", 12)), `is`(true))
-        assertThat(classRpg2.modifiers.contains(Modifier("fort", 2)), `is`(true))
+        assertThat(classRpg2.modifiers.contains(Modifier("hp", 12f)), `is`(true))
+        assertThat(classRpg2.modifiers.contains(Modifier("fort", 2f)), `is`(true))
     }
 
     @Test
@@ -298,27 +335,32 @@ class DetailFactoryTest {
 
     @Test
     fun addRemoveModifiers(){
-        val race = detailFactory.addRaceModifiers("0.0", hashMapOf(Pair("wis", 2)))
+        val race = detailFactory.addRaceModifiers("0.0", hashMapOf(Pair("wis", 2f)))
 
         assertThat(race.modifiers.count(), `is`(equalTo(3)) )
 
         assertThat(race.name,  `is`(equalTo("Orc")))
         assertThat(race.version,  `is`(equalTo("TEST")))
         assertThat(race.description,  `is`(equalTo("TESTORC")))
-        assertThat(race.modifiers.contains(Modifier("wis", 2)), `is`(true))
-        assertThat(race.modifiers.contains(Modifier("dex", 2)), `is`(true))
-        assertThat(race.modifiers.contains(Modifier("int", 2)), `is`(true))
+        assertThat(race.modifiers.contains(Modifier("wis", 2f)), `is`(true))
+        assertThat(race.modifiers.contains(Modifier("dex", 2f)), `is`(true))
+        assertThat(race.modifiers.contains(Modifier("int", 2f)), `is`(true))
 
         val race2 = detailFactory.removeRaceModifier("0.0", "wis")
 
+        try {
+            detailFactory.addRaceModifiers("0.0", hashMapOf(Pair("kit", 2f)))
+        } catch (e: QueryException) {
+            assertThat(e.message, `is`(equalTo("This Modifier is not in the version sheet!")))
+        }
 
         assertThat(race2.modifiers.count(), `is`(equalTo(2)) )
 
-        assertThat(race2.modifiers.contains(Modifier("dex", 2)), `is`(true))
-        assertThat(race2.modifiers.contains(Modifier("int", 2)), `is`(true))
-        assertThat(race2.modifiers.contains(Modifier("wis", 2)), `is`(false))
+        assertThat(race2.modifiers.contains(Modifier("dex", 2f)), `is`(true))
+        assertThat(race2.modifiers.contains(Modifier("int", 2f)), `is`(true))
+        assertThat(race2.modifiers.contains(Modifier("wis", 2f)), `is`(false))
 
-        val classRpg = detailFactory.addClassModifiers("1.1", hashMapOf(Pair("wis", 2)))
+        val classRpg = detailFactory.addClassModifiers("1.1", hashMapOf(Pair("wis", 2f)))
 
         assertThat(classRpg.modifiers.count(), `is`(equalTo(3)) )
 
@@ -326,16 +368,16 @@ class DetailFactoryTest {
         assertThat(classRpg.version,  `is`(equalTo("TEST")))
         assertThat(classRpg.description,  `is`(equalTo("TESTRANGER")))
         assertThat(classRpg.role, `is`(equalTo("Combatant")))
-        assertThat(classRpg.modifiers.contains(Modifier("hp", 12)), `is`(true))
-        assertThat(classRpg.modifiers.contains(Modifier("will", 2)), `is`(true))
-        assertThat(classRpg.modifiers.contains(Modifier("wis", 2)), `is`(true))
+        assertThat(classRpg.modifiers.contains(Modifier("hp", 12f)), `is`(true))
+        assertThat(classRpg.modifiers.contains(Modifier("will", 2f)), `is`(true))
+        assertThat(classRpg.modifiers.contains(Modifier("wis", 2f)), `is`(true))
 
         val classRpg2 = detailFactory.removeClassModifier("1.1", "wis")
 
         assertThat(classRpg2.modifiers.count(), `is`(equalTo(2)) )
-        assertThat(classRpg2.modifiers.contains(Modifier("hp", 12)), `is`(true))
-        assertThat(classRpg2.modifiers.contains(Modifier("will", 2)), `is`(true))
-        assertThat(classRpg2.modifiers.contains(Modifier("wis", 2)), `is`(false))
+        assertThat(classRpg2.modifiers.contains(Modifier("hp", 12f)), `is`(true))
+        assertThat(classRpg2.modifiers.contains(Modifier("will", 2f)), `is`(true))
+        assertThat(classRpg2.modifiers.contains(Modifier("wis", 2f)), `is`(false))
 
 
     }

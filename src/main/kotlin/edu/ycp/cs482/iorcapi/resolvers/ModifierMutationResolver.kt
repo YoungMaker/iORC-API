@@ -14,8 +14,8 @@ class ModifierMutationResolver(
     fun addModifier(id: String, type: ObjType, key: String, value: Int): Any? {
 
         return when(type) {
-            ObjType.RACE -> detailFactory.addRaceModifiers(id, hashMapOf(Pair(key.toLowerCase(), value)))
-            ObjType.CLASS -> detailFactory.addClassModifiers(id, hashMapOf(Pair(key.toLowerCase(), value)))
+            ObjType.RACE -> detailFactory.addRaceModifiers(id, hashMapOf(Pair(key.toLowerCase(), value.toFloat())))
+            ObjType.CLASS -> detailFactory.addClassModifiers(id, hashMapOf(Pair(key.toLowerCase(), value.toFloat())))
             //TODO: Add the rest when implemented
             else -> {null}
         }

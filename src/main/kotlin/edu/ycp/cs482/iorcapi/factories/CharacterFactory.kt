@@ -23,8 +23,8 @@ class CharacterFactory(
 //        characterRepo.insert(char)
 //        return char
 //    }
-
-    fun createNewCharacter(name: String, abilityPoints: Ability, raceid: String, classid: String) : CharacterQL {
+    //TODO: check if UUID already used. See issue #16
+    fun createNewCharacter(name: String, abilityPoints: Ability, raceid: String, classid: String, version: String) : CharacterQL {
         val race = detailFactory.getRaceById(raceid) //this is to check if it exists, this will throw a query exception
         val classql = detailFactory.getClassById(classid)
 
@@ -32,7 +32,8 @@ class CharacterFactory(
                 name = name,
                 abilityPoints = abilityPoints,
                 raceid = race.id,
-                classid = classql.id)
+                classid = classql.id,
+                version = version)
         characterRepo.save(char) //should this be insert?
 
         return hydrateChar(char)
@@ -41,7 +42,7 @@ class CharacterFactory(
     fun updateName(id: String, name: String) : CharacterQL {
         val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
 
-        val newChar = Character(id, name, char.abilityPoints, char.raceid, char.classid) // creates new one based on old one
+        val newChar = Character(id, name, char.abilityPoints, char.raceid, char.classid, char.version) // creates new one based on old one
         characterRepo.save(newChar) // this should write over the old one with the new name
         return hydrateChar(newChar)
     }
@@ -65,6 +66,6 @@ class CharacterFactory(
     fun hydrateChar(char: Character) : CharacterQL {
         val race = detailFactory.getRaceById(char.raceid)
         val classql = detailFactory.getClassById(char.classid)
-        return CharacterQL(char.id, char.name, char.abilityPoints, race, classql)
+        return CharacterQL(char.id, char.version, char.name, char.abilityPoints, race, classql)
     }
 }

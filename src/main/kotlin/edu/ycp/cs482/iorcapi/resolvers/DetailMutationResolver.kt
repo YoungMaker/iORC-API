@@ -22,4 +22,5 @@ class DetailMutationResolver(
     fun updateRace(id: String, name: String, version: String, description: String )
             = detailFactory.updateRace(id, name, version, description)
 
+
 }

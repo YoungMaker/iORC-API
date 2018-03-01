@@ -8,11 +8,13 @@ data class Character( //DB type
         val name: String,
         val abilityPoints: Ability,
         val raceid: String,
-        val classid: String
+        val classid: String,
+        val version: String = ""
 )
 
 data class CharacterQL ( //output type
         @Id val id: String,
+        val version: String,
         val name: String,
         val abilityPoints: Ability,
         val race: RaceQL,
