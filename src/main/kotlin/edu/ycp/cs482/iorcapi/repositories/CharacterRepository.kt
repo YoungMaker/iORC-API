@@ -8,4 +8,5 @@ import org.springframework.data.mongodb.repository.MongoRepository
 interface CharacterRepository : MongoRepository<Character, String> {
     fun findByName(name: String): List<Character>
     fun findById(id: String): Character?
+    fun findByVersion(version: String): List<Character>
 }

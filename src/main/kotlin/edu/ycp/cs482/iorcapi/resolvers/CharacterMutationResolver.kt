@@ -19,5 +19,7 @@ class CharacterMutationResolver(
 
     fun createCharacter(name: String, abilityPoints: Ability, raceid: String, classid: String, version: String)
             = characterFactory.createNewCharacter(name, abilityPoints, raceid, classid, version)
-    fun updateName(id: String, name: String) = characterFactory.updateName(id, name)
+    fun updateCharacter(id: String, name: String, abilityPoints: Ability, raceid: String, classid: String)
+            = characterFactory.updateCharacter(id, name, abilityPoints, raceid, classid)
+    //fun updateName(id: String, name: String) = characterFactory.updateName(id, name)
 }

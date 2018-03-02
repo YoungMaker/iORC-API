@@ -39,6 +39,23 @@ class CharacterFactory(
         return hydrateChar(char)
     }
 
+    fun updateCharacter(id: String, name: String, abilityPoints: Ability, raceid: String, classid: String) : CharacterQL {
+        val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
+        val race = detailFactory.getRaceById(raceid) //this is to check if it exists, this will throw a query exception
+        val classql = detailFactory.getClassById(classid)
+
+        val charNew = Character(id,
+                name = name,
+                abilityPoints = abilityPoints,
+                raceid = race.id,
+                classid = classql.id,
+                version = char.version)
+        characterRepo.save(charNew) //should this be insert?
+
+        return hydrateChar(charNew)
+    }
+
+    //depreciated.
     fun updateName(id: String, name: String) : CharacterQL {
         val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
 
@@ -54,6 +71,8 @@ class CharacterFactory(
 
     fun getCharactersByName(name: String) = hydrateChars(characterRepo.findByName(name))
 
+    fun getCharactersByVersion(version: String) = hydrateChars(characterRepo.findByVersion(version))
+
     ///maps a list to an output lits of CharacterQL graphQL objects
     fun hydrateChars(chars: List<Character>) : List<CharacterQL> {
         val output = mutableListOf<CharacterQL>()
@@ -68,4 +87,7 @@ class CharacterFactory(
         val classql = detailFactory.getClassById(char.classid)
         return CharacterQL(char.id, char.version, char.name, char.abilityPoints, race, classql)
     }
+
+
+
 }
