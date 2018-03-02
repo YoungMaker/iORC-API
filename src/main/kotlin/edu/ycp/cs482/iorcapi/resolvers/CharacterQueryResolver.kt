@@ -11,5 +11,5 @@ class CharacterQueryResolver(
 ) : GraphQLQueryResolver {
     fun getCharacterById(id: String) = characterFactory.getCharacterById(id)
     fun getCharactersByName(name: String) = characterFactory.getCharactersByName(name)
-
+    fun getCharactersByVersion(version: String) = characterFactory.getCharactersByVersion(version)
 }

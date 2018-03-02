@@ -198,5 +198,18 @@ class CharacterFactoryTest {
 
     }
 
+    @Test
+    fun getCharactersByVersion(){
+        val characterList = characterFactory.getCharactersByVersion("TEST")
+
+        assertThat(characterList.count(), `is`(equalTo(2)))
+
+        val character = characterList[1]
+
+        assertThat(character.name,  `is`(equalTo("Cregan the Destroyer of Worlds")))
+        assertThat(character.abilityPoints,  `is`(equalTo(Ability(12, 14, 15, 11, 12, 14))))
+        assertThat(character.race.name,  `is`(equalTo("Orc")))
+    }
+
 
 }
