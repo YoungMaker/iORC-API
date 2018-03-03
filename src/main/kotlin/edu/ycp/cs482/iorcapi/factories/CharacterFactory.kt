@@ -5,6 +5,7 @@ import edu.ycp.cs482.iorcapi.model.Character
 import edu.ycp.cs482.iorcapi.model.CharacterQL
 import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.model.attributes.Ability
+import edu.ycp.cs482.iorcapi.model.attributes.AbilityInput
 import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import graphql.ErrorType
@@ -24,13 +25,15 @@ class CharacterFactory(
 //        return char
 //    }
     //TODO: check if UUID already used. See issue #16
-    fun createNewCharacter(name: String, abilityPoints: Ability, raceid: String, classid: String, version: String) : CharacterQL {
+    fun createNewCharacter(name: String, abilityPoints: AbilityInput, raceid: String, classid: String, version: String) : CharacterQL {
         val race = detailFactory.getRaceById(raceid) //this is to check if it exists, this will throw a query exception
         val classql = detailFactory.getClassById(classid)
 
+        val abils = Ability(abilityPoints.str, abilityPoints.con, abilityPoints.dex, abilityPoints._int, abilityPoints.wis, abilityPoints.cha)
+
         val char = Character(UUID.randomUUID().toString(),
                 name = name,
-                abilityPoints = abilityPoints,
+                abilityPoints = abils,
                 raceid = race.id,
                 classid = classql.id,
                 version = version)
@@ -39,14 +42,16 @@ class CharacterFactory(
         return hydrateChar(char)
     }
 
-    fun updateCharacter(id: String, name: String, abilityPoints: Ability, raceid: String, classid: String) : CharacterQL {
+    fun updateCharacter(id: String, name: String, abilityPoints: AbilityInput, raceid: String, classid: String) : CharacterQL {
         val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
         val race = detailFactory.getRaceById(raceid) //this is to check if it exists, this will throw a query exception
         val classql = detailFactory.getClassById(classid)
 
+        val abils = Ability(abilityPoints.str, abilityPoints.con, abilityPoints.dex, abilityPoints._int, abilityPoints.wis, abilityPoints.cha)
+
         val charNew = Character(id,
                 name = name,
-                abilityPoints = abilityPoints,
+                abilityPoints = abils,
                 raceid = race.id,
                 classid = classql.id,
                 version = char.version)

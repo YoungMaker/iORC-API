@@ -12,3 +12,12 @@ data class Ability(
         val wis: Int,
         val cha: Int
 )
+
+data class AbilityInput(
+        val str: Int,
+        val con: Int,
+        val dex: Int,
+        val _int: Int,
+        val wis: Int,
+        val cha: Int
+)

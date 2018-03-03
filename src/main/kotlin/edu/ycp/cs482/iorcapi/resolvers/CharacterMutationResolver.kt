@@ -8,6 +8,7 @@ import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
 import org.springframework.stereotype.Component
 import edu.ycp.cs482.iorcapi.model.Character
 import edu.ycp.cs482.iorcapi.model.CharacterQL
+import edu.ycp.cs482.iorcapi.model.attributes.AbilityInput
 import java.util.*
 
 
@@ -17,9 +18,9 @@ class CharacterMutationResolver(
 ) : GraphQLMutationResolver {
     //TODO: add validation so that the scalar values submitted with the AbilityPoints cannot be negative.
 
-    fun createCharacter(name: String, abilityPoints: Ability, raceid: String, classid: String, version: String)
+    fun createCharacter(name: String, abilityPoints: AbilityInput, raceid: String, classid: String, version: String)
             = characterFactory.createNewCharacter(name, abilityPoints, raceid, classid, version)
-    fun updateCharacter(id: String, name: String, abilityPoints: Ability, raceid: String, classid: String)
+    fun updateCharacter(id: String, name: String, abilityPoints: AbilityInput, raceid: String, classid: String)
             = characterFactory.updateCharacter(id, name, abilityPoints, raceid, classid)
     //fun updateName(id: String, name: String) = characterFactory.updateName(id, name)
 }

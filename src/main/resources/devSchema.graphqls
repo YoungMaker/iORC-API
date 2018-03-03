@@ -62,7 +62,7 @@ input AbilityInput{
     str: Int!
     con: Int!
     dex: Int!
-    int: Int!
+    _int: Int!
     wis: Int!
     cha: Int!
 }
