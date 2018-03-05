@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		kotlinVersion = '1.2.10'
+		kotlinVersion = '1.2.21'
 		springBootVersion = '1.5.10.RELEASE'
 	}
 	repositories {
@@ -39,19 +39,25 @@ ext {
 }
 
 dependencies {
+
+	compile('com.graphql-java:graphql-spring-boot-starter:3.9.2')
+
+	compile('com.graphql-java:graphiql-spring-boot-starter:3.9.2')
+	compile('com.graphql-java:graphql-java-tools:4.3.0')
 	compile('org.springframework.cloud:spring-cloud-starter-oauth2')
 	compile('de.codecentric:spring-boot-admin-starter-client')
 	compile('de.codecentric:spring-boot-admin-starter-server')
-	compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-data-mongodb')
 	compile('org.springframework.boot:spring-boot-starter-data-rest')
 	compile('org.springframework.retry:spring-retry')
-	compile('org.springframework.boot:spring-boot-starter-security')
+	//compile('org.springframework.boot:spring-boot-starter-security')
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}")
 	compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
 	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('org.springframework.security:spring-security-test')
+	//testCompile('org.springframework.security:spring-security-test')
+
+	compile('com.mmnaseri.utils:spring-data-mock:1.1.4')
 }
 
 dependencyManagement {

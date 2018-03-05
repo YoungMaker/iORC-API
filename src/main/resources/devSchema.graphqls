@@ -1,0 +1,124 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+
+enum ObjType {
+    RACE,
+    CLASS,
+    ITEM_SPELL,
+    ITEM_WEAPON,
+    ITEM_FEAT,
+    ITEM_ARMOR,
+    ITEM_MISC
+}
+type Stat{
+    name: String!
+    description: String!
+    skill: Boolean
+    modifiers: [Modifier]
+}
+
+type Version{
+    version: String!
+    stats: [Stat]
+}
+
+type Modifier {
+    key: String!
+    value: Float!
+}
+
+type Race {
+    id : ID!
+    name: String!
+    description: String!
+    version: String!
+    modifiers: [Modifier]
+    type: ObjType
+}
+
+type Class {
+    id: ID!,
+    name: String!,
+    role: String!,
+    description: String!,
+    version: String!,
+    modifiers: [Modifier],
+    type: ObjType
+}
+
+type Ability {
+    str: Int!
+    con: Int!
+    dex: Int!
+    int: Int!
+    wis: Int!
+    cha: Int!
+}
+
+input AbilityInput{
+    str: Int!
+    con: Int!
+    dex: Int!
+    _int: Int!
+    wis: Int!
+    cha: Int!
+}
+
+union ModifierResult = Race | Class
+
+type Character {
+    id: ID!
+    version: String!
+    name: String!
+    abilityPoints: Ability!
+    race: Race
+    classql: Class
+}
+
+
+type Query {
+    #the API version string
+    version: String!
+}
+
+type Mutation {
+
+    updateCharacter(id: ID!, name: String!, abilityPoints: AbilityInput!, raceid: String!, classid: String!): Character!
+    createCharacter( name: String!, abilityPoints: AbilityInput!, raceid: String!, classid: String!, version: String!) : Character!
+    deleteCharacter(id: String): String!
+
+    createRace(name: String!, description: String!, version: String!): Race!
+    updateRace(id: ID!, name: String!, version: String!, description: String!): Race
+
+    createClass(name: String!, role: String!, version: String!, description: String! ): Class!
+    updateClass(id: ID! name: String!, role: String!, version: String!, description: String! ): Class
+
+    addModifier(id: ID!, type: ObjType!, key: String!, value: Int!) : ModifierResult
+    removeModifier(id: ID!, type: ObjType!, key: String!) : ModifierResult
+
+    addStatToVersion(name: String!, description: String!, version: String!, skill: Boolean!) : Version
+    addStatBaseCalcModifier(name: String!, version: String!, key: String!, value: Float!): Stat
+    removeStatBaseCalcModifier(name: String!, version: String!, key: String!): Stat
+}
+
+extend type Query {
+    getCharacterById(id: ID!) : Character
+    getCharactersByName(name: String!): [Character]!
+    getCharactersByVersion(version:String!) : [Character]!
+
+    getRaceById(id: ID!): Race
+    getRacesByName(name: String!) : [Race]!
+    getRacesByVersion(version: String!) : [Race]!
+
+    getClassById(id:ID!): Class!
+    getClassesByVersion(version: String): [Class]!
+    getClassesByName(name: String): [Class]!
+
+    getVersionSheet(version: String!): Version
+    getVersionSkills(version: String!): Version
+}
+
+

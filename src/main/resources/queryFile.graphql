@@ -1,0 +1,104 @@
+ mutation($id: ID!, $key: String!, $value: Int!) {
+   addRaceModifier(id:$id,
+   key: $key, 
+   value: $value) {
+     ...RaceData
+   }
+ }
+
+ mutation($id: ID!, $key: String!) {
+   removeRaceModifier(
+     id:$id,
+     key: $key) {
+     ...RaceData
+   }
+ }
+
+
+
+ mutation($id: ID!, $name: String!) {
+   updateName(id:$id, name:$name) {
+ 		...CharacterData
+   }
+ }
+
+ query($id: ID!) {
+ 	getCharacterById(id : $id ) {
+    ... CharacterData
+   }
+ }
+
+
+ query($version :String!){
+   getRacesByVersion(version: $version){
+     ...RaceData
+   }
+ }
+
+ query($name:String!) {
+   getRacesByName(name:$name) {
+     ...RaceData
+   }
+ }
+
+ query($id: ID!){
+   getRaceById(id:$id) {
+     ...RaceData
+   }
+ }
+
+ mutation($name: String!, $version:String!, $description:String!) {
+   createRace(
+     name:$name,
+     dsecription:$description
+     version:$version,
+   ){
+     ... RaceData
+   }
+ }
+
+ query($name:String!){
+  getCharactersByName(name: $name ) {
+  ... CharacterData
+   }
+ }
+
+fragment CharacterData on Character {
+  id
+  name
+  abilityPoints {
+    str
+    con
+    dex
+    int
+    wis
+    cha
+   }
+  race {
+	  ...RaceData
+  }
+}
+
+
+fragment RaceData on Race {
+  id
+  name
+  description
+  version
+  modifiers {
+    key
+    value
+  }
+}
+
+
+mutation($name:String!, $id: String!, $abil: AbilityInput!){
+  createCharacter(name : $name,
+  	abilityPoints: $abil
+	  raceid :$id
+  ){
+		...CharacterData
+	}
+}
+
+  
