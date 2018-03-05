@@ -10,6 +10,7 @@ import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
 import edu.ycp.cs482.iorcapi.repositories.ClassRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
+import edu.ycp.cs482.iorcapi.model.attributes.AbilityInput
 import edu.ycp.cs482.iorcapi.model.attributes.Stat
 import edu.ycp.cs482.iorcapi.repositories.StatRepository
 import org.hamcrest.CoreMatchers
@@ -151,7 +152,7 @@ class CharacterFactoryTest {
     @Test
     fun createNewCharacter() {
         val character = characterFactory.createNewCharacter(
-                abilityPoints = Ability(13,12,11,15,14,16),
+                abilityPoints = AbilityInput(13,12,11,15,14,16),
                 name = "Harold",
                 classid = "1.1",
                 raceid = "0.0",

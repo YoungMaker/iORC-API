@@ -78,6 +78,11 @@ class CharacterFactory(
 
     fun getCharactersByVersion(version: String) = hydrateChars(characterRepo.findByVersion(version))
 
+    fun deleteCharacter(id: String): String {
+        characterRepo.delete(id)
+        return "Character %s deleted".format(id)
+    }
+
     ///maps a list to an output lits of CharacterQL graphQL objects
     fun hydrateChars(chars: List<Character>) : List<CharacterQL> {
         val output = mutableListOf<CharacterQL>()

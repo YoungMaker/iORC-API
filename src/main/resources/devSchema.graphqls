@@ -88,6 +88,7 @@ type Mutation {
 
     updateCharacter(id: ID!, name: String!, abilityPoints: AbilityInput!, raceid: String!, classid: String!): Character!
     createCharacter( name: String!, abilityPoints: AbilityInput!, raceid: String!, classid: String!, version: String!) : Character!
+    deleteCharacter(id: String): String!
 
     createRace(name: String!, description: String!, version: String!): Race!
     updateRace(id: ID!, name: String!, version: String!, description: String!): Race
