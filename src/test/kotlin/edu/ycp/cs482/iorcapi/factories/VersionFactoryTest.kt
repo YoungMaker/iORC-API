@@ -31,6 +31,7 @@ class VersionFactoryTest {
                 Stat(
                         id= "hpTEST",
                         name= "hp",
+                        fname = "Health Points",
                         description = "health points",
                         version = "TEST",
                         skill = false
@@ -38,6 +39,7 @@ class VersionFactoryTest {
                 Stat(
                         id= "willTEST",
                         name= "will",
+                        fname = "Willpower",
                         description = "Willpower",
                         version = "TEST",
                         skill = false
@@ -45,6 +47,7 @@ class VersionFactoryTest {
                 Stat(
                         id= "fortTEST",
                         name= "fort",
+                        fname = "Fortitude",
                         description = "Fortitude",
                         version = "TEST",
                         skill = false
@@ -52,6 +55,7 @@ class VersionFactoryTest {
                 Stat(
                         id ="historyTEST",
                         name = "history",
+                        fname = "History",
                         description = "History",
                         version = "TEST",
                         skill = true
@@ -70,7 +74,7 @@ class VersionFactoryTest {
 
         assertThat(skillList.count(), `is`(equalTo(1)))
 
-        assertThat(skillList[0].name, `is`(equalTo("history")))
+        assertThat(skillList[0].key, `is`(equalTo("history")))
         assertThat(skillList[0].description,`is`(equalTo("History")))
         assertThat(skillList[0].skill, `is`(true))
 
@@ -79,15 +83,15 @@ class VersionFactoryTest {
 
     @Test
     fun addStatToVersion() {
-        val versionSheet = versionFactory.addStatToVersion("rec", "Recognition", "TEST", true)
+        val versionSheet = versionFactory.addStatToVersion("rec", "Recognition", "Recognition", "TEST", true)
         assertThat(versionSheet.version, `is`(equalTo("TEST")))
-        assertThat(versionSheet.stats.contains(StatQL("rec", "Recognition", true, mutableListOf())), `is`(true))
+        assertThat(versionSheet.stats.contains(StatQL("rec", "Recognition", "Recognition", true, mutableListOf())), `is`(true))
 
-        val skill = versionSheet.stats[versionSheet.stats.indexOf(StatQL("rec", "Recognition", true, mutableListOf()))]
+        val skill = versionSheet.stats[versionSheet.stats.indexOf(StatQL("rec", "Recognition", "Recognition", true, mutableListOf()))]
         val repoSkill = statRepository.findById("recTEST")
 
         assertThat(repoSkill, notNullValue())
-        assertThat(repoSkill?.name, `is`(equalTo(skill.name)))
+        assertThat(repoSkill?.name, `is`(equalTo(skill.key)))
         assertThat(repoSkill?.description, `is`(equalTo(skill.description)))
         assertThat(repoSkill?.skill, `is`(equalTo(skill.skill)))
     }

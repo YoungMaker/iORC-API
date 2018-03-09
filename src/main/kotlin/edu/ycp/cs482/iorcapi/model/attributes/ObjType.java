@@ -8,5 +8,5 @@ public enum ObjType {
     ITEM_WEAPON,
     ITEM_FEAT,
     ITEM_ARMOR,
-    ITEM_MISC
+    ITEM
 }

@@ -36,32 +36,32 @@ class VersionFactory(
         return true
     }
 
-    fun addStatToVersion(name: String, description: String, version: String, skill: Boolean): Version {
-        val stat = Stat((name+version), name, description, version, skill)
+    fun addStatToVersion(key:String, name: String, description: String, version: String, skill: Boolean): Version {
+        val stat = Stat((key+version), key, name,  description, version, skill)
         statRepository.findById("str" + version) ?: initializeVersion(version)
         statRepository.save(stat)
         return constructVersionSheet(version)
     }
 
     fun initializeVersion(version: String){
-        statRepository.save(Stat("str"+version, "str", "Strength", version, false))
-        statRepository.save(Stat("con"+version, "con", "Constitution", version, false))
-        statRepository.save(Stat("dex"+version, "dex", "Dexterity", version, false))
-        statRepository.save(Stat("int"+version, "int", "Intelligence", version, false))
-        statRepository.save(Stat("wis"+version, "wis", "Wisdom", version, false))
-        statRepository.save(Stat("cha"+version, "cha", "Charisma", version, false))
+        statRepository.save(Stat("str"+version, "str", "Strength", "Strength", version, false))
+        statRepository.save(Stat("con"+version, "con", "Constitution", "Constitution", version, false))
+        statRepository.save(Stat("dex"+version, "dex", "Dexterity","Dexterity", version, false))
+        statRepository.save(Stat("int"+version, "int", "Intelligence","Intelligence", version, false))
+        statRepository.save(Stat("wis"+version, "wis", "Wisdom", "Wisdom", version, false))
+        statRepository.save(Stat("cha"+version, "cha", "Charisma","Charisma", version, false))
     }
 
-    fun addStatModifiers(name : String, version: String, mods: HashMap<String, Float>): StatQL {
-        val stat = statRepository.findById((name+version)) ?: throw QueryException("Stat does not exist with that id", ErrorType.DataFetchingException)
+    fun addStatModifiers(key : String, version: String, mods: HashMap<String, Float>): StatQL {
+        val stat = statRepository.findById((key+version)) ?: throw QueryException("Stat does not exist with that id", ErrorType.DataFetchingException)
 
         stat.unionModifiers(mods)
         statRepository.save(stat) // this should write over the old one with the new parameters
         return StatQL(stat)
     }
 
-    fun removeStatModifier(name : String, version: String,  key: String): StatQL {
-        val stat = statRepository.findById((name+version)) ?: throw QueryException("Stat does not exist with that id", ErrorType.DataFetchingException)
+    fun removeStatModifier(statKey : String, version: String,  key: String): StatQL {
+        val stat = statRepository.findById((statKey+version)) ?: throw QueryException("Stat does not exist with that id", ErrorType.DataFetchingException)
 
         stat.removeModifier(key)
         statRepository.save(stat) // this should write over the old one with the new parameters
