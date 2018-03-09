@@ -25,6 +25,7 @@ data class ItemQL(
         val description: String,
         val price: Float,
         val modifiers: List<Modifier> = listOf(),
+        val itemClasses: List<String> = listOf(),
         val version: String,
         val type: ObjType = ObjType.ITEM,
         val equipped: Boolean
@@ -34,6 +35,7 @@ data class ItemQL(
                     name = item.name,
                     price = item.price,
                     description = item.description,
+                    itemClasses = item.itemClasses,
                     type = item.type,
                     version = item.version,
                     modifiers = item.convertToModifiers(),

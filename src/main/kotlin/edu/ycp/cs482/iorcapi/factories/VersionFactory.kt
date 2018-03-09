@@ -5,13 +5,16 @@ import edu.ycp.cs482.iorcapi.error.QueryException
 import edu.ycp.cs482.iorcapi.model.Version
 import edu.ycp.cs482.iorcapi.model.attributes.Stat
 import edu.ycp.cs482.iorcapi.model.attributes.StatQL
+import edu.ycp.cs482.iorcapi.model.attributes.VersionInfo
 import edu.ycp.cs482.iorcapi.repositories.StatRepository
+import edu.ycp.cs482.iorcapi.repositories.VersionInfoRepository
 import graphql.ErrorType
 import org.springframework.stereotype.Component
 
 @Component
 class VersionFactory(
-        private val statRepository: StatRepository
+        private val statRepository: StatRepository,
+        private val versionInfoRepository: VersionInfoRepository
 ) {
 
     fun getVersionSkills(version: String): Version{
@@ -43,13 +46,22 @@ class VersionFactory(
         return constructVersionSheet(version)
     }
 
-    fun initializeVersion(version: String){
+    fun addInfoToVersion(name: String, type: String, value: String, version: String): Version {
+        val info = VersionInfo((name+version), version, name, type,  value)
+        versionInfoRepository.findById("currency" + version) ?: initializeVersion(version)
+        versionInfoRepository.save(info)
+        return constructVersionSheet(version)
+    }
+
+    fun initializeVersion(version: String): Version {
         statRepository.save(Stat("str"+version, "str", "Strength", "Strength", version, false))
         statRepository.save(Stat("con"+version, "con", "Constitution", "Constitution", version, false))
         statRepository.save(Stat("dex"+version, "dex", "Dexterity","Dexterity", version, false))
         statRepository.save(Stat("int"+version, "int", "Intelligence","Intelligence", version, false))
         statRepository.save(Stat("wis"+version, "wis", "Wisdom", "Wisdom", version, false))
         statRepository.save(Stat("cha"+version, "cha", "Charisma","Charisma", version, false))
+        versionInfoRepository.save(VersionInfo("currency"+ version, version, "currency", "currency", "Replace this with the versions currency" ))
+        return constructVersionSheet(version)
     }
 
     fun addStatModifiers(key : String, version: String, mods: HashMap<String, Float>): StatQL {
@@ -70,11 +82,12 @@ class VersionFactory(
 
     fun constructVersionSheet(version: String) : Version {
         val versionStats = statRepository.findByVersion(version)
+        val versionInfo = versionInfoRepository.findByVersion(version)
 
         val qlStats = mutableListOf<StatQL>()
         versionStats.mapTo(qlStats){StatQL(it)}
 
-       return Version(version, qlStats)
+       return Version(version, qlStats, versionInfo)
     }
 
 }

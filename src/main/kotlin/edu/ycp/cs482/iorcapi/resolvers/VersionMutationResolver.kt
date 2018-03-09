@@ -8,6 +8,13 @@ import org.springframework.stereotype.Component
 class VersionMutationResolver(
         private val versionFactory: VersionFactory
 ): GraphQLMutationResolver{
+
+    fun initalizeVersion(version: String)
+        = versionFactory.initializeVersion(version)
+
+    fun addInfoToVersion(name: String, version: String, type: String, value: String)
+        = versionFactory.addInfoToVersion(name, type, value, version)
+
     fun addStatToVersion(key:String, name: String, description: String, version: String, skill: Boolean)
             = versionFactory.addStatToVersion(key.toLowerCase(), name, description, version.toLowerCase(), skill)
 

@@ -27,7 +27,7 @@ class Stat(
 
 
 
-data class StatQL( //doesn't need version because it will be added to the version object sent out to QL
+data class StatQL( //doesn't need version because it will be added to the version object sent out to QL TODO: That's false
         val key: String,
         val name: String,
         val description: String,

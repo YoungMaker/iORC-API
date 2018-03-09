@@ -3,7 +3,6 @@ schema {
     mutation: Mutation
 }
 
-
 enum ObjType {
     RACE,
     CLASS,
@@ -13,6 +12,14 @@ enum ObjType {
     ITEM_ARMOR,
     ITEM
 }
+
+type VersionInfo {
+    id: ID!
+    name: String!
+    type: String!
+    value: String!
+}
+
 type Stat{
     key: String!
     name: String!
@@ -24,6 +31,7 @@ type Stat{
 type Version{
     version: String!
     stats: [Stat]
+    infoList: [VersionInfo]
 }
 
 type Modifier {
@@ -103,6 +111,9 @@ type Mutation {
     addStatToVersion(key:String, name: String!, description: String!, version: String!, skill: Boolean!) : Version
     addStatBaseCalcModifier(statKey: String!, version: String!, key: String!, value: Float!): Stat
     removeStatBaseCalcModifier(statKey: String!, version: String!, key: String!): Stat
+
+    addInfoToVersion(name: String!, version: String!, type: String!, value: String!): Version
+    initalizeVersion(version: String): Version
 }
 
 extend type Query {
