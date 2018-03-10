@@ -22,6 +22,10 @@ class VersionFactory(
             statRepository.findByVersionAndSkill(version, true).map{StatQL(it)})
     }
 
+    fun getVersionInfoByType(version: String, type: String): Version{
+        return Version(version, listOf(),  versionInfoRepository.findByVersionAndType(version, type))
+    }
+
     fun getVersionStatList(version: String): List<String>{
         val statList = statRepository.findByVersion(version)
         return statList.map { it.name }

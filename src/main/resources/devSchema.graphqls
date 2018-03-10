@@ -131,6 +131,8 @@ extend type Query {
 
     getVersionSheet(version: String!): Version
     getVersionSkills(version: String!): Version
+
+    getVersionInfoType(version: String!, type: String!): Version
 }
 
 
