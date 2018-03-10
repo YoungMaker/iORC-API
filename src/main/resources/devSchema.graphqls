@@ -13,6 +13,16 @@ enum ObjType {
     ITEM
 }
 
+type Item{
+    name: String!
+    description: String!
+    price: String!
+    modifiers: [Modifier]
+    itemClasses: [String]
+    version: String
+    type: ObjType
+}
+
 type VersionInfo {
     id: ID!
     name: String!
@@ -114,6 +124,8 @@ type Mutation {
 
     addInfoToVersion(name: String!, version: String!, type: String!, value: String!): Version
     initalizeVersion(version: String): Version
+
+    addItemToVersion(name: String!, description: String!, price: Float!, classes: [String]!, version: String, type: ObjType! ) : Item
 }
 
 extend type Query {
@@ -133,6 +145,10 @@ extend type Query {
     getVersionSkills(version: String!): Version
 
     getVersionInfoType(version: String!, type: String!): Version
+
+    getVersionItems(version: String) : [Item]!
+    getVersionItemType(version: String, type: ObjType): [Item]!
+    getItemsByClasses(version: String, classes: [String]!): [Item]!
 }
 
 
