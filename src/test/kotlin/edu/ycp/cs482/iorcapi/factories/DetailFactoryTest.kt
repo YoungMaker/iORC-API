@@ -21,6 +21,7 @@ import edu.ycp.cs482.iorcapi.model.attributes.Modifier
 import edu.ycp.cs482.iorcapi.model.attributes.Stat
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import edu.ycp.cs482.iorcapi.repositories.StatRepository
+import edu.ycp.cs482.iorcapi.repositories.VersionInfoRepository
 
 
 @SpringBootTest
@@ -30,6 +31,7 @@ class DetailFactoryTest {
     lateinit var raceRepository: RaceRepository
     lateinit var detailFactory: DetailFactory
     lateinit var statRepository: StatRepository
+    lateinit var versionInfoRepository: VersionInfoRepository
     lateinit var versionFactory: VersionFactory
 
     @Before
@@ -37,7 +39,8 @@ class DetailFactoryTest {
         classRepository = RepositoryFactoryBuilder.builder().mock(ClassRepository::class.java)
         raceRepository = RepositoryFactoryBuilder.builder().mock(RaceRepository::class.java)
         statRepository = RepositoryFactoryBuilder.builder().mock(StatRepository::class.java)
-        versionFactory = VersionFactory(statRepository)
+        versionInfoRepository = RepositoryFactoryBuilder.builder().mock(VersionInfoRepository::class.java)
+        versionFactory = VersionFactory(statRepository, versionInfoRepository)
         addTestVersion()
         addTestClasses()
         addTestRaces()

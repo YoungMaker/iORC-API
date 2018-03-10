@@ -6,13 +6,10 @@ import edu.ycp.cs482.iorcapi.model.ClassRpg
 import edu.ycp.cs482.iorcapi.model.ModTools
 import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.model.attributes.Ability
-import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
-import edu.ycp.cs482.iorcapi.repositories.ClassRepository
-import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
 import edu.ycp.cs482.iorcapi.model.attributes.AbilityInput
 import edu.ycp.cs482.iorcapi.model.attributes.Stat
-import edu.ycp.cs482.iorcapi.repositories.StatRepository
+import edu.ycp.cs482.iorcapi.repositories.*
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.*
 import org.junit.After
@@ -32,6 +29,7 @@ class CharacterFactoryTest {
     lateinit var characterFactory: CharacterFactory
     lateinit var detailFactory: DetailFactory
     lateinit var statRepository: StatRepository
+    lateinit var versionInfoRepository: VersionInfoRepository
     lateinit var versionFactory: VersionFactory
 
     @Before
@@ -40,7 +38,8 @@ class CharacterFactoryTest {
         raceRepository = RepositoryFactoryBuilder.builder().mock(RaceRepository::class.java)
         characterRepository = RepositoryFactoryBuilder.builder().mock(CharacterRepository::class.java)
         statRepository = RepositoryFactoryBuilder.builder().mock(StatRepository::class.java)
-        versionFactory = VersionFactory(statRepository)
+        versionInfoRepository = RepositoryFactoryBuilder.builder().mock(VersionInfoRepository::class.java)
+        versionFactory = VersionFactory(statRepository, versionInfoRepository)
         addTestVersion()
         addTestClasses()
         addTestRaces()

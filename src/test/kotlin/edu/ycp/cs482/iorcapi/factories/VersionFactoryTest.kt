@@ -4,6 +4,7 @@ import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
 import edu.ycp.cs482.iorcapi.model.attributes.Stat
 import edu.ycp.cs482.iorcapi.model.attributes.StatQL
 import edu.ycp.cs482.iorcapi.repositories.StatRepository
+import edu.ycp.cs482.iorcapi.repositories.VersionInfoRepository
 import org.hamcrest.Matchers.*
 import org.junit.After
 import org.junit.Before
@@ -14,13 +15,15 @@ import org.junit.Assert.*
 class VersionFactoryTest {
 
     lateinit var statRepository: StatRepository
+    lateinit var versionInfoRepository: VersionInfoRepository
     lateinit var versionFactory: VersionFactory
 
 
     @Before
     fun setUp() {
         statRepository = RepositoryFactoryBuilder.builder().mock(StatRepository::class.java)
-        versionFactory = VersionFactory(statRepository)
+        versionInfoRepository = RepositoryFactoryBuilder.builder().mock(VersionInfoRepository::class.java)
+        versionFactory = VersionFactory(statRepository, versionInfoRepository)
         addTestVersion()
     }
 
