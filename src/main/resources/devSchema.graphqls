@@ -86,7 +86,7 @@ input AbilityInput{
     cha: Int!
 }
 
-union ModifierResult = Race | Class
+union ModifierResult = Race | Class | Item
 
 type Character {
     id: ID!
@@ -115,7 +115,7 @@ type Mutation {
     createClass(name: String!, role: String!, version: String!, description: String! ): Class!
     updateClass(id: ID! name: String!, role: String!, version: String!, description: String! ): Class
 
-    addModifier(id: ID!, type: ObjType!, key: String!, value: Int!) : ModifierResult
+    addModifier(id: ID!, type: ObjType!, key: String!, value: Float!) : ModifierResult
     removeModifier(id: ID!, type: ObjType!, key: String!) : ModifierResult
 
     addStatToVersion(key:String, name: String!, description: String!, version: String!, skill: Boolean!) : Version

@@ -32,6 +32,15 @@ open class Modifiable(
         }
         return outputList
     }
+
+    fun convertToHashMap(mList: List<Modifier>) : Map<String, Float> {
+        val outputMap = mutableMapOf<String, Float>()
+        for(modifier in mList){
+            outputMap[modifier.key] = modifier.value
+        }
+        return outputMap
+    }
+
 }
 
 //these are now floats because we have multiplier modifiers for the stat sheet.

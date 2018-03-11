@@ -2,20 +2,27 @@ package edu.ycp.cs482.iorcapi.resolvers
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import edu.ycp.cs482.iorcapi.factories.DetailFactory
+import edu.ycp.cs482.iorcapi.factories.ItemFactory
 import edu.ycp.cs482.iorcapi.model.attributes.ObjType
 import org.springframework.stereotype.Component
 
 @Component
 class ModifierMutationResolver(
-    private val detailFactory: DetailFactory
+    private val detailFactory: DetailFactory,
+    private val itemFactory: ItemFactory
 
 ) : GraphQLMutationResolver{
 
-    fun addModifier(id: String, type: ObjType, key: String, value: Int): Any? {
+    fun addModifier(id: String, type: ObjType, key: String, value: Float): Any? {
 
         return when(type) {
-            ObjType.RACE -> detailFactory.addRaceModifiers(id, hashMapOf(Pair(key.toLowerCase(), value.toFloat())))
-            ObjType.CLASS -> detailFactory.addClassModifiers(id, hashMapOf(Pair(key.toLowerCase(), value.toFloat())))
+            ObjType.RACE -> detailFactory.addRaceModifiers(id, hashMapOf(Pair(key.toLowerCase(), value)))
+            ObjType.CLASS -> detailFactory.addClassModifiers(id, hashMapOf(Pair(key.toLowerCase(), value)))
+            ObjType.ITEM  -> itemFactory.addItemMutations(id, hashMapOf(Pair(key.toLowerCase(), value)))
+            ObjType.ITEM_SPELL  -> itemFactory.addItemMutations(id, hashMapOf(Pair(key.toLowerCase(), value)))
+            ObjType.ITEM_FEAT  -> itemFactory.addItemMutations(id, hashMapOf(Pair(key.toLowerCase(), value)))
+            ObjType.ITEM_WEAPON  -> itemFactory.addItemMutations(id, hashMapOf(Pair(key.toLowerCase(), value)))
+            ObjType.ITEM_ARMOR  -> itemFactory.addItemMutations(id, hashMapOf(Pair(key.toLowerCase(), value)))
             //TODO: Add the rest when implemented
             else -> {null}
         }
@@ -27,6 +34,11 @@ class ModifierMutationResolver(
         return when(type) {
             ObjType.RACE -> detailFactory.removeRaceModifier(id, key.toLowerCase())
             ObjType.CLASS -> detailFactory.removeClassModifier(id, key.toLowerCase())
+            ObjType.ITEM  -> itemFactory.removeItemMutation(id, key.toLowerCase())
+            ObjType.ITEM_ARMOR  -> itemFactory.removeItemMutation(id, key.toLowerCase())
+            ObjType.ITEM_SPELL  -> itemFactory.removeItemMutation(id, key.toLowerCase())
+            ObjType.ITEM_WEAPON  -> itemFactory.removeItemMutation(id, key.toLowerCase())
+            ObjType.ITEM_FEAT  -> itemFactory.removeItemMutation(id, key.toLowerCase())
         //TODO: Add the rest when implemented
             else -> {null}
         }
