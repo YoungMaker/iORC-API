@@ -30,7 +30,7 @@ class ItemFactoryTest {
                     name = "Battle Axe of the Bold",
                     description = "A battle axe that is wielded by scholars to ward off lunch money thieves.",
                     price = 520f,
-                    itemClasses = listOf("Axe", "Military_Melee"),
+                    itemClasses = listOf("axe", "military_weapon", "melee_weapon"),
                     version = "TEST_VERSION",
                     type = ObjType.ITEM_WEAPON
                 )
