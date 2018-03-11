@@ -36,15 +36,39 @@ class ItemFactoryTest {
                 )
 
         //get items from repo
-        val repoItems = itemRepository.findByVersion("TEST_VERSION")
+        val repoItem = itemRepository.findById(item.id)
+
+        //sanity checks
+        //print("FACTORY ITEMS" + item.id)
+        //print("REPO ITEMS" + repoItem?.id)
 
         //check if item was added to repo
-        assertThat(repoItems.get(0).name, `is` (equalTo(item.name)))
+        assertThat(repoItem?.id, `is` (equalTo(item.id)))
+        assertThat(repoItem?.name, `is` (equalTo(item.name)))
     }
 
     @Test
     fun getVersionItems() {
-        //TODO implement
+        //TODO improve and expand
+        //itemRepository
+        itemFactory.addItem(
+                name = "Battle Axe of the Not so Bold",
+                description = "A battle axe that is wielded people who want a useless item worth way too much money.",
+                price = 999999f,
+                itemClasses = listOf("axe", "military_weapon", "melee_weapon"),
+                version = "TEST_VERSION",
+                type = ObjType.ITEM_WEAPON
+        )
+
+        //get by version the list of items
+        val itemFactList = itemFactory.getVersionItemType("TEST_VERSION", type = ObjType.ITEM_WEAPON)
+        //print("FACTORY ITEMS" + itemFactList)
+        val repoItems = itemRepository.findByVersion("TEST_VERSION")
+        //print("REPO ITEMS" + repoItems)
+
+        //test the list of items
+        assertThat(repoItems.get(0).id, `is` (equalTo(itemFactList.get(0).id)))
+        assertThat(repoItems.get(0).name, `is` (equalTo(itemFactList.get(0).name)))
     }
 
     @Test
