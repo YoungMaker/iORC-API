@@ -22,7 +22,7 @@ class Stat(
                 description: String,
                 version: String,
                 skill: Boolean)
-                :this(id, name, name, description, version, skill)
+                :this(id, name, name.capitalize(), description, version, skill)
 }
 
 
