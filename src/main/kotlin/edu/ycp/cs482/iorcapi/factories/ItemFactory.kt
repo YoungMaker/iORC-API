@@ -32,7 +32,7 @@ class ItemFactory(
     fun getItemsByClassesIn(version: String, classes: List<String>)
             = itemRepository.findByVersionAndItemClassesIn(version, classes).map { ItemQL(it) }
 
-    fun addItemMutations(id: String, mods:HashMap<String, Float>): ItemQL{
+    fun addItemModifier(id: String, mods:HashMap<String, Float>): ItemQL{
         val item =itemRepository.findById(id) ?:
                             throw QueryException("Item Does not exist in that version with that name", ErrorType.DataFetchingException)
 
@@ -41,7 +41,7 @@ class ItemFactory(
         return ItemQL(item)
     }
 
-    fun removeItemMutation(id: String, key:String): ItemQL{
+    fun removeItemModifier(id: String, key:String): ItemQL{
         val item =itemRepository.findById(id) ?:
         throw QueryException("Item Does not exist in that version with that name", ErrorType.DataFetchingException)
 
