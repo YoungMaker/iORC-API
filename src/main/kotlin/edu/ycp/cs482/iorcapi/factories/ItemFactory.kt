@@ -29,6 +29,9 @@ class ItemFactory(
     fun getItemsByClasses(version: String, classes: List<String>)
             = itemRepository.findByVersionAndItemClasses(version, classes).map { ItemQL(it) }
 
+    fun getItemsByClassesIn(version: String, classes: List<String>)
+            = itemRepository.findByVersionAndItemClassesIn(version, classes).map { ItemQL(it) }
+
     fun addItemMutations(id: String, mods:HashMap<String, Float>): ItemQL{
         val item =itemRepository.findById(id) ?:
                             throw QueryException("Item Does not exist in that version with that name", ErrorType.DataFetchingException)

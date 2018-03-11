@@ -16,5 +16,8 @@ class ItemQueryResolver(
         = itemFactory.getVersionItemType(version, type)
 
     fun getItemsByClasses(version: String, classes: List<String>)
-        = itemFactory.getItemsByClasses(version, classes)
+            = itemFactory.getItemsByClasses(version, classes)
+
+    fun getItemsByClassesIn(version: String, classes: List<String>)
+            = itemFactory.getItemsByClassesIn(version, classes)
 }

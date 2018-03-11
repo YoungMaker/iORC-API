@@ -149,6 +149,7 @@ extend type Query {
     getVersionItems(version: String) : [Item]!
     getVersionItemType(version: String, type: ObjType): [Item]!
     getItemsByClasses(version: String, classes: [String]!): [Item]!
+    getItemsByClassesIn(version: String, classes: [String]!): [Item]!
 }
 
 

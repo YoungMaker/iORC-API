@@ -9,4 +9,5 @@ interface ItemRepository: MongoRepository<Item, String> {
     fun findByVersion(version: String) : List<Item>
     fun findByVersionAndItemClasses(version: String, classes: List<String>): List<Item>
     fun findByVersionAndType(version: String, type: ObjType): List<Item>
+    fun findByVersionAndItemClassesIn(version: String, classes:List<String>): List<Item>
 }
