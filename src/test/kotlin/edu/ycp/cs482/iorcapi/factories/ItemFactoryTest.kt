@@ -100,7 +100,7 @@ class ItemFactoryTest {
     fun getItemsByClasses() {
         //TODO improve and expand, add more items with different classes and add them to list
         //itemRepository
-        /*val test = itemFactory.addItem(
+        val test = itemFactory.addItem(
                 name = "Battle Axe of the Not so Bold",
                 description = "A battle axe that is wielded people who want a useless item worth way too much money.",
                 price = 999999f,
@@ -111,14 +111,14 @@ class ItemFactoryTest {
         val repoItem = itemRepository.findById(test.id)
         print("TEST ITEM" + repoItem?.name)
         //get by version and item type the list of items
-        val itemFactList = itemFactory.getItemsByClasses("TEST_VERSION", classes = listOf("military_weapon"))
+        val itemFactList = itemFactory.getItemsByClasses("TEST_VERSION", classes = listOf("axe", "military_weapon", "melee_weapon"))
         print("FACTORY ITEMS" + itemFactList)
-        val repoItems = itemRepository.findByVersionAndItemClasses("TEST_VERSION", classes = listOf("military_weapon"))
+        val repoItems = itemRepository.findByVersionAndItemClasses("TEST_VERSION", classes = listOf("axe", "military_weapon", "melee_weapon"))
         print("REPO ITEMS" + repoItems)
 
         //test the list of items
         assertThat(repoItems.get(0).id, `is` (equalTo(itemFactList.get(0).id)))
-        assertThat(repoItems.get(0).name, `is` (equalTo(itemFactList.get(0).name)))*/
+        assertThat(repoItems.get(0).name, `is` (equalTo(itemFactList.get(0).name)))
     }
 
     @Test
