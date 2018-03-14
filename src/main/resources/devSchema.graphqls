@@ -3,7 +3,6 @@ schema {
     mutation: Mutation
 }
 
-
 enum ObjType {
     RACE,
     CLASS,
@@ -11,9 +10,28 @@ enum ObjType {
     ITEM_WEAPON,
     ITEM_FEAT,
     ITEM_ARMOR,
-    ITEM_MISC
+    ITEM
 }
+
+type Item{
+    name: String!
+    description: String!
+    price: String!
+    modifiers: [Modifier]
+    itemClasses: [String]
+    version: String
+    type: ObjType
+}
+
+type VersionInfo {
+    id: ID!
+    name: String!
+    type: String!
+    value: String!
+}
+
 type Stat{
+    key: String!
     name: String!
     description: String!
     skill: Boolean
@@ -23,6 +41,7 @@ type Stat{
 type Version{
     version: String!
     stats: [Stat]
+    infoList: [VersionInfo]
 }
 
 type Modifier {
@@ -67,7 +86,7 @@ input AbilityInput{
     cha: Int!
 }
 
-union ModifierResult = Race | Class
+union ModifierResult = Race | Class | Item
 
 type Character {
     id: ID!
@@ -96,12 +115,17 @@ type Mutation {
     createClass(name: String!, role: String!, version: String!, description: String! ): Class!
     updateClass(id: ID! name: String!, role: String!, version: String!, description: String! ): Class
 
-    addModifier(id: ID!, type: ObjType!, key: String!, value: Int!) : ModifierResult
+    addModifier(id: ID!, type: ObjType!, key: String!, value: Float!) : ModifierResult
     removeModifier(id: ID!, type: ObjType!, key: String!) : ModifierResult
 
-    addStatToVersion(name: String!, description: String!, version: String!, skill: Boolean!) : Version
-    addStatBaseCalcModifier(name: String!, version: String!, key: String!, value: Float!): Stat
-    removeStatBaseCalcModifier(name: String!, version: String!, key: String!): Stat
+    addStatToVersion(key:String, name: String!, description: String!, version: String!, skill: Boolean!) : Version
+    addStatBaseCalcModifier(statKey: String!, version: String!, key: String!, value: Float!): Stat
+    removeStatBaseCalcModifier(statKey: String!, version: String!, key: String!): Stat
+
+    addInfoToVersion(name: String!, version: String!, type: String!, value: String!): Version
+    initalizeVersion(version: String): Version
+
+    addItemToVersion(name: String!, description: String!, price: Float!, classes: [String]!, version: String, type: ObjType! ) : Item
 }
 
 extend type Query {
@@ -119,6 +143,13 @@ extend type Query {
 
     getVersionSheet(version: String!): Version
     getVersionSkills(version: String!): Version
+
+    getVersionInfoType(version: String!, type: String!): Version
+
+    getVersionItems(version: String) : [Item]!
+    getVersionItemType(version: String, type: ObjType): [Item]!
+    getItemsByClasses(version: String, classes: [String]!): [Item]!
+    getItemsByClassesIn(version: String, classes: [String]!): [Item]!
 }
 
 

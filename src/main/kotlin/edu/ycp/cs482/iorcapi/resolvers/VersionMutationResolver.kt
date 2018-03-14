@@ -8,13 +8,20 @@ import org.springframework.stereotype.Component
 class VersionMutationResolver(
         private val versionFactory: VersionFactory
 ): GraphQLMutationResolver{
-    fun addStatToVersion(name: String, description: String, version: String, skill: Boolean)
-            = versionFactory.addStatToVersion(name.toLowerCase(), description, version.toLowerCase(), skill)
 
-    fun addStatBaseCalcModifier(name: String, version: String, key: String, value: Float)
-            = versionFactory.addStatModifiers(name.toLowerCase(), version.toLowerCase(),
+    fun initalizeVersion(version: String)
+        = versionFactory.initializeVersion(version)
+
+    fun addInfoToVersion(name: String, version: String, type: String, value: String)
+        = versionFactory.addInfoToVersion(name, type, value, version)
+
+    fun addStatToVersion(key:String, name: String, description: String, version: String, skill: Boolean)
+            = versionFactory.addStatToVersion(key.toLowerCase(), name, description, version.toLowerCase(), skill)
+
+    fun addStatBaseCalcModifier(statKey: String, version: String, key: String, value: Float)
+            = versionFactory.addStatModifiers(statKey.toLowerCase(), version.toLowerCase(),
                                                     hashMapOf(Pair(key.toLowerCase(), value)))
 
-    fun removeStatBaseCalcModifier(name: String, version: String, key: String)
-            = versionFactory.removeStatModifier(name.toLowerCase(), version.toLowerCase(), key)
+    fun removeStatBaseCalcModifier(statKey: String, version: String, key: String)
+            = versionFactory.removeStatModifier(statKey.toLowerCase(), version.toLowerCase(), key)
 }
