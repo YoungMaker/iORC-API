@@ -1,14 +1,9 @@
 package edu.ycp.cs482.iorcapi.factories
 
 
-import edu.ycp.cs482.iorcapi.model.Character
-import edu.ycp.cs482.iorcapi.model.ClassRpg
-import edu.ycp.cs482.iorcapi.model.ModTools
-import edu.ycp.cs482.iorcapi.model.Race
-import edu.ycp.cs482.iorcapi.model.attributes.Ability
 import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
-import edu.ycp.cs482.iorcapi.model.attributes.AbilityInput
-import edu.ycp.cs482.iorcapi.model.attributes.Stat
+import edu.ycp.cs482.iorcapi.model.*
+import edu.ycp.cs482.iorcapi.model.attributes.*
 import edu.ycp.cs482.iorcapi.repositories.*
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.*
@@ -31,6 +26,8 @@ class CharacterFactoryTest {
     lateinit var statRepository: StatRepository
     lateinit var versionInfoRepository: VersionInfoRepository
     lateinit var versionFactory: VersionFactory
+    lateinit var itemRepository: ItemRepository
+    lateinit var itemFactory: ItemFactory
 
     @Before
     fun setUp() {
@@ -39,13 +36,15 @@ class CharacterFactoryTest {
         characterRepository = RepositoryFactoryBuilder.builder().mock(CharacterRepository::class.java)
         statRepository = RepositoryFactoryBuilder.builder().mock(StatRepository::class.java)
         versionInfoRepository = RepositoryFactoryBuilder.builder().mock(VersionInfoRepository::class.java)
+        itemRepository = RepositoryFactoryBuilder.builder().mock(ItemRepository::class.java)
         versionFactory = VersionFactory(statRepository, versionInfoRepository)
         addTestVersion()
         addTestClasses()
         addTestRaces()
         addTestCharacters()
         detailFactory = DetailFactory(raceRepository, classRepository, versionFactory)
-        characterFactory = CharacterFactory(characterRepository, detailFactory)
+        itemFactory = ItemFactory(itemRepository)
+        characterFactory = CharacterFactory(characterRepository, detailFactory, versionFactory, itemFactory)
     }
 
     @After
@@ -53,6 +52,28 @@ class CharacterFactoryTest {
         characterRepository.deleteAll()
         classRepository.deleteAll()
         raceRepository.deleteAll()
+    }
+
+    private fun addTestItems() {
+        itemRepository.save(listOf(
+                Item(
+                        id = "Battle Axe of the Not so BoldTEST",
+                        name = "Battle Axe of the Not so Bold",
+                        description = "A battle axe that is wielded people who want a useless item worth way too much money.",
+                        price = 999999f,
+                        itemClasses = listOf("axe", "military_weapon", "melee_weapon"),
+                        version = "TEST",
+                        type = ObjType.ITEM_WEAPON
+                ), Item(
+                id = "Ranged Bow of the Unhinged MarksmanTEST",
+                name = "Ranged Bow of the Unhinged Marksman",
+                description = "A Bow so wildly inaccurate only insane marksmen would buy",
+                price = 350f,
+                itemClasses = listOf("bow", "military_weapon", "ranged_weapon", "mil_weapon", "onehand_weapon", "hand_left", "hand_right"),
+                version = "TEST",
+                type = ObjType.ITEM_WEAPON
+        )))
+
     }
 
 
@@ -79,6 +100,23 @@ class CharacterFactoryTest {
                         description = "Fortitude",
                         version = "TEST",
                         skill = false
+                )
+        ))
+
+        versionInfoRepository.save(listOf(
+                VersionInfo(
+                        id = "hand_leftTEST",
+                        name = "hand_left",
+                        type = "slot",
+                        value = "left hand item slot",
+                        version = "TEST"
+                ),
+                VersionInfo(
+                        id = "hand_rightTEST",
+                        name = "hand_right",
+                        type = "slot",
+                        value = "right hand item slot",
+                        version = "TEST"
                 )
         ))
     }
@@ -209,6 +247,11 @@ class CharacterFactoryTest {
         assertThat(character.name,  `is`(equalTo("Cregan the Destroyer of Worlds")))
         assertThat(character.abilityPoints,  `is`(equalTo(Ability(12, 14, 15, 11, 12, 14))))
         assertThat(character.race.name,  `is`(equalTo("Orc")))
+    }
+
+    @Test
+    fun TestVersionSlots() {
+        //TODO: fill out
     }
 
 

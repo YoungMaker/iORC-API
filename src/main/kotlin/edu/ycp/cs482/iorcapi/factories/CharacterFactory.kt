@@ -3,10 +3,9 @@ package edu.ycp.cs482.iorcapi.factories
 import edu.ycp.cs482.iorcapi.error.QueryException
 import edu.ycp.cs482.iorcapi.model.Character
 import edu.ycp.cs482.iorcapi.model.CharacterQL
+import edu.ycp.cs482.iorcapi.model.ItemQL
 import edu.ycp.cs482.iorcapi.model.Race
-import edu.ycp.cs482.iorcapi.model.attributes.Ability
-import edu.ycp.cs482.iorcapi.model.attributes.AbilityInput
-import edu.ycp.cs482.iorcapi.model.attributes.Slot
+import edu.ycp.cs482.iorcapi.model.attributes.*
 import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import graphql.ErrorType
@@ -18,8 +17,9 @@ class CharacterFactory(
 
     private val characterRepo: CharacterRepository,
     private val detailFactory: DetailFactory,
-    private val versionFactory: VersionFactory
-)  {
+    private val versionFactory: VersionFactory,
+    private val itemFactory: ItemFactory
+    )  {
     //TODO: Security! Access control checks! Associate with users
 //    fun createNewCharacter(name: String, abilityPoints: Ability, race: Race) : Character {
 //        val char = Character(UUID.randomUUID().toString(), name = name, abilityPoints = abilityPoints, race = race)
@@ -113,15 +113,52 @@ class CharacterFactory(
         return output
     }
 
-    fun hydrateItems(){
+    //todo: when item isn't found an error will be thrown. Do we want that?
+    fun hydrateItems(itemids: List<String>): List<ItemQL>{
+        val outputList = mutableListOf<ItemQL>()
+        for(itemid in itemids){
+            try {
+                outputList.add(itemFactory.getItemById(itemid))
+            }catch (e: QueryException){
+                outputList.add(ItemQL(id= "ERR ITEM", name= "ITEM ERROR",
+                        description = "" + e.message,
+                        modifiers = listOf(), price= -1f, version = "ERR"))
+            }
+        }
+        return outputList
+    }
 
+    fun hydrateSlots(slots: List<Slot>): List<SlotQL> {
+        val outputList = mutableListOf<SlotQL>()
+        for(slot in slots){
+            if(!slot.empty){
+                try {
+                    outputList.add(
+                        SlotQL(name = slot.name, item = itemFactory.getItemById(slot.itemId), empty = slot.empty))
+                }catch (e: QueryException) {
+                    outputList.add(SlotQL(name = slot.name, item = ItemQL(id = "ERR ITEM", name = "ITEM ERROR",
+                            description = "" + e.message,
+                            modifiers = listOf(), price = -1f, version = "ERR"), empty = false))
+                }
+            }
+
+        }
+        return outputList
     }
 
     //converts referential persistence object to graphQL full representation
     fun hydrateChar(char: Character) : CharacterQL {
         val race = detailFactory.getRaceById(char.raceid)
         val classql = detailFactory.getClassById(char.classid)
-        return CharacterQL(char.id, char.version, char.name, char.abilityPoints, race, classql)
+        return CharacterQL(id = char.id,
+                version =  char.version,
+                name = char.name,
+                abilityPoints =  char.abilityPoints,
+                race = race,
+                classql = classql,
+                inventory = hydrateItems(char.inventory),
+                slots = hydrateSlots(char.slots)
+            )
     }
 
 

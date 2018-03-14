@@ -4,6 +4,7 @@ import edu.ycp.cs482.iorcapi.model.attributes.Ability
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.PersistenceConstructor
 import edu.ycp.cs482.iorcapi.model.attributes.Slot
+import edu.ycp.cs482.iorcapi.model.attributes.SlotQL
 
 data class Character( //DB type
         @Id val id: String,
@@ -31,8 +32,8 @@ data class CharacterQL ( //output type
         val abilityPoints: Ability,
         val race: RaceQL,
         val classql: ClassQL,
-        val inventory: List<Item>,
-        val slots: List<Slot>
+        val inventory: List<ItemQL>,
+        val slots: List<SlotQL>
 ) {
     constructor(        id: String,
                         version: String,

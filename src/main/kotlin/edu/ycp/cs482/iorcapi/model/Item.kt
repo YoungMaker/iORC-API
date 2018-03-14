@@ -18,7 +18,7 @@ class Item(
 ) : Modifiable(modifiers) {
 
 }
-
+//removed equipped boolean
 data class ItemQL(
         @Id val id: String,
         val name: String,
@@ -27,8 +27,7 @@ data class ItemQL(
         val modifiers: List<Modifier> = listOf(),
         val itemClasses: List<String> = listOf(),
         val version: String,
-        val type: ObjType = ObjType.ITEM,
-        val equipped: Boolean
+        val type: ObjType = ObjType.ITEM
 ){
     constructor(item: Item) :
             this(id = item.id,
@@ -38,7 +37,6 @@ data class ItemQL(
                     itemClasses = item.itemClasses,
                     type = item.type,
                     version = item.version,
-                    modifiers = item.convertToModifiers(),
-                    equipped = false)
+                    modifiers = item.convertToModifiers())
 
 }

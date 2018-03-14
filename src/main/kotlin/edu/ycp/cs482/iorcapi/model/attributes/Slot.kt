@@ -1,5 +1,5 @@
 package edu.ycp.cs482.iorcapi.model.attributes
-import edu.ycp.cs482.iorcapi.model.Item
+import edu.ycp.cs482.iorcapi.model.ItemQL
 
 data class Slot(
         val name: String,
@@ -9,6 +9,6 @@ data class Slot(
 
 data class SlotQL(
         val name: String,
-        val item: Item,
+        val item: ItemQL,
         val empty: Boolean = true
 )
