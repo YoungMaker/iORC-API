@@ -6,6 +6,7 @@ import edu.ycp.cs482.iorcapi.model.CharacterQL
 import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.model.attributes.Ability
 import edu.ycp.cs482.iorcapi.model.attributes.AbilityInput
+import edu.ycp.cs482.iorcapi.model.attributes.Slot
 import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import graphql.ErrorType
@@ -16,7 +17,8 @@ import java.util.*
 class CharacterFactory(
 
     private val characterRepo: CharacterRepository,
-    private val detailFactory: DetailFactory
+    private val detailFactory: DetailFactory,
+    private val versionFactory: VersionFactory
 )  {
     //TODO: Security! Access control checks! Associate with users
 //    fun createNewCharacter(name: String, abilityPoints: Ability, race: Race) : Character {
@@ -36,7 +38,9 @@ class CharacterFactory(
                 abilityPoints = abils,
                 raceid = race.id,
                 classid = classql.id,
-                version = version)
+                version = version,
+                inventory = listOf(),
+                slots = getSlots(version))
         characterRepo.save(char) //should this be insert?
 
         return hydrateChar(char)
@@ -49,25 +53,36 @@ class CharacterFactory(
 
         val abils = Ability(abilityPoints.str, abilityPoints.con, abilityPoints.dex, abilityPoints._int, abilityPoints.wis, abilityPoints.cha)
 
+        val versionSlots = mutableListOf<Slot>()
+        if(char.slots.isEmpty()) {
+            versionSlots.addAll(getSlots(char.version))
+        }
+        else {
+            versionSlots.clear()
+            versionSlots.addAll(char.slots)
+        }
+
         val charNew = Character(id,
                 name = name,
                 abilityPoints = abils,
                 raceid = race.id,
                 classid = classql.id,
-                version = char.version)
+                version = char.version,
+                inventory = char.inventory,
+                slots = versionSlots)
         characterRepo.save(charNew) //should this be insert?
 
         return hydrateChar(charNew)
     }
 
-    //depreciated.
-    fun updateName(id: String, name: String) : CharacterQL {
-        val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
-
-        val newChar = Character(id, name, char.abilityPoints, char.raceid, char.classid, char.version) // creates new one based on old one
-        characterRepo.save(newChar) // this should write over the old one with the new name
-        return hydrateChar(newChar)
-    }
+//    //depreciated.
+//    fun updateName(id: String, name: String) : CharacterQL {
+//        val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
+//
+//        val newChar = Character(id, name, char.abilityPoints, char.raceid, char.classid, char.version) // creates new one based on old one
+//        characterRepo.save(newChar) // this should write over the old one with the new name
+//        return hydrateChar(newChar)
+//    }
 
     fun getCharacterById(id:String) : CharacterQL {
         val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
@@ -77,6 +92,13 @@ class CharacterFactory(
     fun getCharactersByName(name: String) = hydrateChars(characterRepo.findByName(name))
 
     fun getCharactersByVersion(version: String) = hydrateChars(characterRepo.findByVersion(version))
+
+    fun getSlots(version: String): List<Slot>{
+        val vInfoSlots = versionFactory.getVersionInfoByType(version, "slot").infoList
+        val outputList = mutableListOf<Slot>()
+        vInfoSlots.mapTo(outputList) { Slot(it.name, "", true) }
+        return outputList
+    }
 
     fun deleteCharacter(id: String): String {
         characterRepo.delete(id)
@@ -89,6 +111,10 @@ class CharacterFactory(
 
         chars.mapTo(output) { hydrateChar(it) }
         return output
+    }
+
+    fun hydrateItems(){
+
     }
 
     //converts referential persistence object to graphQL full representation

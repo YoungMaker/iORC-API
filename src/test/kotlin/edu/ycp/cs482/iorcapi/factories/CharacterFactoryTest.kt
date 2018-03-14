@@ -168,11 +168,11 @@ class CharacterFactoryTest {
         assertThat(character.classql, `is`(equalTo(classRpg)))
     }
 
-    @Test
-    fun updateName() {
-        val nameUpdate = characterFactory.updateName("1.2","Gerald")
-        assertThat(nameUpdate.name, `is`(equalTo("Gerald")))
-    }
+   // @Test
+//    fun updateName() {
+//        val nameUpdate = characterFactory.updateName("1.2","Gerald")
+//        assertThat(nameUpdate.name, `is`(equalTo("Gerald")))
+//    }
 
     @Test
     fun getCharacterById() {
