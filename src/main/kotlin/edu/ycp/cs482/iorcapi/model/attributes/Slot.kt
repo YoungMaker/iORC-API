@@ -9,6 +9,6 @@ data class Slot(
 
 data class SlotQL(
         val name: String,
-        val item: ItemQL,
+        val item: ItemQL?,
         val empty: Boolean = true
 )

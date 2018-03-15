@@ -38,6 +38,7 @@ class CharacterFactoryTest {
         versionInfoRepository = RepositoryFactoryBuilder.builder().mock(VersionInfoRepository::class.java)
         itemRepository = RepositoryFactoryBuilder.builder().mock(ItemRepository::class.java)
         versionFactory = VersionFactory(statRepository, versionInfoRepository)
+        addTestItems()
         addTestVersion()
         addTestClasses()
         addTestRaces()
@@ -52,27 +53,38 @@ class CharacterFactoryTest {
         characterRepository.deleteAll()
         classRepository.deleteAll()
         raceRepository.deleteAll()
+        itemRepository.deleteAll()
     }
 
     private fun addTestItems() {
         itemRepository.save(listOf(
                 Item(
-                        id = "Battle Axe of the Not so BoldTEST",
-                        name = "Battle Axe of the Not so Bold",
-                        description = "A battle axe that is wielded people who want a useless item worth way too much money.",
-                        price = 999999f,
-                        itemClasses = listOf("axe", "military_weapon", "melee_weapon"),
-                        version = "TEST",
-                        type = ObjType.ITEM_WEAPON
-                ), Item(
-                id = "Ranged Bow of the Unhinged MarksmanTEST",
-                name = "Ranged Bow of the Unhinged Marksman",
-                description = "A Bow so wildly inaccurate only insane marksmen would buy",
+                    id = "Battle Axe of the Not so BoldTEST",
+                    name = "Battle Axe of the Not so Bold",
+                    description = "A battle axe that is wielded people who want a useless item worth way too much money.",
+                    price = 999999f,
+                    itemClasses = listOf("axe", "military_weapon", "melee_weapon", "twohand_weapon", "hands_left", "hand_right"),
+                    version = "TEST",
+                    type = ObjType.ITEM_WEAPON
+                ),
+                Item(
+                    id = "Ranged Bow of the Unhinged MarksmanTEST",
+                    name = "Ranged Bow of the Unhinged Marksman",
+                    description = "A Bow so wildly inaccurate only insane marksmen would buy",
+                    price = 350f,
+                    itemClasses = listOf("bow", "military_weapon", "ranged_weapon", "mil_weapon", "onehand_weapon", "hand_left", "hand_right"),
+                    version = "TEST",
+                    type = ObjType.ITEM_WEAPON
+        ),Item(
+                id = "BucketTEST",
+                name = "Bucket of head",
+                description = "A bucket you can wear on your head",
                 price = 350f,
-                itemClasses = listOf("bow", "military_weapon", "ranged_weapon", "mil_weapon", "onehand_weapon", "hand_left", "hand_right"),
+                itemClasses = listOf("head"),
+                modifiers = mapOf(Pair("ac", 1f)),
                 version = "TEST",
-                type = ObjType.ITEM_WEAPON
-        )))
+                type = ObjType.ITEM_ARMOR
+                )))
 
     }
 
@@ -116,6 +128,13 @@ class CharacterFactoryTest {
                         name = "hand_right",
                         type = "slot",
                         value = "right hand item slot",
+                        version = "TEST"
+                ),
+                VersionInfo(
+                        id = "headTEST",
+                        name = "head",
+                        type = "slot",
+                        value = "head item slot",
                         version = "TEST"
                 )
         ))
@@ -250,8 +269,35 @@ class CharacterFactoryTest {
     }
 
     @Test
-    fun TestVersionSlots() {
-        //TODO: fill out
+    fun testVersionSlots() {
+        val character = characterFactory.createNewCharacter(
+                abilityPoints = AbilityInput(12,14,11,15,14,16),
+                name = "Jerome Stefan",
+                classid = "0.1",
+                raceid = "1.0",
+                version = "TEST"
+        )
+        assertThat(character.slots.count(), `is`(not(0)))
+        assertThat(character.slots[0].name, `is`(equalTo("hand_left")))
+        assertThat(character.slots[0].empty, `is`(true))
+
+
+        val newCharacter = characterFactory.addItemToCharacter(character.id, "BucketTEST")
+        assertThat(newCharacter.inventory.count(), `is`(not(0)))
+
+        val equipChar = characterFactory.equipItem(character.id, "BucketTEST", "head")
+
+        assertThat(equipChar.slots[2].empty, `is`(false))
+        assertThat(equipChar.slots[2].name, `is`(equalTo("head")))
+        assertThat(equipChar.slots[2].item, `is`(equalTo(ItemQL(id = "BucketTEST",
+                name = "Bucket of head",
+                description = "A bucket you can wear on your head",
+                price = 350f,
+                itemClasses = listOf("head"),
+                modifiers = listOf(Modifier("ac", 1f)),
+                version = "TEST",
+                type = ObjType.ITEM_ARMOR))))
+
     }
 
 

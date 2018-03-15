@@ -13,6 +13,12 @@ enum ObjType {
     ITEM
 }
 
+type Slot{
+    name: String!
+    item: Item
+    empty: Boolean
+}
+
 type Item{
     name: String!
     description: String!
@@ -95,6 +101,8 @@ type Character {
     abilityPoints: Ability!
     race: Race
     classql: Class
+    inventory: [Item]!
+    slots: [Slot]!
 }
 
 
@@ -107,7 +115,9 @@ type Mutation {
 
     updateCharacter(id: ID!, name: String!, abilityPoints: AbilityInput!, raceid: String!, classid: String!): Character!
     createCharacter( name: String!, abilityPoints: AbilityInput!, raceid: String!, classid: String!, version: String!) : Character!
-    deleteCharacter(id: String): String!
+    deleteCharacter(id: ID!): String!
+    addItemToCharacter(id:ID!, itemid: ID!): Character!
+    equipItem(id:ID!, itemid: ID!, slotid: String!): Character!
 
     createRace(name: String!, description: String!, version: String!): Race!
     updateRace(id: ID!, name: String!, version: String!, description: String!): Race

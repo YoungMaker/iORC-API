@@ -105,6 +105,53 @@ class CharacterFactory(
         return "Character %s deleted".format(id)
     }
 
+    fun equipItem(id:String, itemid: String, slotname: String): CharacterQL{
+        val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
+        val item = itemFactory.getItemById(itemid) //checks if item exits, throws exception if it does not
+        val theSlotType = Slot(name=slotname, itemId = "", empty = true)
+        if(char.slots.contains(theSlotType) && char.inventory.contains(itemid)){ //if slot is empty and you own the item
+            if(item.itemClasses.contains(slotname)) { //if item cn be put in slot
+                val newSlots = mutableListOf<Slot>() //new item slots for new character object
+                newSlots.addAll(char.slots) // add all the characters current slots
+                newSlots.remove(theSlotType) //remove current slot from old list
+                newSlots.add(Slot(name = slotname, itemId = itemid, empty = false)) //add a new occupied slot object
+                val charNew = Character(id= char.id,
+                        name = char.name,
+                        abilityPoints = char.abilityPoints,
+                        raceid = char.raceid,
+                        classid = char.classid,
+                        version = char.version,
+                        inventory = char.inventory,
+                        slots = newSlots)
+                characterRepo.save(charNew) //overwrite the character
+                return hydrateChar(charNew)
+            }
+            else {
+                throw QueryException("Character cannot put that item in slot", ErrorType.DataFetchingException)
+            }
+         } else { //TODO: we need a better way to display this error
+            throw QueryException("character does not have empty slot", ErrorType.DataFetchingException)
+        }
+    }
+
+    fun addItemToCharacter(id: String, itemid: String): CharacterQL{
+        val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
+        itemFactory.getItemById(itemid) //checks if item exits, throws exception if it does not
+        val newInventory = mutableListOf<String>()
+        newInventory.addAll(char.inventory)//take your current inventory
+        newInventory.add(itemid) //and add the new item
+        val charNew = Character(id= char.id,
+                name = char.name,
+                abilityPoints = char.abilityPoints,
+                raceid = char.raceid,
+                classid = char.classid,
+                version = char.version,
+                inventory = newInventory,
+                slots = char.slots)
+        characterRepo.save(charNew)
+        return hydrateChar(charNew)
+    }
+
     ///maps a list to an output lits of CharacterQL graphQL objects
     fun hydrateChars(chars: List<Character>) : List<CharacterQL> {
         val output = mutableListOf<CharacterQL>()
@@ -138,8 +185,13 @@ class CharacterFactory(
                 }catch (e: QueryException) {
                     outputList.add(SlotQL(name = slot.name, item = ItemQL(id = "ERR ITEM", name = "ITEM ERROR",
                             description = "" + e.message,
-                            modifiers = listOf(), price = -1f, version = "ERR"), empty = false))
+                            modifiers = listOf(), price = -1f, version = "ERR"), empty = slot.empty))
                 }
+            }
+            else {
+                outputList.add(
+                        SlotQL(name = slot.name, item = null, empty = slot.empty)
+                )
             }
 
         }

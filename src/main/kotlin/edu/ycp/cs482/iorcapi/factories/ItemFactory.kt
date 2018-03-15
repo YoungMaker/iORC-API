@@ -41,12 +41,12 @@ class ItemFactory(
         return ItemQL(item)
     }
 
-    fun getItemById(id:String): ItemQL{
+    fun getItemById(id: String): ItemQL{
       val item = itemRepository.findById(id) ?: throw QueryException("Item Does not exist in that version with that name", ErrorType.DataFetchingException)
         return ItemQL(item)
     }
 
-    fun removeItemModifier(id: String, key:String): ItemQL{
+    fun removeItemModifier(id: String, key: String): ItemQL{
         val item =itemRepository.findById(id) ?:
         throw QueryException("Item Does not exist in that version with that name", ErrorType.DataFetchingException)
 
