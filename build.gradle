@@ -2,6 +2,7 @@ buildscript {
 	ext {
 		kotlinVersion = '1.2.21'
 		springBootVersion = '1.5.10.RELEASE'
+		gradleDockerVersion = '1.2'
 	}
 	repositories {
 		mavenCentral()
@@ -10,6 +11,8 @@ buildscript {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
 		classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+
+		classpath("se.transmode.gradle:gradle-docker:${gradleDockerVersion}")
 	}
 }
 
@@ -17,9 +20,11 @@ apply plugin: 'kotlin'
 apply plugin: 'kotlin-spring'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'application'
+apply plugin: 'docker'
 
 group = 'edu.ycp.cs482'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1-dev'
 sourceCompatibility = 1.8
 compileKotlin {
 	kotlinOptions.jvmTarget = "1.8"
@@ -27,6 +32,37 @@ compileKotlin {
 compileTestKotlin {
 	kotlinOptions.jvmTarget = "1.8"
 }
+
+
+jar {
+	baseName = "api-iorc"
+	group    = "edu.ycp.cs482.iorcapi"
+	version  = "0.0.1-dev"
+	manifest { attributes "Main-Class": "edu.ycp.cs482.IorcApiApplication" }
+}
+
+docker {
+
+
+//	runCommand "apt-get update"
+
+}
+
+task buildDocker(type: Docker) {
+	applicationName = "iorc-api"
+	baseImage "frolvlad/alpine-oraclejdk8:slim"
+	maintainer 'Aaron Walsh "awalsh6@ycp.edu"'
+	push = project.hasProperty('push')
+	tag = 'testbuild'
+	addFile {
+		from jar
+		rename {'app.jar'}
+	}
+	entryPoint(['java', '-Djava.security.egd=file:/dev/./urandom', '-jar', '/app.jar'])
+	// exposePort(8080)
+}
+
+buildDocker.dependsOn(build)
 
 repositories {
 	mavenCentral()
@@ -52,12 +88,13 @@ dependencies {
 	compile('org.springframework.retry:spring-retry')
 	//compile('org.springframework.boot:spring-boot-starter-security')
 	compile('org.springframework.boot:spring-boot-starter-web')
-	compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}")
+	compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
 	compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	//testCompile('org.springframework.security:spring-security-test')
 
 	compile('com.mmnaseri.utils:spring-data-mock:1.1.4')
+
 }
 
 dependencyManagement {
