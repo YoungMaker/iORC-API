@@ -12,6 +12,7 @@ buildscript {
 		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
 		classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
 
+
 		classpath("se.transmode.gradle:gradle-docker:${gradleDockerVersion}")
 	}
 }
@@ -52,14 +53,14 @@ task buildDocker(type: Docker) {
 	applicationName = "iorc-api"
 	baseImage "frolvlad/alpine-oraclejdk8:slim"
 	maintainer 'Aaron Walsh "awalsh6@ycp.edu"'
-	push = project.hasProperty('push')
-	tag = 'testbuild'
+	//push = project.hasProperty('push')
+	tag = 'snapshot'
 	addFile {
 		from jar
 		rename {'app.jar'}
 	}
 	entryPoint(['java', '-Djava.security.egd=file:/dev/./urandom', '-jar', '/app.jar'])
-	// exposePort(8080)
+	exposePort(8081)
 }
 
 buildDocker.dependsOn(build)
@@ -76,9 +77,13 @@ ext {
 
 dependencies {
 
-	compile('com.graphql-java:graphql-spring-boot-starter:3.9.2')
+	compile "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
+	//this needs to be here for some reason otherwise bean registration fails
+	compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.2")
 
-	compile('com.graphql-java:graphiql-spring-boot-starter:3.9.2')
+	compile('com.graphql-java:graphql-spring-boot-starter:4.0.0')
+
+	compile('com.graphql-java:graphiql-spring-boot-starter:4.0.0')
 	compile('com.graphql-java:graphql-java-tools:4.3.0')
 	compile('org.springframework.cloud:spring-cloud-starter-oauth2')
 	compile('de.codecentric:spring-boot-admin-starter-client')

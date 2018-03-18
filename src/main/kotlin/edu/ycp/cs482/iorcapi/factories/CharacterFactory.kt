@@ -1,6 +1,5 @@
 package edu.ycp.cs482.iorcapi.factories
 
-import edu.ycp.cs482.iorcapi.error.QueryException
 import edu.ycp.cs482.iorcapi.model.Character
 import edu.ycp.cs482.iorcapi.model.CharacterQL
 import edu.ycp.cs482.iorcapi.model.ItemQL
@@ -9,6 +8,7 @@ import edu.ycp.cs482.iorcapi.model.attributes.*
 import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import graphql.ErrorType
+import graphql.GraphQLException
 import org.springframework.stereotype.Component
 import java.util.*
 
@@ -47,7 +47,7 @@ class CharacterFactory(
     }
 
     fun updateCharacter(id: String, name: String, abilityPoints: AbilityInput, raceid: String, classid: String) : CharacterQL {
-        val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
+        val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
         val race = detailFactory.getRaceById(raceid) //this is to check if it exists, this will throw a query exception
         val classql = detailFactory.getClassById(classid)
 
@@ -77,7 +77,7 @@ class CharacterFactory(
 
 //    //depreciated.
 //    fun updateName(id: String, name: String) : CharacterQL {
-//        val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
+//        val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
 //
 //        val newChar = Character(id, name, char.abilityPoints, char.raceid, char.classid, char.version) // creates new one based on old one
 //        characterRepo.save(newChar) // this should write over the old one with the new name
@@ -85,7 +85,7 @@ class CharacterFactory(
 //    }
 
     fun getCharacterById(id:String) : CharacterQL {
-        val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
+        val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
         return hydrateChar(char)
     }
 
@@ -106,7 +106,7 @@ class CharacterFactory(
     }
 
     fun equipItem(id:String, itemid: String, slotname: String): CharacterQL{
-        val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
+        val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
         val item = itemFactory.getItemById(itemid) //checks if item exits, throws exception if it does not
         val theSlotType = Slot(name=slotname, itemId = "", empty = true)
         if(char.slots.contains(theSlotType) && char.inventory.contains(itemid)){ //if slot is empty and you own the item
@@ -127,15 +127,15 @@ class CharacterFactory(
                 return hydrateChar(charNew)
             }
             else {
-                throw QueryException("Character cannot put that item in slot", ErrorType.DataFetchingException)
+                throw GraphQLException("Character cannot put that item in slot")
             }
          } else { //TODO: we need a better way to display this error
-            throw QueryException("character does not have empty slot", ErrorType.DataFetchingException)
+            throw GraphQLException("character does not have empty slot")
         }
     }
 
     fun addItemToCharacter(id: String, itemid: String): CharacterQL{
-        val char = characterRepo.findById(id) ?: throw QueryException("Character does not exist with that id", ErrorType.DataFetchingException)
+        val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
         itemFactory.getItemById(itemid) //checks if item exits, throws exception if it does not
         val newInventory = mutableListOf<String>()
         newInventory.addAll(char.inventory)//take your current inventory
@@ -166,7 +166,7 @@ class CharacterFactory(
         for(itemid in itemids){
             try {
                 outputList.add(itemFactory.getItemById(itemid))
-            }catch (e: QueryException){
+            }catch (e: GraphQLException){
                 outputList.add(ItemQL(id= "ERR ITEM", name= "ITEM ERROR",
                         description = "" + e.message,
                         modifiers = listOf(), price= -1f, version = "ERR"))
@@ -182,7 +182,7 @@ class CharacterFactory(
                 try {
                     outputList.add(
                         SlotQL(name = slot.name, item = itemFactory.getItemById(slot.itemId), empty = slot.empty))
-                }catch (e: QueryException) {
+                }catch (e: GraphQLException) {
                     outputList.add(SlotQL(name = slot.name, item = ItemQL(id = "ERR ITEM", name = "ITEM ERROR",
                             description = "" + e.message,
                             modifiers = listOf(), price = -1f, version = "ERR"), empty = slot.empty))
