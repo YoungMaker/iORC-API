@@ -3,3 +3,8 @@ jdk:
      - oraclejdk8
 before_install:
  - chmod +x gradlew
+spring:
+  data:
+    mongodb:
+      uri:
+        secure: "J34M2XDz5tr1jqC9ARJ7RVT9YQvPqGu8LYZuWTkUchWidQqjPJZgeMqVh+JkS8MY7HYiZWqWuaqDZJvkXxODhgZPIs08MHAFCSZSY3QawZKhBjkADdymrh4piPh+xg7qr01CnvSC2/hPvkxiGUaFRp+vd/ksE2XknzoO6OnEYjTedpOMdqsLmSaRi8CgJATY6d+FCq3nLy7UWCt8WCIkyl5Zbhy+ads5ab73Mbp91SC8JNK+f3slfk61SSUR+axCPcQZkM7dpb9EJZ4jqN69fLvWSOBBfGnCCg1I2QAgvbEpmKh4KBiXaQ403uwpnLP+Myq2bBKUK0JyZO5eieBZHCGwPt4eDp8JuBGmEoG8HplfcSDgZ5PyJ4Evy2EpFYEmJzKn0HK4275bA6LQ5SLhmBkuP1bvioc1urgC9xJliLslYsys/DnHC1RMYJQsRItCjU66S3UaJ5FEWbM0ZNfBr08u0Cc+s2Xp+F7FWYoJQq07SQUvYKfqZvZeCTB881/WvPUNa2rs5+VJAl+VmOWpc0NvTMkePti3vLvxNK4SHflXdmEMbT71pixaW+B7CKo1z4G/vXmDqhR6uGBNlBs6CwddMJcCR65gFp0AW2/P/cozSBKDrgBEKjt5tCVBo8s8Cjs+20H1VxqDO2Ak0bgIQY8Req/OeWWcVCYEDcOpkWU="
