@@ -1,7 +1,7 @@
-package edu.ycp.cs482.iorcapi.model.attributes;
+package edu.ycp.cs482.iorcapi.model.attributes
 
 //the enum of all the types of objects that can contain mutations
-public enum ObjType {
+enum class ObjType {
     RACE,
     CLASS,
     ITEM_SPELL,

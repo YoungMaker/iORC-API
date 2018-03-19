@@ -13,7 +13,6 @@ import org.junit.Assert.*
 import org.springframework.boot.test.context.SpringBootTest
 
 import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
-import edu.ycp.cs482.iorcapi.error.QueryException
 import edu.ycp.cs482.iorcapi.model.ModTools
 import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.model.RaceQL
@@ -22,6 +21,7 @@ import edu.ycp.cs482.iorcapi.model.attributes.Stat
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import edu.ycp.cs482.iorcapi.repositories.StatRepository
 import edu.ycp.cs482.iorcapi.repositories.VersionInfoRepository
+import graphql.GraphQLException
 
 
 @SpringBootTest
@@ -353,7 +353,7 @@ class DetailFactoryTest {
 
         try {
             detailFactory.addRaceModifiers("0.0", hashMapOf(Pair("kit", 2f)))
-        } catch (e: QueryException) {
+        } catch (e: GraphQLException) {
             assertThat(e.message, `is`(equalTo("This Modifier is not in the version sheet!")))
         }
 

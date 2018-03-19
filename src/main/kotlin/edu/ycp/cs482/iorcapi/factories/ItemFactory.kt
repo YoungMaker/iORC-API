@@ -1,11 +1,11 @@
 package edu.ycp.cs482.iorcapi.factories
 
-import edu.ycp.cs482.iorcapi.error.QueryException
 import edu.ycp.cs482.iorcapi.model.Item
 import edu.ycp.cs482.iorcapi.model.ItemQL
 import edu.ycp.cs482.iorcapi.model.attributes.ObjType
 import edu.ycp.cs482.iorcapi.repositories.ItemRepository
 import graphql.ErrorType
+import graphql.GraphQLException
 import org.springframework.stereotype.Component
 
 @Component
@@ -34,7 +34,7 @@ class ItemFactory(
 
     fun addItemModifier(id: String, mods:HashMap<String, Float>): ItemQL{
         val item =itemRepository.findById(id) ?:
-                            throw QueryException("Item Does not exist in that version with that name", ErrorType.DataFetchingException)
+                            throw GraphQLException("Item Does not exist in that version with that name")
 
         item.unionModifiers(mods)
         itemRepository.save(item)
@@ -42,13 +42,13 @@ class ItemFactory(
     }
 
     fun getItemById(id: String): ItemQL{
-      val item = itemRepository.findById(id) ?: throw QueryException("Item Does not exist in that version with that name", ErrorType.DataFetchingException)
+      val item = itemRepository.findById(id) ?: throw GraphQLException("Item Does not exist in that version with that name")
         return ItemQL(item)
     }
 
     fun removeItemModifier(id: String, key: String): ItemQL{
         val item =itemRepository.findById(id) ?:
-        throw QueryException("Item Does not exist in that version with that name", ErrorType.DataFetchingException)
+        throw GraphQLException("Item Does not exist in that version with that name")
 
         item.removeModifier(key)
         itemRepository.save(item)

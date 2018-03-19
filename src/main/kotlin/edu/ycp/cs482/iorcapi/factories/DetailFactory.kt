@@ -1,12 +1,12 @@
 package edu.ycp.cs482.iorcapi.factories
 
-import edu.ycp.cs482.iorcapi.error.QueryException
 import edu.ycp.cs482.iorcapi.model.*
 import edu.ycp.cs482.iorcapi.model.attributes.Modifiable
 import edu.ycp.cs482.iorcapi.model.attributes.Modifier
 import edu.ycp.cs482.iorcapi.repositories.ClassRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import graphql.ErrorType
+import graphql.GraphQLException
 import org.springframework.stereotype.Component
 import java.util.UUID
 
@@ -27,7 +27,7 @@ class DetailFactory(
     }
 
     fun updateRace(id: String, name: String, description: String, version: String = "") : RaceQL {
-        raceRepository.findById(id) ?: throw QueryException("Race does not exist with that id", ErrorType.DataFetchingException)
+        raceRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
 
         val newRace = Race(id, name = name, description = description, version = version) // creates new one based on old one
         raceRepository.save(newRace) // this should write over the old one with the new parameters
@@ -35,10 +35,10 @@ class DetailFactory(
     }
 
     fun addRaceModifiers(id : String, mods: HashMap<String, Float>): RaceQL {
-       val race = raceRepository.findById(id) ?: throw QueryException("Race does not exist with that id", ErrorType.DataFetchingException)
+       val race = raceRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
 
         if(!versionFactory.checkStatsInVersion(mods, race.version)){
-            throw QueryException("This Modifier is not in the version sheet!", ErrorType.MutationNotSupported)
+            throw GraphQLException("This Modifier is not in the version sheet!")
         }
 
         race.unionModifiers(mods)
@@ -47,7 +47,7 @@ class DetailFactory(
     }
 
     fun removeRaceModifier(id: String, key: String): RaceQL {
-        val race = raceRepository.findById(id) ?: throw QueryException("Race does not exist with that id", ErrorType.DataFetchingException)
+        val race = raceRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
 
         race.removeModifier(key)
         raceRepository.save(race) // this should write over the old one with the new parameters
@@ -55,7 +55,7 @@ class DetailFactory(
     }
 
     fun getRaceById(id: String) : RaceQL{
-        val race = raceRepository.findById(id) ?: throw throw QueryException("Race does not exist with that id", ErrorType.DataFetchingException)
+        val race = raceRepository.findById(id) ?: throw throw GraphQLException("Race does not exist with that id")
         return RaceQL(race)
     }
 
@@ -91,7 +91,7 @@ class DetailFactory(
     }
 
     fun updateClass(id: String, name: String, role: String, version: String, description: String): ClassQL {
-        classRepository.findById(id) ?: throw QueryException("Class does not exist with that id", ErrorType.DataFetchingException)
+        classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
         val rpgClass = ClassRpg(id = id,
                 name = name,
                 role = role,
@@ -103,10 +103,10 @@ class DetailFactory(
     }
 
     fun addClassModifiers(id: String, mods: HashMap<String, Float>): ClassQL {
-        val rpgClass = classRepository.findById(id) ?: throw QueryException("Class does not exist with that id", ErrorType.DataFetchingException)
+        val rpgClass = classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
 
         if(!versionFactory.checkStatsInVersion(mods, rpgClass.version)){
-            throw QueryException("This Modifier is not in the version sheet!", ErrorType.MutationNotSupported)
+            throw GraphQLException("This Modifier is not in the version sheet!")
         }
 
         rpgClass.unionModifiers(mods)
@@ -117,7 +117,7 @@ class DetailFactory(
 
 
     fun removeClassModifier(id: String, key: String ): ClassQL {
-        val rpgClass = classRepository.findById(id) ?: throw QueryException("Class does not exist with that id", ErrorType.DataFetchingException)
+        val rpgClass = classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
 
         rpgClass.removeModifier(key)
 
@@ -126,7 +126,7 @@ class DetailFactory(
     }
 
     fun getClassById(id: String) : ClassQL{
-        val rpgClass = classRepository.findById(id) ?: throw throw QueryException("Race does not exist with that id", ErrorType.DataFetchingException)
+        val rpgClass = classRepository.findById(id) ?: throw throw GraphQLException("Race does not exist with that id")
         return ClassQL(rpgClass)
     }
 

@@ -1,7 +1,6 @@
 package edu.ycp.cs482.iorcapi.factories
 
 
-import edu.ycp.cs482.iorcapi.error.QueryException
 import edu.ycp.cs482.iorcapi.model.Version
 import edu.ycp.cs482.iorcapi.model.attributes.Stat
 import edu.ycp.cs482.iorcapi.model.attributes.StatQL
@@ -9,6 +8,7 @@ import edu.ycp.cs482.iorcapi.model.attributes.VersionInfo
 import edu.ycp.cs482.iorcapi.repositories.StatRepository
 import edu.ycp.cs482.iorcapi.repositories.VersionInfoRepository
 import graphql.ErrorType
+import graphql.GraphQLException
 import org.springframework.stereotype.Component
 
 @Component
@@ -69,7 +69,7 @@ class VersionFactory(
     }
 
     fun addStatModifiers(key : String, version: String, mods: HashMap<String, Float>): StatQL {
-        val stat = statRepository.findById((key+version)) ?: throw QueryException("Stat does not exist with that id", ErrorType.DataFetchingException)
+        val stat = statRepository.findById((key+version)) ?: throw GraphQLException("Stat does not exist with that id")
 
         stat.unionModifiers(mods)
         statRepository.save(stat) // this should write over the old one with the new parameters
@@ -77,7 +77,7 @@ class VersionFactory(
     }
 
     fun removeStatModifier(statKey : String, version: String,  key: String): StatQL {
-        val stat = statRepository.findById((statKey+version)) ?: throw QueryException("Stat does not exist with that id", ErrorType.DataFetchingException)
+        val stat = statRepository.findById((statKey+version)) ?: throw GraphQLException("Stat does not exist with that id")
 
         stat.removeModifier(key)
         statRepository.save(stat) // this should write over the old one with the new parameters
