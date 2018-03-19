@@ -279,7 +279,7 @@ class CharacterFactoryTest {
         )
         assertThat(character.slots.count(), `is`(not(0)))
         assertThat(character.slots[0].name, `is`(equalTo("hand_left")))
-        assertThat(character.slots[0].empty, `is`(true))
+        assertThat(character.slots[0].empty, `is`(false))
 
 
         val newCharacter = characterFactory.addItemToCharacter(character.id, "BucketTEST")
