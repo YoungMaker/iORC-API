@@ -54,7 +54,7 @@ task buildDocker(type: Docker) {
 	baseImage "frolvlad/alpine-oraclejdk8:slim"
 	maintainer 'Aaron Walsh "awalsh6@ycp.edu"'
 	//push = project.hasProperty('push')
-	tag = 'snapshot'
+	tag = 'iorc-api'
 	addFile {
 		from jar
 		rename {'app.jar'}
