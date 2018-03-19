@@ -24,4 +24,6 @@ class CharacterMutationResolver(
             = characterFactory.updateCharacter(id, name, abilityPoints, raceid, classid)
     //fun updateName(id: String, name: String) = characterFactory.updateName(id, name)
     fun deleteCharacter(id: String) = characterFactory.deleteCharacter(id)
+    fun addItemToCharacter(id: String, itemid: String) = characterFactory.addItemToCharacter(id, itemid)
+    fun equipItem(id: String, itemid: String, slotid: String) = characterFactory.equipItem(id, itemid, slotid)
 }
