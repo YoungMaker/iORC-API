@@ -79,7 +79,7 @@ class CharacterFactoryTest {
                 id = "BucketTEST",
                 name = "Bucket of head",
                 description = "A bucket you can wear on your head",
-                price = 350f,
+                price = 5f,
                 itemClasses = listOf("head"),
                 modifiers = mapOf(Pair("ac", 1f)),
                 version = "TEST",
@@ -192,7 +192,8 @@ class CharacterFactoryTest {
                         abilityPoints = Ability(12, 14,15,11,12,14),
                         raceid = "0.0",
                         classid = "1.1",
-                        version = "TEST"
+                        version = "TEST",
+                        money = 1f
                 ),
                 Character(
                         id = "13.0",
@@ -200,7 +201,8 @@ class CharacterFactoryTest {
                         abilityPoints = Ability(14, 13,15,17,16,11),
                         raceid = "1.0",
                         classid = "0.1",
-                        version = "TEST"
+                        version = "TEST",
+                        money = 50f
                 )
         ))
     }
@@ -238,6 +240,7 @@ class CharacterFactoryTest {
         assertThat(character.name,  `is`(equalTo("Cregan the Destroyer of Worlds")))
         assertThat(character.abilityPoints,  `is`(equalTo(Ability(12, 14, 15, 11, 12, 14))))
         assertThat(character.race.name,  `is`(equalTo("Orc")))
+        assertThat(character.money, `is`(equalTo(1f)))
 
     }
 
@@ -252,6 +255,7 @@ class CharacterFactoryTest {
         assertThat(character.name,  `is`(equalTo("Cregan the Destroyer of Worlds")))
         assertThat(character.abilityPoints,  `is`(equalTo(Ability(12, 14, 15, 11, 12, 14))))
         assertThat(character.race.name,  `is`(equalTo("Orc")))
+        assertThat(character.money, `is`(equalTo(1f)))
 
     }
 
@@ -266,6 +270,7 @@ class CharacterFactoryTest {
         assertThat(character.name,  `is`(equalTo("Cregan the Destroyer of Worlds")))
         assertThat(character.abilityPoints,  `is`(equalTo(Ability(12, 14, 15, 11, 12, 14))))
         assertThat(character.race.name,  `is`(equalTo("Orc")))
+        assertThat(character.money, `is`(equalTo(1f)))
     }
 
     @Test
@@ -284,6 +289,7 @@ class CharacterFactoryTest {
 
         val newCharacter = characterFactory.addItemToCharacter(character.id, "BucketTEST")
         assertThat(newCharacter.inventory.count(), `is`(not(0)))
+        assertThat(newCharacter.money, `is`(equalTo(0f)))
 
         val equipChar = characterFactory.equipItem(character.id, "BucketTEST", "head")
 
@@ -292,11 +298,43 @@ class CharacterFactoryTest {
         assertThat(equipChar.slots[2].item, `is`(equalTo(ItemQL(id = "BucketTEST",
                 name = "Bucket of head",
                 description = "A bucket you can wear on your head",
-                price = 350f,
+                price = 5f,
                 itemClasses = listOf("head"),
                 modifiers = listOf(Modifier("ac", 1f)),
                 version = "TEST",
                 type = ObjType.ITEM_ARMOR))))
+
+    }
+
+    @Test
+    fun testMoneySystem(){
+        val character = characterFactory.createNewCharacter(
+                abilityPoints = AbilityInput(12,14,11,15,14,16),
+                name = "Big Boii",
+                classid = "0.1",
+                raceid = "1.0",
+                version = "TEST"
+        )
+        assertThat(character.money, `is`(equalTo(0f)))
+
+        assertThat(character.slots.count(), `is`(not(0)))
+
+        val characterMoney = characterFactory.setCharacterMoney(character.id, 5f)
+        assertThat(characterMoney.money, `is`(equalTo(5f)))
+
+        val purchaseCharacter = characterFactory.purchaseItem(character.id, "BucketTEST")
+        assertThat(purchaseCharacter.money, `is`(equalTo(0f)))
+        assertThat(purchaseCharacter.inventory.count(), `is`(not(0)))
+
+        assertThat(purchaseCharacter.inventory.contains(ItemQL(id = "BucketTEST",
+                name = "Bucket of head",
+                description = "A bucket you can wear on your head",
+                price = 5f,
+                itemClasses = listOf("head"),
+                modifiers = listOf(Modifier("ac", 1f)),
+                version = "TEST",
+                type = ObjType.ITEM_ARMOR)), `is`(equalTo(true)))
+
 
     }
 

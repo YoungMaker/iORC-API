@@ -14,15 +14,35 @@ data class Character( //DB type
         val classid: String,
         val version: String = "",
         val inventory: List<String>,
-        val slots: List<Slot>
+        val slots: List<Slot>,
+        val money: Float = 0f
 ) {
     @PersistenceConstructor
     constructor(        id: String,
                         version: String,
                         name: String,
                         abilityPoints: Ability,
+                        raceid: String, classid: String,
+                        inventory: List<String>,
+                        slots: List<Slot>
+                        ) :
+            this(id, name, abilityPoints, raceid, classid, version, inventory, slots,0f )
+
+    @PersistenceConstructor
+    constructor(        id: String,
+                        version: String,
+                        name: String,
+                        abilityPoints: Ability,
                         raceid: String, classid: String) :
-            this(id, name, abilityPoints, raceid, classid, version, listOf(), listOf() )
+            this(id, name, abilityPoints, raceid, classid, version, listOf(), listOf(),0f )
+
+    @PersistenceConstructor
+    constructor(        id: String,
+                        version: String,
+                        name: String,
+                        abilityPoints: Ability,
+                        raceid: String, classid: String, money: Float) :
+            this(id, name, abilityPoints, raceid, classid, version, listOf(), listOf(), money )
 }
 
 data class CharacterQL ( //output type
@@ -33,12 +53,13 @@ data class CharacterQL ( //output type
         val race: RaceQL,
         val classql: ClassQL,
         val inventory: List<ItemQL>,
-        val slots: List<SlotQL>
+        val slots: List<SlotQL>,
+        val money: Float
 ) {
     constructor(        id: String,
                         version: String,
                         name: String,
                         abilityPoints: Ability,
-                        race: RaceQL, classql: ClassQL) :
-            this(id, version, name, abilityPoints, race, classql, listOf(), listOf() )
+                        race: RaceQL, classql: ClassQL, money: Float) :
+            this(id, version, name, abilityPoints, race, classql, listOf(), listOf(), money )
 }

@@ -20,6 +20,7 @@ type Slot{
 }
 
 type Item{
+    id: ID!
     name: String!
     description: String!
     price: String!
@@ -103,6 +104,7 @@ type Character {
     classql: Class
     inventory: [Item]!
     slots: [Slot]!
+    money: Float!
 }
 
 
@@ -118,6 +120,8 @@ type Mutation {
     deleteCharacter(id: ID!): String!
     addItemToCharacter(id:ID!, itemid: ID!): Character!
     equipItem(id:ID!, itemid: ID!, slotid: String!): Character!
+    purchaseItem(id:ID!, itemid: ID!): Character!
+    setCharacterMoney(id: ID!, money: Float!): Character!
 
     createRace(name: String!, description: String!, version: String!): Race!
     updateRace(id: ID!, name: String!, version: String!, description: String!): Race
