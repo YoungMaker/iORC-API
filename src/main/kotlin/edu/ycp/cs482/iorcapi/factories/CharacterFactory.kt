@@ -53,14 +53,6 @@ class CharacterFactory(
 
         val abils = Ability(abilityPoints.str, abilityPoints.con, abilityPoints.dex, abilityPoints._int, abilityPoints.wis, abilityPoints.cha)
 
-        val versionSlots = mutableListOf<Slot>()
-        if(char.slots.isEmpty()) {
-            versionSlots.addAll(getSlots(char.version))
-        }
-        else {
-            versionSlots.clear()
-            versionSlots.addAll(char.slots)
-        }
 
         val charNew = Character(id,
                 name = name,
@@ -69,10 +61,54 @@ class CharacterFactory(
                 classid = classql.id,
                 version = char.version,
                 inventory = char.inventory,
-                slots = versionSlots)
+                slots = updateSlotsIfEmpty(char),
+                money = char.money
+            )
         characterRepo.save(charNew) //should this be insert?
 
         return hydrateChar(charNew)
+    }
+
+    fun updateSlotsIfEmpty(char: Character): MutableList<Slot>{
+        val versionSlots = mutableListOf<Slot>()
+        if(char.slots.isEmpty()) {
+            versionSlots.addAll(getSlots(char.version))
+        }
+        else {
+            versionSlots.clear()
+            versionSlots.addAll(char.slots)
+        }
+        return versionSlots
+    }
+
+    fun setCharacterMoney(id: String, money: Float): CharacterQL{
+        val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
+
+        val charNew  = Character(
+                id =char.id,
+                name = char.name,
+                abilityPoints = char.abilityPoints,
+                raceid = char.raceid,
+                classid = char.classid,
+                version = char.version,
+                inventory = char.inventory,
+                slots = updateSlotsIfEmpty(char),
+                money =  money
+                )
+        characterRepo.save(charNew) //should this be insert?
+        return hydrateChar(charNew)
+    }
+
+    fun purchaseItem(id: String, itemid: String): CharacterQL{
+        val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
+        val item = itemFactory.getItemById(itemid) //checks if item exits, throws exception if it does not
+        if((char.money - item.price) >= 0f) {
+           return addItemToCharacter(id, itemid, true) //purchases item and adds to characters inventory.
+        }
+        else{
+            throw GraphQLException("Not enough money to purchase that item!")
+        }
+
     }
 
 //    //depreciated.
@@ -122,6 +158,7 @@ class CharacterFactory(
                         classid = char.classid,
                         version = char.version,
                         inventory = char.inventory,
+                        money = char.money,
                         slots = newSlots)
                 characterRepo.save(charNew) //overwrite the character
                 return hydrateChar(charNew)
@@ -134,12 +171,22 @@ class CharacterFactory(
         }
     }
 
-    fun addItemToCharacter(id: String, itemid: String): CharacterQL{
+    //adding item to character in non-buying mode does not interact with money. This is good for later trading system.
+    fun addItemToCharacter(id: String, itemid: String, buy: Boolean = false): CharacterQL{
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
-        itemFactory.getItemById(itemid) //checks if item exits, throws exception if it does not
+        val item = itemFactory.getItemById(itemid) //checks if item exits, throws exception if it does not
         val newInventory = mutableListOf<String>()
         newInventory.addAll(char.inventory)//take your current inventory
         newInventory.add(itemid) //and add the new item
+
+
+        val leftMoney =
+        if(buy){
+            (char.money - item.price)
+        } else{
+            char.money
+        }
+
         val charNew = Character(id= char.id,
                 name = char.name,
                 abilityPoints = char.abilityPoints,
@@ -147,7 +194,9 @@ class CharacterFactory(
                 classid = char.classid,
                 version = char.version,
                 inventory = newInventory,
-                slots = char.slots)
+                slots = updateSlotsIfEmpty(char),
+                money = leftMoney
+                )
         characterRepo.save(charNew)
         return hydrateChar(charNew)
     }
@@ -209,7 +258,8 @@ class CharacterFactory(
                 race = race,
                 classql = classql,
                 inventory = hydrateItems(char.inventory),
-                slots = hydrateSlots(char.slots)
+                slots = hydrateSlots(char.slots),
+                money = char.money
             )
     }
 
