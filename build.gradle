@@ -38,7 +38,7 @@ compileTestKotlin {
 jar {
 	baseName = "api-iorc"
 	group    = "edu.ycp.cs482.iorcapi"
-	version  = "0.0.1-dev"
+	version  = "0.0.2-dep"
 	manifest { attributes "Main-Class": "edu.ycp.cs482.IorcApiApplication" }
 }
 

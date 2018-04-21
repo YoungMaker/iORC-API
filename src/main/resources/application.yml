@@ -5,13 +5,23 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017
   application:
-    name: iOrc-API 0.0.01T
+    name: icrc-api 0.0.01t
 ---
-spring.profiles: prod
+spring.profiles: prod-dev
 server.port: 8081
 spring:
   data:
     mongodb:
       uri: mongodb://deploy:ughsOESMamzfLwiV@cluster0-shard-00-00-htx90.mongodb.net:27017,cluster0-shard-00-01-htx90.mongodb.net:27017,cluster0-shard-00-02-htx90.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin
   application:
-    name: iOrc-API 0.0.01b
+    name: iorc-api 0.0.01b
+
+---
+spring.profiles: prod-deploy
+server.port: 8081
+spring:
+  data:
+    mongodb:
+      uri: mongodb://deploy:ughsOESMamzfLwiV@deploymentcluster-shard-00-00-lgqad.mongodb.net:27017,deploymentcluster-shard-00-01-lgqad.mongodb.net:27017,deploymentcluster-shard-00-02-lgqad.mongodb.net:27017/test?ssl=true&replicaSet=DeploymentCluster-shard-0&authSource=admin
+  application:
+    name: iorc-api 0.0.1b-deploy
