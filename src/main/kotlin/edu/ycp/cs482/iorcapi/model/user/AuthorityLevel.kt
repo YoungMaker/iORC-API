@@ -6,7 +6,7 @@ enum class AuthorityLevel {
     ROLE_ADMIN
 }
 
-enum class mode {
+enum class AuthorityMode {
     MODE_VIEW, //can view object
     MODE_EDIT // can edit object
 }
