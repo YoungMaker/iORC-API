@@ -24,23 +24,22 @@ class ModifierMutationResolver(
             ObjType.ITEM_WEAPON  -> itemFactory.addItemModifier(id, hashMapOf(Pair(key.toLowerCase(), value)))
             ObjType.ITEM_ARMOR  -> itemFactory.addItemModifier(id, hashMapOf(Pair(key.toLowerCase(), value)))
             //TODO: Add the rest when implemented
-            else -> {null}
         }
     }
     //TODO: Support list removal/addition for fewer queries
 
     fun removeModifier(id: String, type: ObjType, key: String): Any? {
 
-        return when(type) {
+        return when (type) {
             ObjType.RACE -> detailFactory.removeRaceModifier(id, key.toLowerCase())
             ObjType.CLASS -> detailFactory.removeClassModifier(id, key.toLowerCase())
-            ObjType.ITEM  -> itemFactory.removeItemModifier(id, key.toLowerCase())
-            ObjType.ITEM_ARMOR  -> itemFactory.removeItemModifier(id, key.toLowerCase())
-            ObjType.ITEM_SPELL  -> itemFactory.removeItemModifier(id, key.toLowerCase())
-            ObjType.ITEM_WEAPON  -> itemFactory.removeItemModifier(id, key.toLowerCase())
-            ObjType.ITEM_FEAT  -> itemFactory.removeItemModifier(id, key.toLowerCase())
+            ObjType.ITEM -> itemFactory.removeItemModifier(id, key.toLowerCase())
+            ObjType.ITEM_ARMOR -> itemFactory.removeItemModifier(id, key.toLowerCase())
+            ObjType.ITEM_SPELL -> itemFactory.removeItemModifier(id, key.toLowerCase())
+            ObjType.ITEM_WEAPON -> itemFactory.removeItemModifier(id, key.toLowerCase())
+            ObjType.ITEM_FEAT -> itemFactory.removeItemModifier(id, key.toLowerCase())
         //TODO: Add the rest when implemented
-            else -> {null}
+
         }
     }
 }

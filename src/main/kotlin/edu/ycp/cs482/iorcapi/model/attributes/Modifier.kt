@@ -4,7 +4,7 @@ import edu.ycp.cs482.iorcapi.model.Accessible
 
 open class Modifiable(
         var modifiers: Map<String, Float> = mapOf()
-): Accessible() {
+): Accessible() { //TODO: we need to be able to get accessible data into here, like a new owner
     fun unionModifiers(mods: Map<String, Float>){
         val finalMods = HashMap<String, Float>(modifiers)
         finalMods.putAll(mods)

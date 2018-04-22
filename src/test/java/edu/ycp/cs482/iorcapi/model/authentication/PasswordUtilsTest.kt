@@ -1,4 +1,4 @@
-package edu.ycp.cs482.iorcapi.model.user
+package edu.ycp.cs482.iorcapi.model.authentication
 
 import org.junit.Test
 

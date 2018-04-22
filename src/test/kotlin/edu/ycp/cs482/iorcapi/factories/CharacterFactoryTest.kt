@@ -326,6 +326,8 @@ class CharacterFactoryTest {
         assertThat(purchaseCharacter.money, `is`(equalTo(0f)))
         assertThat(purchaseCharacter.inventory.count(), `is`(not(0)))
 
+        assertThat(purchaseCharacter.slots.count(), `is`(not(0)))
+
         assertThat(purchaseCharacter.inventory.contains(ItemQL(id = "BucketTEST",
                 name = "Bucket of head",
                 description = "A bucket you can wear on your head",

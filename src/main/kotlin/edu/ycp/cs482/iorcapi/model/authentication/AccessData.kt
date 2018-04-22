@@ -1,4 +1,4 @@
-package edu.ycp.cs482.iorcapi.model.user
+package edu.ycp.cs482.iorcapi.model.authentication
 
 data class AccessData( //object attached to all objects for access control.
         val owner: User?,

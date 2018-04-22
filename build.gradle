@@ -80,7 +80,7 @@ dependencies {
 	compile "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
 	//this needs to be here for some reason otherwise bean registration fails
 	compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.2")
-
+	compile('commons-validator:commons-validator:1.6')
 	compile('com.graphql-java:graphql-spring-boot-starter:4.0.0')
 
 	compile('com.graphql-java:graphiql-spring-boot-starter:4.0.0')
@@ -97,6 +97,7 @@ dependencies {
 	compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	//testCompile('org.springframework.security:spring-security-test')
+	compile('io.jsonwebtoken:jjwt:0.9.0')
 
 	compile('com.mmnaseri.utils:spring-data-mock:1.1.4')
 

@@ -13,6 +13,28 @@ enum ObjType {
     ITEM
 }
 
+type User{
+    id: ID!
+    email: String!
+    uname: String!
+    authorityLevels: [AuthorityLevel]!
+}
+
+input Context{
+    jwttoken: String!
+}
+
+enum AuthorityLevel {
+    ROLE_USER,
+    ROLE_OWNER,
+    ROLE_ADMIN
+}
+
+enum  AuthorityMode {
+    MODE_VIEW,
+    MODE_EDIT
+}
+
 type Slot{
     name: String!
     item: Item
@@ -140,6 +162,9 @@ type Mutation {
     initalizeVersion(version: String): Version
 
     addItemToVersion(name: String!, description: String!, price: Float!, classes: [String]!, version: String, type: ObjType! ) : Item
+
+    createUser(email:String!, name:String!, password:String!): User
+    loginUser(email:String!, password: String!): String
 }
 
 extend type Query {

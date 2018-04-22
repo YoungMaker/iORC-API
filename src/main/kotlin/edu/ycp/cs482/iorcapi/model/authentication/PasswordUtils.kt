@@ -1,5 +1,6 @@
-package edu.ycp.cs482.iorcapi.model.user
+package edu.ycp.cs482.iorcapi.model.authentication
 
+import org.springframework.stereotype.Component
 import java.security.spec.InvalidKeySpecException
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
@@ -11,6 +12,7 @@ import javax.crypto.SecretKeyFactory
 private val ITERATIONS = 500
 private val KEY_LENGTH = 256
 
+@Component
 class PasswordUtils {
 
     fun hashPassword(password: CharArray, salt: ByteArray): ByteArray {
