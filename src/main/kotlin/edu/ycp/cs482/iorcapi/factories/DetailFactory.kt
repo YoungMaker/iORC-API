@@ -34,6 +34,11 @@ class DetailFactory(
         return RaceQL(newRace)
     }
 
+    fun deleteRace(id:String):String{
+        raceRepository.delete(id)
+        return "Race %S has been deleted".format(id)
+    }
+
     fun addRaceModifiers(id : String, mods: HashMap<String, Float>): RaceQL {
        val race = raceRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
 
@@ -100,6 +105,11 @@ class DetailFactory(
 
         classRepository.save(rpgClass)
         return ClassQL(rpgClass)
+    }
+
+    fun deleteClass(id:String):String{
+        classRepository.delete(id)
+        return "Class %S has been deleted".format(id)
     }
 
     fun addClassModifiers(id: String, mods: HashMap<String, Float>): ClassQL {

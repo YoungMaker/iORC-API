@@ -15,8 +15,13 @@ class VersionMutationResolver(
     fun addInfoToVersion(name: String, version: String, type: String, value: String)
         = versionFactory.addInfoToVersion(name, type, value, version)
 
+    fun removeInfoFromVersion(id:String) = versionFactory.removeInfoFromVersion(id)
+
     fun addStatToVersion(key:String, name: String, description: String, version: String, skill: Boolean)
             = versionFactory.addStatToVersion(key.toLowerCase(), name, description, version.toLowerCase(), skill)
+
+    fun removeStatFromVersion(key:String, version:String)
+            = versionFactory.removeStatFromVersion(key.toLowerCase(), version.toLowerCase())
 
     fun addStatBaseCalcModifier(statKey: String, version: String, key: String, value: Float)
             = versionFactory.addStatModifiers(statKey.toLowerCase(), version.toLowerCase(),

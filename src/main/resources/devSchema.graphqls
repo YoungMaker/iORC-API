@@ -125,21 +125,26 @@ type Mutation {
 
     createRace(name: String!, description: String!, version: String!): Race!
     updateRace(id: ID!, name: String!, version: String!, description: String!): Race
+    deleteRace(id: ID!): String!
 
     createClass(name: String!, role: String!, version: String!, description: String! ): Class!
     updateClass(id: ID! name: String!, role: String!, version: String!, description: String! ): Class
+    deleteClass(id: ID!): String!
 
     addModifier(id: ID!, type: ObjType!, key: String!, value: Float!) : ModifierResult
     removeModifier(id: ID!, type: ObjType!, key: String!) : ModifierResult
 
     addStatToVersion(key:String, name: String!, description: String!, version: String!, skill: Boolean!) : Version
+    removeStatFromVersion(key:String!, version:String!):String!
     addStatBaseCalcModifier(statKey: String!, version: String!, key: String!, value: Float!): Stat
     removeStatBaseCalcModifier(statKey: String!, version: String!, key: String!): Stat
 
     addInfoToVersion(name: String!, version: String!, type: String!, value: String!): Version
+    removeInfoFromVersion(id: ID!): String!
     initalizeVersion(version: String): Version
 
     addItemToVersion(name: String!, description: String!, price: Float!, classes: [String]!, version: String, type: ObjType! ) : Item
+    removeItem(id: ID!):String!
 }
 
 extend type Query {

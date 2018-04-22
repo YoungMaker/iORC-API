@@ -20,6 +20,11 @@ class ItemFactory(
         return ItemQL(item)
     }
 
+    fun deleteItem(id:String):String{
+        itemRepository.delete(id)
+        return "Item %S has been deleted".format(id)
+    }
+
     fun getVersionItems(version: String)
             = itemRepository.findByVersion(version).map { ItemQL(it) }
 

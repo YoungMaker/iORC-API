@@ -15,12 +15,13 @@ class DetailMutationResolver(
             = detailFactory.createNewClass(name, role, version, description)
     fun updateClass(id: String, name: String, role: String , version: String, description: String )
             = detailFactory.updateClass(id, name, role, version, description)
+    fun deleteClass(id:String) = detailFactory.deleteClass(id)
 
     /*** race mutations **/
     fun createRace(name: String, version: String, description: String )
             = detailFactory.createNewRace(name, version, description)
     fun updateRace(id: String, name: String, version: String, description: String )
             = detailFactory.updateRace(id, name, version, description)
-
+    fun deleteRace(id:String) = detailFactory.deleteRace(id)
 
 }
