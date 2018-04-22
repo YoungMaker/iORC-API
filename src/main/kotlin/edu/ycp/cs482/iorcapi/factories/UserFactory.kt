@@ -17,6 +17,7 @@ class UserFactory(
     @Autowired
     lateinit var jwtUtils: JwtUtils
 
+    //TODO: be sure that unames fit format and are unique
     fun createUserAccount(email: String, uname: String, password: String) : UserQL{
         if(userRepository.findByEmail(email) == null && isValidEmail(email)) {
             val salt = passwordUtils.generateSalt(32)
@@ -47,6 +48,10 @@ class UserFactory(
     private fun isValidEmail(email: String ): Boolean {
         val validator = EmailValidator.getInstance()
         return validator.isValid(email)
+    }
+
+    fun hydrateUser(context: Context) : User {
+        return userRepository.findById(jwtUtils.parseJWT(context.token)) ?: throw GraphQLException("no user with that id")
     }
 
 }

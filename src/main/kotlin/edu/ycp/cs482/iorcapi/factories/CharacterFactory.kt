@@ -5,6 +5,7 @@ import edu.ycp.cs482.iorcapi.model.CharacterQL
 import edu.ycp.cs482.iorcapi.model.ItemQL
 import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.model.attributes.*
+import edu.ycp.cs482.iorcapi.model.authentication.*
 import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
 import graphql.ErrorType
@@ -18,16 +19,13 @@ class CharacterFactory(
     private val characterRepo: CharacterRepository,
     private val detailFactory: DetailFactory,
     private val versionFactory: VersionFactory,
-    private val itemFactory: ItemFactory
+    private val itemFactory: ItemFactory,
+    private val authorizer: Authorizer
     )  {
-    //TODO: Security! Access control checks! Associate with users
-//    fun createNewCharacter(name: String, abilityPoints: Ability, race: Race) : Character {
-//        val char = Character(UUID.randomUUID().toString(), name = name, abilityPoints = abilityPoints, race = race)
-//        characterRepo.insert(char)
-//        return char
-//    }
+
+
     //TODO: check if UUID already used. See issue #16
-    fun createNewCharacter(name: String, abilityPoints: AbilityInput, raceid: String, classid: String, version: String) : CharacterQL {
+    fun createNewCharacter(name: String, abilityPoints: AbilityInput, raceid: String, classid: String, version: String, owner: User) : CharacterQL {
         val race = detailFactory.getRaceById(raceid) //this is to check if it exists, this will throw a query exception
         val classql = detailFactory.getClassById(classid)
 
@@ -40,14 +38,17 @@ class CharacterFactory(
                 classid = classql.id,
                 version = version,
                 inventory = listOf(),
-                slots = getSlots(version))
+                slots = getSlots(version),
+                access = AccessData(owner.id, mapOf(Pair(AuthorityLevel.ROLE_ADMIN, AuthorityMode.MODE_VIEW))) // only owner has r/w and admin has r
+                )
         characterRepo.save(char) //should this be insert?
 
         return hydrateChar(char)
     }
 
-    fun updateCharacter(id: String, name: String, abilityPoints: AbilityInput, raceid: String, classid: String) : CharacterQL {
+    fun updateCharacter(id: String, name: String, abilityPoints: AbilityInput, raceid: String, classid: String, context: User) : CharacterQL {
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
+        authorizer.authorizeObject(char, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
         val race = detailFactory.getRaceById(raceid) //this is to check if it exists, this will throw a query exception
         val classql = detailFactory.getClassById(classid)
 
@@ -62,7 +63,8 @@ class CharacterFactory(
                 version = char.version,
                 inventory = char.inventory,
                 slots = updateSlotsIfEmpty(char),
-                money = char.money
+                money = char.money,
+                access = char.access
             )
         characterRepo.save(charNew) //should this be insert?
 
@@ -81,9 +83,9 @@ class CharacterFactory(
         return versionSlots
     }
 
-    fun setCharacterMoney(id: String, money: Float): CharacterQL{
+    fun setCharacterMoney(id: String, money: Float, context: User): CharacterQL{
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
-
+        authorizer.authorizeObject(char, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
         val charNew  = Character(
                 id =char.id,
                 name = char.name,
@@ -93,17 +95,19 @@ class CharacterFactory(
                 version = char.version,
                 inventory = char.inventory,
                 slots = updateSlotsIfEmpty(char),
-                money =  money
+                money =  money,
+                access = char.access
                 )
         characterRepo.save(charNew) //should this be insert?
         return hydrateChar(charNew)
     }
 
-    fun purchaseItem(id: String, itemid: String): CharacterQL{
+    fun purchaseItem(id: String, itemid: String, context: User): CharacterQL{
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
+        authorizer.authorizeObject(char, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
         val item = itemFactory.getItemById(itemid) //checks if item exits, throws exception if it does not
         if((char.money - item.price) >= 0f) {
-           return addItemToCharacter(id, itemid, true) //purchases item and adds to characters inventory.
+           return addItemToCharacter(id, itemid, true, context) //purchases item and adds to characters inventory.
         }
         else{
             throw GraphQLException("Not enough money to purchase that item!")
@@ -111,38 +115,38 @@ class CharacterFactory(
 
     }
 
-//    //depreciated.
-//    fun updateName(id: String, name: String) : CharacterQL {
-//        val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
-//
-//        val newChar = Character(id, name, char.abilityPoints, char.raceid, char.classid, char.version) // creates new one based on old one
-//        characterRepo.save(newChar) // this should write over the old one with the new name
-//        return hydrateChar(newChar)
-//    }
-
-    fun getCharacterById(id:String) : CharacterQL {
+    fun getCharacterById(id:String, context: User) : CharacterQL {
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
+        authorizer.authorizeObject(char, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden")
         return hydrateChar(char)
     }
 
-    fun getCharactersByName(name: String) = hydrateChars(characterRepo.findByName(name))
+    fun getCharactersByName(name: String, context: User) =
+            hydrateChars(characterRepo.findByNameAndAccess_Owner(name, context.id))
 
-    fun getCharactersByVersion(version: String) = hydrateChars(characterRepo.findByVersion(version))
+    fun getCharactersByVersion(version: String, context: User): List<CharacterQL> {
+        val chars = characterRepo.findByVersion(version)
+        authorizer.authorizeObjects(chars, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden")
+        return hydrateChars(chars)
+    }
 
-    fun getSlots(version: String): List<Slot>{
+    private fun getSlots(version: String): List<Slot>{
         val vInfoSlots = versionFactory.getVersionInfoByType(version, "slot").infoList
         val outputList = mutableListOf<Slot>()
         vInfoSlots.mapTo(outputList) { Slot(it.name, "", true) }
         return outputList
     }
 
-    fun deleteCharacter(id: String): String {
+    fun deleteCharacter(id: String, context: User): String {
+        val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
+        authorizer.authorizeObject(char, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
         characterRepo.delete(id)
         return "Character %s deleted".format(id)
     }
 
-    fun equipItem(id:String, itemid: String, slotname: String): CharacterQL{
+    fun equipItem(id:String, itemid: String, slotname: String, context: User): CharacterQL{
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
+        authorizer.authorizeObject(char, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
         val item = itemFactory.getItemById(itemid) //checks if item exits, throws exception if it does not
         val theSlotType = Slot(name=slotname, itemId = "", empty = true)
         if(char.slots.contains(theSlotType) && char.inventory.contains(itemid)){ //if slot is empty and you own the item
@@ -159,7 +163,9 @@ class CharacterFactory(
                         version = char.version,
                         inventory = char.inventory,
                         money = char.money,
-                        slots = newSlots)
+                        slots = newSlots,
+                        access = char.access
+                )
                 characterRepo.save(charNew) //overwrite the character
                 return hydrateChar(charNew)
             }
@@ -172,8 +178,9 @@ class CharacterFactory(
     }
 
     //adding item to character in non-buying mode does not interact with money. This is good for later trading system.
-    fun addItemToCharacter(id: String, itemid: String, buy: Boolean = false): CharacterQL{
+    fun addItemToCharacter(id: String, itemid: String, buy: Boolean = false, context: User): CharacterQL{
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
+        authorizer.authorizeObject(char, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
         val item = itemFactory.getItemById(itemid) //checks if item exits, throws exception if it does not
         val newInventory = mutableListOf<String>()
         newInventory.addAll(char.inventory)//take your current inventory
@@ -195,7 +202,8 @@ class CharacterFactory(
                 version = char.version,
                 inventory = newInventory,
                 slots = updateSlotsIfEmpty(char),
-                money = leftMoney
+                money = leftMoney,
+                access = char.access
                 )
         characterRepo.save(charNew)
         return hydrateChar(charNew)
@@ -260,6 +268,7 @@ class CharacterFactory(
                 inventory = hydrateItems(char.inventory),
                 slots = hydrateSlots(char.slots),
                 money = char.money
+
             )
     }
 
