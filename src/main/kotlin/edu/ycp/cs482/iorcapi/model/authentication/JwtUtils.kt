@@ -1,13 +1,14 @@
 package edu.ycp.cs482.iorcapi.model.authentication
 
-import io.jsonwebtoken.CompressionCodecs
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
+import graphql.GraphQLException
+import io.jsonwebtoken.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.PropertySource
 import org.springframework.stereotype.Component
 import java.security.Key
 import java.util.*
+import org.springframework.data.mongodb.core.mapreduce.GroupBy.key
+
 
 @Component
 class JwtUtils {
@@ -32,8 +33,24 @@ class JwtUtils {
                 .signWith(SignatureAlgorithm.HS512, privatekey)
                 .compact()
 
-        Jwts.parser().setSigningKey(privatekey).parseClaimsJws(compactJwt).body.subject.equals(userid)
+        Jwts.parser().setSigningKey(privatekey).parseClaimsJws(compactJwt).body.subject.equals(userid) //verify the token
         return compactJwt
+    }
+
+    fun parseJWT(token: String): String { //should return user uuid or throw SignatureException
+        try {
+            val claims = Jwts.parser()
+                    .setSigningKey(privatekey)
+                    .parseClaimsJws(token)
+
+            if(claims.body.expiration.after(Date(System.currentTimeMillis()))){
+                return claims.body.subject
+            }else{
+                throw GraphQLException("Invalid Token!")
+            }
+        }catch (e: SignatureException) {
+            throw GraphQLException("Invalid Token!")
+        }
     }
 
    //

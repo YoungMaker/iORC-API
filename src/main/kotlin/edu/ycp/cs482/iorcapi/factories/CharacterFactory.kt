@@ -69,7 +69,7 @@ class CharacterFactory(
         return hydrateChar(charNew)
     }
 
-    fun updateSlotsIfEmpty(char: Character): MutableList<Slot>{
+    private fun updateSlotsIfEmpty(char: Character): MutableList<Slot>{
         val versionSlots = mutableListOf<Slot>()
         if(char.slots.isEmpty()) {
             versionSlots.addAll(getSlots(char.version))
