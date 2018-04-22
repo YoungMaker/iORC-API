@@ -171,6 +171,10 @@ class CharacterFactory(
         }
     }
 
+    fun unequipItem(id:String, itemid: String){
+
+    }
+
     //adding item to character in non-buying mode does not interact with money. This is good for later trading system.
     fun addItemToCharacter(id: String, itemid: String, buy: Boolean = false): CharacterQL{
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
@@ -197,6 +201,26 @@ class CharacterFactory(
                 slots = updateSlotsIfEmpty(char),
                 money = leftMoney
                 )
+        characterRepo.save(charNew)
+        return hydrateChar(charNew)
+    }
+
+    fun removeItemFromCharacter(id:String,itemid:String):CharacterQL{
+        val char = characterRepo.findById(id) ?: throw GraphQLException("Character with given ID does not exist")
+        val newInventory = mutableListOf<String>()
+        newInventory.addAll(char.inventory)
+        newInventory.remove(itemid)
+
+        val charNew = Character(id=char.id,
+                name=char.name,
+                abilityPoints=char.abilityPoints,
+                raceid=char.raceid,
+                classid=char.classid,
+                version=char.version,
+                inventory=newInventory,
+                slots=updateSlotsIfEmpty(char),
+                money=char.money
+            )
         characterRepo.save(charNew)
         return hydrateChar(charNew)
     }

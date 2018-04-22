@@ -119,6 +119,7 @@ type Mutation {
     createCharacter( name: String!, abilityPoints: AbilityInput!, raceid: String!, classid: String!, version: String!) : Character!
     deleteCharacter(id: ID!): String!
     addItemToCharacter(id:ID!, itemid: ID!): Character!
+    removeItemFromCharacter(id:ID!, itemid:ID!):Character!
     equipItem(id:ID!, itemid: ID!, slotid: String!): Character!
     purchaseItem(id:ID!, itemid: ID!): Character!
     setCharacterMoney(id: ID!, money: Float!): Character!
