@@ -59,7 +59,7 @@ class PasswordUtilsTest {
     @Test
     fun fitsUnameRules() {
         assertThat(passwordUtils.fitsUnameRules("Young@Maker"), `is`(equalTo(STR_RULES.ILLEGAL_CHAR)))
-        assertThat(passwordUtils.fitsUnameRules("y_3"), `is`(equalTo(STR_RULES.TOO_SHORT)))
+        assertThat(passwordUtils.fitsUnameRules("a"), `is`(equalTo(STR_RULES.TOO_SHORT)))
         assertThat(passwordUtils.fitsUnameRules("Young@Maker_thisisthestoryofagirl_wowantedthewholeworld"),
                 `is`(equalTo(STR_RULES.TOO_LONG)))
         assertThat(passwordUtils.fitsUnameRules("Young_Maker"), `is`(equalTo(STR_RULES.OK)))

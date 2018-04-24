@@ -72,13 +72,13 @@ class UserFactory(
         if(!isValidEmail(email)) throw GraphQLException("email incorrect or already in use")
         val unameStatus = passwordUtils.fitsUnameRules(uname)
         when(unameStatus) {
-            STR_RULES.TOO_LONG -> GraphQLException("Username too long!")
-            STR_RULES.TOO_SHORT -> GraphQLException("Username too short!")
-            STR_RULES.ILLEGAL_CHAR -> GraphQLException("Illegal Character in Username!")
+            STR_RULES.TOO_LONG -> throw GraphQLException("Username too long!")
+            STR_RULES.TOO_SHORT -> throw GraphQLException("Username too short!")
+            STR_RULES.ILLEGAL_CHAR -> throw GraphQLException("Illegal Character in Username!")
         } //uname is OK!
         val pwrdStatus = passwordUtils.fitsPasswordRules(password, uname)
         if(pwrdStatus != STR_RULES.OK) {
-            GraphQLException("Password must be at least 8 chars, contain a special character, " +
+            throw GraphQLException("Password must be at least 8 chars, contain a special character, " +
                     "have upper and lower case characters and contain a number")
         }
         return true
