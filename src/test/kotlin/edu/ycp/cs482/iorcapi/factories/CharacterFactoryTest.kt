@@ -82,7 +82,7 @@ class CharacterFactoryTest {
                         passwordSalt = salt
                 ),
                 User(id= "TESTUSER3",
-                        email = "test_admin@test.com",
+                        email = "test_dude@test.com",
                         uname = "test_boii",
                         authorityLevels = listOf(AuthorityLevel.ROLE_USER),
                         passwordHash = passwordUtils.hashPassword("TEST".toCharArray(), salt),
