@@ -1,10 +1,9 @@
 package edu.ycp.cs482.iorcapi.model.authentication
 
+import org.hamcrest.CoreMatchers.*
 import org.junit.Test
 
 import org.junit.Assert.*
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.equalTo
 
 class PasswordUtilsTest {
     var passwordUtils = PasswordUtils()
@@ -43,4 +42,28 @@ class PasswordUtilsTest {
         val salt2 = passwordUtils.generateSalt(32)
         assertThat(salt1.contentEquals(salt2), `is`(false))
     }
+
+    @Test
+    fun fitsPasswordRules() {
+        assertThat(passwordUtils.fitsPasswordRules("SuperBoi111_my_dude", "SuperBoi111"), `is`(equalTo(STR_RULES.CONTAINS_UNAME)))
+        assertThat(passwordUtils.fitsPasswordRules("Pass ord123", "SuperBoi111"), `is`(equalTo(STR_RULES.ILLEGAL_CHAR)))
+        assertThat(passwordUtils.fitsPasswordRules("password123", "SuperBoi111"), `is`(equalTo(STR_RULES.NO_UPPERCASE)))
+        assertThat(passwordUtils.fitsPasswordRules("ANGRY123#", "SuperBoi111"), `is`(equalTo(STR_RULES.NO_LOWERCASE)))
+        assertThat(passwordUtils.fitsPasswordRules("Password123", "SuperBoi111"), `is`(equalTo(STR_RULES.NO_SPECIAL_CHARS)))
+        assertThat(passwordUtils.fitsPasswordRules("Password", "SuperBoi111"), `is`(equalTo(STR_RULES.NO_DIGITS)))
+
+        assertThat(passwordUtils.fitsPasswordRules("Password123_1234!@My_dude", "SuperBoi111"), `is`(equalTo(STR_RULES.OK)))
+        assertThat(passwordUtils.fitsPasswordRules("Core@2Quad", "Elon_Musk"), `is`(equalTo(STR_RULES.OK)))
+    }
+
+    @Test
+    fun fitsUnameRules() {
+        assertThat(passwordUtils.fitsUnameRules("Young@Maker"), `is`(equalTo(STR_RULES.ILLEGAL_CHAR)))
+        assertThat(passwordUtils.fitsUnameRules("y_3"), `is`(equalTo(STR_RULES.TOO_SHORT)))
+        assertThat(passwordUtils.fitsUnameRules("Young@Maker_thisisthestoryofagirl_wowantedthewholeworld"),
+                `is`(equalTo(STR_RULES.TOO_LONG)))
+        assertThat(passwordUtils.fitsUnameRules("Young_Maker"), `is`(equalTo(STR_RULES.OK)))
+        assertThat(passwordUtils.fitsUnameRules("xXXxTheSuperSlay00r"), `is`(equalTo(STR_RULES.OK)))
+    }
 }
+

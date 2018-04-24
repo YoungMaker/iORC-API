@@ -164,7 +164,7 @@ type Mutation {
     addItemToVersion(name: String!, description: String!, price: Float!, classes: [String]!, version: String, type: ObjType! ) : Item
 
     createUser(email:String!, name:String!, password:String!): User
-    createAdmin(email:String!, name:String!, password:tring!, context: Context!): User
+    createAdmin(email:String!, name:String!, password:String!, context: Context!): User
     loginUser(email:String!, password: String!): String
 }
 

@@ -2,15 +2,20 @@ package edu.ycp.cs482.iorcapi.factories
 
 import com.google.common.base.Predicates.equalTo
 import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
-import edu.ycp.cs482.iorcapi.model.authentication.AuthorityLevel
-import edu.ycp.cs482.iorcapi.model.authentication.PasswordUtils
-import edu.ycp.cs482.iorcapi.model.authentication.User
+import edu.ycp.cs482.iorcapi.model.authentication.*
 import edu.ycp.cs482.iorcapi.repositories.UserRepository
+import io.jsonwebtoken.impl.crypto.MacProvider
+import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.*
-import org.hamcrest.CoreMatchers.*
+import org.junit.runner.RunWith
+import org.springframework.stereotype.Component
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 
+//@RunWith(SpringJUnit4ClassRunner::class)
+//@ContextConfiguration("classpath:applicationContext.xml")
 class UserFactoryTest {
 
     lateinit var userFactory: UserFactory
@@ -49,15 +54,18 @@ class UserFactoryTest {
     fun setUp() {
         userRepository = RepositoryFactoryBuilder.builder().mock(UserRepository::class.java)
         passwordUtils = PasswordUtils()
+        salt = passwordUtils.generateSalt(32)
         addTestUsers()
-        userFactory = UserFactory(userRepository, passwordUtils)
+        userFactory = UserFactory(userRepository, passwordUtils, JwtUtils())
     }
 
     @Test
     fun createUserAccount() {
-        //val user =  userFactory.createUserAccount("bro@test.com", "theboi37", "JoyToTheWorld17", AuthorityLevel.ROLE_USER)
-       // assertThat(user.uname, `is`(equalTo("bro@test.com")))
-
+        val user =  userFactory.createUserAccount("bro@test.com", "theboi37", "JoyToTheWorld17", AuthorityLevel.ROLE_USER)
+        assertThat(user.email, Matchers.`is`(Matchers.equalTo("bro@test.com")))
+        assertThat(user.uname, Matchers.`is`(Matchers.equalTo("theboi37")))
+        assertThat(user.authorityLevels.contains(AuthorityLevel.ROLE_USER), Matchers.`is`(true))
+        assertThat(user.authorityLevels.contains(AuthorityLevel.ROLE_ADMIN), Matchers.`is`(false))
     }
 
     @Test
@@ -66,9 +74,9 @@ class UserFactoryTest {
 
     @Test
     fun loginUser() {
-    }
-
-    @Test
-    fun hydrateUser() {
+        val token = userFactory.loginUser("test@test.com", "TEST")
+        val user = userRepository.findByEmail("test@test.com")
+        val loggedInUser = userFactory.hydrateUser(Context(token))
+        assertThat(loggedInUser.id, Matchers.`is`(Matchers.equalTo(user!!.id)))
     }
 }

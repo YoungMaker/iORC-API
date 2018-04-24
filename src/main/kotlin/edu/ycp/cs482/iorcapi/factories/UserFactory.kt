@@ -6,26 +6,26 @@ import graphql.GraphQLException
 import java.util.*
 import org.apache.commons.validator.routines.EmailValidator
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import java.security.Key
 import java.util.regex.Pattern
 
 @Component
 class UserFactory(
         private val userRepository: UserRepository,
-        private val passwordUtils: PasswordUtils
+        private val passwordUtils: PasswordUtils,
+        private var jwtUtils: JwtUtils
 ) {
 
-    private final val UNAME_PATTERN: String = "^[a-z0-9_-]{3,15}$"
-    private lateinit var pattern: Pattern
+    @Value("\${privatekey}") //pulled from secret config file.
+    private val privatekey: String = "THISISADEFAULTKEY_USEDFORTESTINGONLY1122334dfadfaefadfeadfefadf" //default key used in test environment
 
-    @Autowired
-    lateinit var jwtUtils: JwtUtils
-
-    //TODO: be sure that passwords are min length & have some complexity
     fun createUserAccount(email: String, uname: String, password: String, level: AuthorityLevel = AuthorityLevel.ROLE_USER) : UserQL{
-        if(userRepository.findByEmail(email) == null && isValidEmail(email)) {
-            if(userRepository.findByUname(uname) == null) {
-                val salt = passwordUtils.generateSalt(32)
+        validateInfo(email, uname, password)
+        if(userRepository.findByEmail(email) == null) { //does email exist?
+            if(userRepository.findByUname(uname) == null) { //does username already exist?
+                val salt = passwordUtils.generateSalt(32) //create secure random salt to append to hash
                 val user = User(id = UUID.randomUUID().toString(),
                         email = email,
                         authorityLevels = listOf(level),
@@ -36,7 +36,7 @@ class UserFactory(
                 userRepository.save(user)
                 return UserQL(user) //hydrates to QL compliant authentication
             }  else {
-                throw GraphQLException("Username taken or incorrect")
+                throw GraphQLException("Username taken!")
             }
         } else {
             throw GraphQLException("email incorrect or already in use")
@@ -55,7 +55,7 @@ class UserFactory(
         val  user = userRepository.findByEmail(email) ?: throw GraphQLException("incorrect user/email combo")
 
         if(passwordUtils.isExpectedPassword(password.toCharArray(), user.passwordSalt, user.passwordHash)){
-            return jwtUtils.createJwt(user.id)
+            return jwtUtils.createJwt(user.id, privatekey.toByteArray())
         } else {
             throw GraphQLException("incorrect user/email combo")
         }
@@ -68,21 +68,31 @@ class UserFactory(
         } else {throw GraphQLException("Forbidden") }
     }
 
+    fun validateInfo(email: String, uname: String, password: String): Boolean {
+        if(!isValidEmail(email)) throw GraphQLException("email incorrect or already in use")
+        val unameStatus = passwordUtils.fitsUnameRules(uname)
+        when(unameStatus) {
+            STR_RULES.TOO_LONG -> GraphQLException("Username too long!")
+            STR_RULES.TOO_SHORT -> GraphQLException("Username too short!")
+            STR_RULES.ILLEGAL_CHAR -> GraphQLException("Illegal Character in Username!")
+        } //uname is OK!
+        val pwrdStatus = passwordUtils.fitsPasswordRules(password, uname)
+        if(pwrdStatus != STR_RULES.OK) {
+            GraphQLException("Password must be at least 8 chars, contain a special character, " +
+                    "have upper and lower case characters and contain a number")
+        }
+        return true
+    }
+
     private fun isValidEmail(email: String ): Boolean {
         val validator = EmailValidator.getInstance()
         return validator.isValid(email)
     }
 
-    private fun isValidUsername(uname: String): Boolean{
-        return pattern.matcher(uname).matches()
-    }
 
     fun hydrateUser(context: Context) : User {//translates signed JWT tokens into fully hydrated user objects
-        return userRepository.findById(jwtUtils.parseJWT(context.token)) ?: throw GraphQLException("Invalid Token!")
+        return userRepository.findById(jwtUtils.parseJWT(context.token, privatekey.toByteArray())) ?: throw GraphQLException("Invalid Token!")
     }
 
-    init {
-        pattern = Pattern.compile(UNAME_PATTERN)
-    }
 
 }
