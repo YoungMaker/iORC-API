@@ -61,7 +61,7 @@ class UserFactoryTest {
 
     @Test
     fun createUserAccount() {
-        val user =  userFactory.createUserAccount("bro@test.com", "theboi37", "JoyToTheWorld17", AuthorityLevel.ROLE_USER)
+        val user =  userFactory.createUserAccount("bro@test.com", "theboi37", "JoyToTheWo&rld17", AuthorityLevel.ROLE_USER)
         assertThat(user.email, Matchers.`is`(Matchers.equalTo("bro@test.com")))
         assertThat(user.uname, Matchers.`is`(Matchers.equalTo("theboi37")))
         assertThat(user.authorityLevels.contains(AuthorityLevel.ROLE_USER), Matchers.`is`(true))
@@ -76,7 +76,7 @@ class UserFactoryTest {
     fun loginUser() {
         val token = userFactory.loginUser("test@test.com", "TEST")
         val user = userRepository.findByEmail("test@test.com")
-        val loggedInUser = userFactory.hydrateUser(Context(token))
+        val loggedInUser = userFactory.hydrateUser(token)
         assertThat(loggedInUser.id, Matchers.`is`(Matchers.equalTo(user!!.id)))
     }
 }

@@ -1,5 +1,6 @@
 package edu.ycp.cs482.iorcapi.factories
 
+import com.sun.corba.se.impl.orbutil.graph.Graph
 import edu.ycp.cs482.iorcapi.model.authentication.*
 import edu.ycp.cs482.iorcapi.repositories.UserRepository
 import graphql.GraphQLException
@@ -51,11 +52,11 @@ class UserFactory(
         }
     }
 
-    fun loginUser(email:String, password: String): String {
+    fun loginUser(email:String, password: String): Context {
         val  user = userRepository.findByEmail(email) ?: throw GraphQLException("incorrect user/email combo")
 
         if(passwordUtils.isExpectedPassword(password.toCharArray(), user.passwordSalt, user.passwordHash)){
-            return jwtUtils.createJwt(user.id, privatekey.toByteArray())
+            return Context(jwtUtils.createJwt(user.id, privatekey.toByteArray()))
         } else {
             throw GraphQLException("incorrect user/email combo")
         }
@@ -92,6 +93,14 @@ class UserFactory(
 
     fun hydrateUser(context: Context) : User {//translates signed JWT tokens into fully hydrated user objects
         return userRepository.findById(jwtUtils.parseJWT(context.token, privatekey.toByteArray())) ?: throw GraphQLException("Invalid Token!")
+    }
+
+    //TODO: do we search through and remove their characters? Their public info?
+    fun deleteUser(email: String, context: User) {
+        val user = userRepository.findByEmail(email) ?: throw GraphQLException("incorrect user/email combo")
+        if(context.id == user.id){ //users are the only ones that can delete their account? Should be admins?
+            userRepository.delete(user.id)
+        }
     }
 
 

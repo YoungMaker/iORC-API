@@ -17,4 +17,7 @@ class CharacterQueryResolver(
 
     fun getCharactersByName(name: String, context: Context) = characterFactory.getCharactersByName(name, userFactory.hydrateUser(context))
     fun getCharactersByVersion(version: String, context: Context) = characterFactory.getCharactersByVersion(version, userFactory.hydrateUser(context))
+
+    fun getUsersCharacters(context: Context) =
+            characterFactory.getUserCharacters(userFactory.hydrateUser(context))
 }

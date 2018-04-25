@@ -64,7 +64,7 @@ class CharacterFactory(
                 inventory = char.inventory,
                 slots = updateSlotsIfEmpty(char),
                 money = char.money,
-                access = char.access
+                access = char.authority
             )
         characterRepo.save(charNew) //should this be insert?
 
@@ -96,7 +96,7 @@ class CharacterFactory(
                 inventory = char.inventory,
                 slots = updateSlotsIfEmpty(char),
                 money =  money,
-                access = char.access
+                access = char.authority
                 )
         characterRepo.save(charNew) //should this be insert?
         return hydrateChar(charNew)
@@ -122,7 +122,17 @@ class CharacterFactory(
     }
 
     fun getCharactersByName(name: String, context: User) =
-            hydrateChars(characterRepo.findByNameAndAccess_Owner(name, context.id))
+            hydrateChars(characterRepo.findByNameAndAuthority_Owner(name, context.id))
+
+    fun getUserCharacters(context: User)
+        = hydrateChars(characterRepo.findByAuthority_Owner(context.id))
+
+    fun purgeUsersCharacters(context: User) { //called when a user deletes his account
+        val charList = characterRepo.findByAuthority_Owner(context.id)
+        for(char in charList) {
+            characterRepo.delete(char.id)
+        }
+    }
 
     fun getCharactersByVersion(version: String, context: User): List<CharacterQL> {
         val chars = characterRepo.findByVersion(version)
@@ -164,7 +174,7 @@ class CharacterFactory(
                         inventory = char.inventory,
                         money = char.money,
                         slots = newSlots,
-                        access = char.access
+                        access = char.authority
                 )
                 characterRepo.save(charNew) //overwrite the character
                 return hydrateChar(charNew)
@@ -203,7 +213,7 @@ class CharacterFactory(
                 inventory = newInventory,
                 slots = updateSlotsIfEmpty(char),
                 money = leftMoney,
-                access = char.access
+                access = char.authority
                 )
         characterRepo.save(charNew)
         return hydrateChar(charNew)

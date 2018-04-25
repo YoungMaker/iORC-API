@@ -9,7 +9,7 @@ import edu.ycp.cs482.iorcapi.model.authentication.AccessData
 import edu.ycp.cs482.iorcapi.model.authentication.AuthorityLevel
 import edu.ycp.cs482.iorcapi.model.authentication.AuthorityMode
 
-data class Character( //DB type
+class Character( //DB type
         @Id val id: String,
         val name: String,
         val abilityPoints: Ability,
@@ -19,7 +19,7 @@ data class Character( //DB type
         val inventory: List<String>,
         val slots: List<Slot>,
         val money: Float = 0f,
-        val access: AccessData
+        access: AccessData
 ): Accessible(access) {
     @PersistenceConstructor
     constructor(        id: String,

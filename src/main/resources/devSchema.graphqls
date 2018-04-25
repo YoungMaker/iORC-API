@@ -24,6 +24,10 @@ input Context{
     token: String!
 }
 
+type ContextOut{
+    token: String!
+}
+
 enum AuthorityLevel {
     ROLE_USER,
     ROLE_OWNER,
@@ -164,14 +168,16 @@ type Mutation {
     addItemToVersion(name: String!, description: String!, price: Float!, classes: [String]!, version: String, type: ObjType! ) : Item
 
     createUser(email:String!, name:String!, password:String!): User
-    createAdmin(email:String!, name:String!, password:String!, context: Context!): User
-    loginUser(email:String!, password: String!): String
+    createAdmin(email:String!, name:String!, password:String!, context: Context!): User!
+    loginUser(email:String!, password: String!): ContextOut!
+    deleteAccount(email: String!, password: String!): String
 }
 
 extend type Query {
     getCharacterById(id: ID!, context: Context!) : Character
     getCharactersByName(name: String!, context: Context!): [Character]!
     getCharactersByVersion(version:String!, context: Context!) : [Character]!
+    getUsersCharacters(context: Context!) : [Character]!
 
     getRaceById(id: ID!): Race
     getRacesByName(name: String!) : [Race]!

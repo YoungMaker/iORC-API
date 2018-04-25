@@ -9,6 +9,6 @@ interface CharacterRepository : MongoRepository<Character, String> {
     fun findByName(name: String): List<Character>
     fun findById(id: String): Character?
     fun findByVersion(version: String): List<Character>
-    fun findByAccess_Owner(owner: String): List<Character>
-    fun findByNameAndAccess_Owner(name: String, owner: String): List<Character>
+    fun findByAuthority_Owner(owner: String): List<Character>
+    fun findByNameAndAuthority_Owner(name: String, owner: String): List<Character>
 }
