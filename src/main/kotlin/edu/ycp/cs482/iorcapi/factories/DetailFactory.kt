@@ -35,6 +35,9 @@ class DetailFactory(
     }
 
     fun deleteRace(id:String):String{
+        if(!raceRepository.exists(id)){
+            return "Race %S has does not exist".format(id)
+        }
         raceRepository.delete(id)
         return "Race %S has been deleted".format(id)
     }
@@ -108,6 +111,9 @@ class DetailFactory(
     }
 
     fun deleteClass(id:String):String{
+        if(!classRepository.exists(id)){
+            return "Class %S does not exist".format(id)
+        }
         classRepository.delete(id)
         return "Class %S has been deleted".format(id)
     }

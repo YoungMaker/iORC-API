@@ -21,6 +21,9 @@ class ItemFactory(
     }
 
     fun deleteItem(id:String):String{
+        if(!itemRepository.exists(id)){
+            return "Item %S does not exist".format(id)
+        }
         itemRepository.delete(id)
         return "Item %S has been deleted".format(id)
     }

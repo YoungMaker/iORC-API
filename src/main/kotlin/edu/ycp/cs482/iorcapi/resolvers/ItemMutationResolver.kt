@@ -13,8 +13,5 @@ class ItemMutationResolver(
     itemClasses: List<String>, version: String, type: ObjType)
         = itemFactory.addItem(name, description,price, itemClasses, version, type)
 
-    fun removeItem(id: String):String{
-        itemFactory.deleteItem(id)
-        return "Item %S has been deleted".format(id)
-    }
+    fun removeItem(id: String):String = itemFactory.deleteItem(id)
 }
