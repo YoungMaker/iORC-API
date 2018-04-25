@@ -182,8 +182,8 @@ class CharacterFactory(
             else {
                 throw GraphQLException("Character cannot put that item in slot")
             }
-         } else { //TODO: we need a better way to display this error
-            throw GraphQLException("character does not have empty slot")
+         } else {
+            throw GraphQLException("Character does not have empty slot")
         }
     }
 

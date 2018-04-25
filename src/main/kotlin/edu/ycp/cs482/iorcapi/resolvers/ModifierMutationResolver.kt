@@ -23,7 +23,6 @@ class ModifierMutationResolver(
             ObjType.ITEM_FEAT  -> itemFactory.addItemModifier(id, hashMapOf(Pair(key.toLowerCase(), value)))
             ObjType.ITEM_WEAPON  -> itemFactory.addItemModifier(id, hashMapOf(Pair(key.toLowerCase(), value)))
             ObjType.ITEM_ARMOR  -> itemFactory.addItemModifier(id, hashMapOf(Pair(key.toLowerCase(), value)))
-            //TODO: Add the rest when implemented
         }
     }
     //TODO: Support list removal/addition for fewer queries
@@ -38,7 +37,6 @@ class ModifierMutationResolver(
             ObjType.ITEM_SPELL -> itemFactory.removeItemModifier(id, key.toLowerCase())
             ObjType.ITEM_WEAPON -> itemFactory.removeItemModifier(id, key.toLowerCase())
             ObjType.ITEM_FEAT -> itemFactory.removeItemModifier(id, key.toLowerCase())
-        //TODO: Add the rest when implemented
 
         }
     }

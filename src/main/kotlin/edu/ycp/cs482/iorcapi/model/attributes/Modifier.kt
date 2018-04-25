@@ -7,10 +7,10 @@ import edu.ycp.cs482.iorcapi.model.authentication.AuthorityMode
 
 open class Modifiable(
         var modifiers: Map<String, Float> = mapOf(),
-        val access: AccessData = AccessData("", mapOf(
+        access: AccessData = AccessData("", mapOf(
                 Pair(AuthorityLevel.ROLE_USER, AuthorityMode.MODE_VIEW),
                 Pair(AuthorityLevel.ROLE_ADMIN, AuthorityMode.MODE_EDIT)))
-): Accessible() { //TODO: we need to be able to get accessible data into here, like a new owner
+): Accessible(access) {
     fun unionModifiers(mods: Map<String, Float>){
         val finalMods = HashMap<String, Float>(modifiers)
         finalMods.putAll(mods)

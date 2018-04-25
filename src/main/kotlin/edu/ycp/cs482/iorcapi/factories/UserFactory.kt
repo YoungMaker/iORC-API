@@ -93,9 +93,9 @@ class UserFactory(
 
     fun hydrateUser(context: Context) : User {//translates signed JWT tokens into fully hydrated user objects
         return userRepository.findById(jwtUtils.parseJWT(context.token, privatekey.toByteArray())) ?: throw GraphQLException("Invalid Token!")
-    }
+    } //throw invalid token if user doesn't exist, we don't want attackers to be able to find if a user exists this way.
 
-    //TODO: do we search through and remove their characters? Their public info?
+    //this only removes the user account. the mutation destroys their characters but leaves any other data intact
     fun deleteUser(email: String, context: User) {
         val user = userRepository.findByEmail(email) ?: throw GraphQLException("incorrect user/email combo")
         if(context.id == user.id){ //users are the only ones that can delete their account? Should be admins?

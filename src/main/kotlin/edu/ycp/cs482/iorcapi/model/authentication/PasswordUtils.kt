@@ -30,7 +30,7 @@ class PasswordUtils {
             return key.encoded
 
         } catch (e: NoSuchAlgorithmException) {
-            throw RuntimeException(e) //TODO: Convert to correct exception? or handle downwind?
+            throw RuntimeException(e) //this should never happen. Should be a fatal exception
         } catch (e: InvalidKeySpecException) {
             throw RuntimeException(e)
         } finally {
