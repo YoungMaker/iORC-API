@@ -121,6 +121,7 @@ type Mutation {
     addItemToCharacter(id:ID!, itemid: ID!): Character!
     removeItemFromCharacter(id:ID!, itemid:ID!):Character!
     equipItem(id:ID!, itemid: ID!, slotid: String!): Character!
+    unequipItem(id:ID!, itemid:ID!, slotid:String!):Character!
     purchaseItem(id:ID!, itemid: ID!): Character!
     setCharacterMoney(id: ID!, money: Float!): Character!
 

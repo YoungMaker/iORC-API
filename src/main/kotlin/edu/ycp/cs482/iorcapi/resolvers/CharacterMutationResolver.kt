@@ -27,6 +27,7 @@ class CharacterMutationResolver(
     fun addItemToCharacter(id: String, itemid: String) = characterFactory.addItemToCharacter(id, itemid)
     fun removeItemFromCharacter(id:String,itemid:String) = characterFactory.removeItemFromCharacter(id,itemid)
     fun equipItem(id: String, itemid: String, slotid: String) = characterFactory.equipItem(id, itemid, slotid)
+    fun unequipItem(id:String,itemid:String,slotname:String) = characterFactory.unequipItem(id, itemid, slotname)
     fun purchaseItem(id: String, itemid: String) = characterFactory.purchaseItem(id, itemid)
     fun setCharacterMoney(id: String, money: Float) = characterFactory.setCharacterMoney(id, money)
 }
