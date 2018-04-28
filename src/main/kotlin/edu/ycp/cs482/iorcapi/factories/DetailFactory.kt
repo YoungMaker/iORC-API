@@ -22,6 +22,16 @@ class DetailFactory(
     //TODO: validation?
     fun createNewRace(name: String, description: String, version: String = "") : RaceQL {
         val race = Race(UUID.randomUUID().toString(), name = name, description = description, version = version)
+        //get the races that match with the given name
+        val nameMatches = raceRepository.findByName(name)
+
+        /*check the list of matching names and check if the description matches
+        Change this to just throw the exception if more than just the name matches???
+        What if a race is supposed to have the same name with other differences inside of the race????
+        can't thing of an example from a book of this but I think it's at least something that should be brought up*/
+        if(nameMatches.isNotEmpty()){
+            throw GraphQLException("Race already exists with that name")
+        }
         raceRepository.save(race) //should this be insert??
         return RaceQL(race)
     }
@@ -88,6 +98,12 @@ class DetailFactory(
     /** Class functionality: **/
 
     fun createNewClass(name: String, role: String,  version: String, description: String): ClassQL {
+        //find matches by name
+        val nameMatches = classRepository.findByName(name)
+        //check if name matches anything in class repo
+        if(nameMatches.isNotEmpty()){
+            throw GraphQLException("Class already exists with that name")
+        }
         val rpgClass = ClassRpg(id = UUID.randomUUID().toString(),
                 name = name,
                 role = role,
