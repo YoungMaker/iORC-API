@@ -10,8 +10,6 @@ import org.hamcrest.CoreMatchers.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.springframework.boot.test.context.SpringBootTest
-import org.junit.runner.RunWith
 
 import org.junit.Assert.*
 
@@ -153,7 +151,7 @@ class CharacterFactoryTest {
                 ClassRpg(
                         id = "0.1",
                         name = "Cleric",
-                        role= "Healer",
+                        role = "Healer",
                         version = "TEST",
                         description = "TESTCLERIC",
                         modifiers = mapOf( Pair("hp", 12f), Pair("fort", 2f))

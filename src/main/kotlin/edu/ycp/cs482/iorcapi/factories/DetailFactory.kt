@@ -1,11 +1,8 @@
 package edu.ycp.cs482.iorcapi.factories
 
 import edu.ycp.cs482.iorcapi.model.*
-import edu.ycp.cs482.iorcapi.model.attributes.Modifiable
-import edu.ycp.cs482.iorcapi.model.attributes.Modifier
 import edu.ycp.cs482.iorcapi.repositories.ClassRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
-import graphql.ErrorType
 import graphql.GraphQLException
 import org.springframework.stereotype.Component
 import java.util.UUID
@@ -14,7 +11,8 @@ import java.util.UUID
 class DetailFactory(
     private val raceRepository: RaceRepository,
     private val classRepository: ClassRepository,
-    private val versionFactory: VersionFactory
+    private val versionFactory: VersionFactory,
+    private val itemFactory: ItemFactory
 ){
 
     /** Race functionality **/
@@ -23,7 +21,7 @@ class DetailFactory(
     fun createNewRace(name: String, description: String, version: String = "") : RaceQL {
         val race = Race(UUID.randomUUID().toString(), name = name, description = description, version = version)
         raceRepository.save(race) //should this be insert??
-        return RaceQL(race)
+        return hydrateRace(race)
     }
 
     fun updateRace(id: String, name: String, description: String, version: String = "") : RaceQL {
@@ -31,7 +29,7 @@ class DetailFactory(
 
         val newRace = Race(id, name = name, description = description, version = version) // creates new one based on old one
         raceRepository.save(newRace) // this should write over the old one with the new parameters
-        return RaceQL(newRace)
+        return hydrateRace(newRace)
     }
 
     fun addRaceModifiers(id : String, mods: HashMap<String, Float>): RaceQL {
@@ -43,7 +41,7 @@ class DetailFactory(
 
         race.unionModifiers(mods)
         raceRepository.save(race) // this should write over the old one with the new parameters
-        return RaceQL(race)
+        return hydrateRace(race)
     }
 
     fun removeRaceModifier(id: String, key: String): RaceQL {
@@ -51,12 +49,12 @@ class DetailFactory(
 
         race.removeModifier(key)
         raceRepository.save(race) // this should write over the old one with the new parameters
-        return RaceQL(race)
+        return hydrateRace(race)
     }
 
     fun getRaceById(id: String) : RaceQL{
         val race = raceRepository.findById(id) ?: throw throw GraphQLException("Race does not exist with that id")
-        return RaceQL(race)
+        return hydrateRace(race)
     }
 
     fun getRacesByName(name: String) = hydrateRaces(raceRepository.findByName(name))
@@ -66,8 +64,13 @@ class DetailFactory(
 
     fun hydrateRaces(races: List<Race>) : List<RaceQL> {
         val output = mutableListOf<RaceQL>()
-        races.mapTo(output){RaceQL(it)}
+        races.mapTo(output){hydrateRace(it)}
         return output
+    }
+
+    fun hydrateRace(race: Race):RaceQL{
+        val featsList = hydrateFeats(race.feats)
+        return RaceQL(race, featsList)
     }
 
     //depreciated
@@ -87,7 +90,7 @@ class DetailFactory(
                 description =  description)
 
         classRepository.save(rpgClass) //should this be insert??
-        return ClassQL(rpgClass)
+        return hydrateClass(rpgClass)
     }
 
     fun updateClass(id: String, name: String, role: String, version: String, description: String): ClassQL {
@@ -99,7 +102,7 @@ class DetailFactory(
                 description =  description)
 
         classRepository.save(rpgClass)
-        return ClassQL(rpgClass)
+        return hydrateClass(rpgClass)
     }
 
     fun addClassModifiers(id: String, mods: HashMap<String, Float>): ClassQL {
@@ -112,7 +115,7 @@ class DetailFactory(
         rpgClass.unionModifiers(mods)
 
         classRepository.save(rpgClass) // this should write over the old one with the new parameters
-        return ClassQL(rpgClass)
+        return hydrateClass(rpgClass)
     }
 
 
@@ -122,12 +125,12 @@ class DetailFactory(
         rpgClass.removeModifier(key)
 
         classRepository.save(rpgClass) // this should write over the old one with the new parameters
-        return ClassQL(rpgClass)
+        return hydrateClass(rpgClass)
     }
 
     fun getClassById(id: String) : ClassQL{
         val rpgClass = classRepository.findById(id) ?: throw throw GraphQLException("Race does not exist with that id")
-        return ClassQL(rpgClass)
+        return hydrateClass(rpgClass)
     }
 
     fun getClassesByName(name: String) = hydrateClasses(classRepository.findByName(name))
@@ -136,8 +139,28 @@ class DetailFactory(
 
     fun hydrateClasses(classes: List<ClassRpg>) : List<ClassQL> {
         val output = mutableListOf<ClassQL>()
-        classes.mapTo(output){ClassQL(it)}
+        classes.mapTo(output){hydrateClass(it)}
         return output
+    }
+
+    fun hydrateClass(classRPG: ClassRpg):ClassQL{
+        val featsList = hydrateFeats(classRPG.feats)
+        return ClassQL(classRPG, featsList)
+    }
+
+    fun hydrateFeats(featIDs: List<String>): List<ItemQL>{
+        val outputList = mutableListOf<ItemQL>()
+        for(featID in featIDs){
+            try {
+                outputList.add(itemFactory.getItemById(featID))
+            }
+            catch(e: GraphQLException){
+                outputList.add(ItemQL(id= "ERR ITEM", name= "ITEM ERROR",
+                        description = "" + e.message,
+                        modifiers = listOf(), price= -1f, version = "ERR"))
+            }
+        }
+        return outputList
     }
 
     //depreciated

@@ -13,9 +13,7 @@ import org.junit.Assert.*
 import org.springframework.boot.test.context.SpringBootTest
 
 import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
-import edu.ycp.cs482.iorcapi.model.ModTools
 import edu.ycp.cs482.iorcapi.model.Race
-import edu.ycp.cs482.iorcapi.model.RaceQL
 import edu.ycp.cs482.iorcapi.model.attributes.Modifier
 import edu.ycp.cs482.iorcapi.model.attributes.Stat
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
@@ -87,7 +85,7 @@ class DetailFactoryTest {
                 ClassRpg(
                         id = "0.1",
                         name = "Cleric",
-                        role= "Healer",
+                        role = "Healer",
                         version = "TEST",
                         description = "TESTCLERIC",
                         modifiers = mapOf( Pair("hp", 12f), Pair("fort", 2f))

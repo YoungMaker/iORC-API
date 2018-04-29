@@ -12,6 +12,7 @@ class Race(
     val name: String,
     val description: String,
     val version: String,
+    val feats: MutableList<String> = mutableListOf(),
     modifiers: Map<String, Float> = mapOf(),
     val type : ObjType = ObjType.RACE
 ) : Modifiable(modifiers)
@@ -22,13 +23,15 @@ data class RaceQL(
         val name: String,
         val description: String,
         val version: String,
+        val feats: List<ItemQL> = listOf(),
         val modifiers: List<Modifier> = listOf(),
         val type: ObjType = ObjType.RACE
 ){
-    constructor(race : Race):
+    constructor(race : Race, feats: List<ItemQL>):
             this(id = race.id,
                     name = race.name,
                     description = race.description,
                     version = race.version,
+                    feats = feats,
                     modifiers =  race.convertToModifiers())
 }

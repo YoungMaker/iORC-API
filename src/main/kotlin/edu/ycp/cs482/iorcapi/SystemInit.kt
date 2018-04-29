@@ -7,7 +7,6 @@ import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
 import edu.ycp.cs482.iorcapi.repositories.ClassRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
-import edu.ycp.cs482.iorcapi.repositories.StatRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -36,7 +35,7 @@ class SystemInit {
                 ClassRpg(
                         id = "0.1",
                         name = "Cleric",
-                        role= "Healer",
+                        role = "Healer",
                         version = "TEST",
                         description = "TESTCLERIC",
                         modifiers = mapOf( Pair("hp", 12f), Pair("fort", 2f))

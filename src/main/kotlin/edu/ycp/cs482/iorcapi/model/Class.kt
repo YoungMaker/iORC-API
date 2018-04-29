@@ -10,6 +10,7 @@ class ClassRpg (
         val name: String,
         val role: String,
         val description: String,
+        val feats: MutableList<String> = mutableListOf(),
         modifiers: Map<String, Float> = mapOf(),
         val version: String,
         val type: ObjType = ObjType.CLASS
@@ -23,14 +24,16 @@ data class ClassQL(
         val role: String,
         val description: String,
         val version: String,
+        val feats: List<ItemQL> = listOf(),
         val modifiers: List<Modifier> = listOf(),
         val type: ObjType = ObjType.CLASS
 ){
-    constructor(rpgClass: ClassRpg) :
+    constructor(rpgClass: ClassRpg, feats: List<ItemQL>) :
             this(id = rpgClass.id,
                     name = rpgClass.name,
                     role = rpgClass.role,
                     description = rpgClass.description,
                     version = rpgClass.version,
+                    feats = feats,
                     modifiers = rpgClass.convertToModifiers())
 }
