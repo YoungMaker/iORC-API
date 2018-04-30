@@ -21,17 +21,14 @@ class DetailFactory(
 
     //TODO: validation?
     fun createNewRace(name: String, description: String, version: String = "") : RaceQL {
-        val race = Race(UUID.randomUUID().toString(), name = name, description = description, version = version)
-        //get the races that match with the given name
-        val nameMatches = raceRepository.findByName(name)
-
-        /*check the list of matching names and check if the description matches
-        Change this to just throw the exception if more than just the name matches???
-        What if a race is supposed to have the same name with other differences inside of the race????
-        can't thing of an example from a book of this but I think it's at least something that should be brought up*/
-        if(nameMatches.isNotEmpty()){
-            throw GraphQLException("Race already exists with that name")
+        //create ID
+        val raceId = (name.trim()+version.trim())
+        //check for duplicate IDs
+        if(raceRepository.exists(raceId)){
+            throw GraphQLException("Item already exists in repository")
         }
+
+        val race = Race(raceId, name = name, description = description, version = version)
         raceRepository.save(race) //should this be insert??
         return RaceQL(race)
     }
@@ -42,6 +39,29 @@ class DetailFactory(
         val newRace = Race(id, name = name, description = description, version = version) // creates new one based on old one
         raceRepository.save(newRace) // this should write over the old one with the new parameters
         return RaceQL(newRace)
+    }
+
+    //transform old race ids to new system (can be modified for other purposes later)
+    //this is only meant to be run when needed and should not be able to be called normally
+    fun reformatRaces(version: String):List<RaceQL>{
+        //get races from repo
+        val races = raceRepository.findByVersion(version)
+
+        for(race in races){
+            val raceID = (race.name.trim()+race.version.trim())
+            if(race.id != raceID){
+                val newRace = Race(raceID, name=race.name,
+                        description=race.description,
+                        version=race.version)
+                //add the new race object to repo
+                raceRepository.save(newRace)
+                addRaceModifiers(raceID, race.modifiers as HashMap<String, Float>)
+
+                //delete old race object from repo
+                raceRepository.delete(race.id)
+            }
+        }
+        return getRacesByVersion(version)
     }
 
     fun deleteRace(id:String):String{
@@ -98,13 +118,15 @@ class DetailFactory(
     /** Class functionality: **/
 
     fun createNewClass(name: String, role: String,  version: String, description: String): ClassQL {
-        //find matches by name
-        val nameMatches = classRepository.findByName(name)
-        //check if name matches anything in class repo
-        if(nameMatches.isNotEmpty()){
-            throw GraphQLException("Class already exists with that name")
+        //create ID
+        val classID = (name.trim() + version.trim())
+
+        //check for duplicate based on ID
+        if(raceRepository.exists(classID)){
+            throw GraphQLException("Item already exists in repository")
         }
-        val rpgClass = ClassRpg(id = UUID.randomUUID().toString(),
+
+        val rpgClass = ClassRpg(id = classID,
                 name = name,
                 role = role,
                 version = version,
@@ -126,6 +148,31 @@ class DetailFactory(
         return ClassQL(rpgClass)
     }
 
+    //used to change old class ids to new id format (can be modified for other purposes later)
+    fun reformatClasses(version: String):List<ClassQL>{
+        //get classes from repo
+        val classes = classRepository.findByVersion(version)
+
+        for(classObj in classes){
+            //check for classes with old method of ID creation
+            val classID = (classObj.name.trim()+classObj.version.trim())
+            if(classObj.id != classID){
+                val newClass = ClassRpg(classID, name=classObj.name,
+                        description=classObj.description,
+                        version=classObj.version,
+                        role=classObj.role,
+                        type=classObj.type)
+                //add the new race object to repo
+                classRepository.save(newClass)
+                addClassModifiers(classID, classObj.modifiers as HashMap<String, Float>)
+
+                //delete old race object from repo
+                classRepository.delete(classObj.id)
+            }
+        }
+        return getClassesByVersion(version)
+    }
+
     fun deleteClass(id:String):String{
         if(!classRepository.exists(id)){
             return "Class %S does not exist".format(id)
@@ -138,7 +185,7 @@ class DetailFactory(
         val rpgClass = classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
 
         if(!versionFactory.checkStatsInVersion(mods, rpgClass.version)){
-            throw GraphQLException("This Modifier is not in the version sheet!")
+            throw GraphQLException("This Modifier is not in the version sheet! %S".format(mods))
         }
 
         rpgClass.unionModifiers(mods)

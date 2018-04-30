@@ -128,10 +128,12 @@ type Mutation {
     createRace(name: String!, description: String!, version: String!): Race!
     updateRace(id: ID!, name: String!, version: String!, description: String!): Race
     deleteRace(id: ID!): String!
+    reformatRace(version:String!):[Race]!
 
     createClass(name: String!, role: String!, version: String!, description: String! ): Class!
     updateClass(id: ID! name: String!, role: String!, version: String!, description: String! ): Class
     deleteClass(id: ID!): String!
+    reformatClass(version:String!):[Class]!
 
     addModifier(id: ID!, type: ObjType!, key: String!, value: Float!) : ModifierResult
     removeModifier(id: ID!, type: ObjType!, key: String!) : ModifierResult
