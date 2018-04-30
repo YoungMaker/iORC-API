@@ -37,7 +37,7 @@ class DetailFactory(
     fun addRaceModifiers(id : String, mods: HashMap<String, Float>): RaceQL {
        val race = raceRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
 
-        if(!versionFactory.checkStatsInVersion(mods, race.version)){
+        if(!versionFactory.checkStatsInVersion(mods, versionFactory.hydrateVersion(race.version))){
             throw GraphQLException("This Modifier is not in the version sheet!")
         }
 
@@ -105,7 +105,7 @@ class DetailFactory(
     fun addClassModifiers(id: String, mods: HashMap<String, Float>): ClassQL {
         val rpgClass = classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
 
-        if(!versionFactory.checkStatsInVersion(mods, rpgClass.version)){
+        if(!versionFactory.checkStatsInVersion(mods, versionFactory.hydrateVersion(rpgClass.version))){
             throw GraphQLException("This Modifier is not in the version sheet!")
         }
 

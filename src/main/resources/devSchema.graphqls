@@ -163,7 +163,7 @@ type Mutation {
     removeStatBaseCalcModifier(statKey: String!, version: String!, key: String!): Stat
 
     addInfoToVersion(name: String!, version: String!, type: String!, value: String!): Version
-    initalizeVersion(version: String): Version
+    createVersion(version: String, context: Context!): Version
 
     addItemToVersion(name: String!, description: String!, price: Float!, classes: [String]!, version: String, type: ObjType! ) : Item
 

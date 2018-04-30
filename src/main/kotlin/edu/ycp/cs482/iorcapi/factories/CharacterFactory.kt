@@ -141,7 +141,7 @@ class CharacterFactory(
     }
 
     private fun getSlots(version: String): List<Slot>{
-        val vInfoSlots = versionFactory.getVersionInfoByType(version, "slot").infoList
+        val vInfoSlots = versionFactory.getVersionInfoByType(versionFactory.hydrateVersion(version), "slot").infoList
         val outputList = mutableListOf<Slot>()
         vInfoSlots.mapTo(outputList) { Slot(it.name, "", true) }
         return outputList
