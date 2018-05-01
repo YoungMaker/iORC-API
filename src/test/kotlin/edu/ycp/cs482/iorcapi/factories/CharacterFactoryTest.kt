@@ -31,8 +31,10 @@ class CharacterFactoryTest {
     lateinit var itemRepository: ItemRepository
     lateinit var itemFactory: ItemFactory
     lateinit var userRepository: UserRepository
+    lateinit var versionRepository: VersionRepository
     lateinit var passwordUtils: PasswordUtils
     lateinit var salt: ByteArray
+    lateinit var context: User
 
     @Before
     fun setUp() {
@@ -43,7 +45,8 @@ class CharacterFactoryTest {
         versionInfoRepository = RepositoryFactoryBuilder.builder().mock(VersionInfoRepository::class.java)
         userRepository = RepositoryFactoryBuilder.builder().mock(UserRepository::class.java)
         itemRepository = RepositoryFactoryBuilder.builder().mock(ItemRepository::class.java)
-        versionFactory = VersionFactory(statRepository, versionInfoRepository)
+        versionRepository = RepositoryFactoryBuilder.builder().mock(VersionRepository::class.java)
+        versionFactory = VersionFactory(statRepository, versionInfoRepository, versionRepository, Authorizer())
         passwordUtils = PasswordUtils()
         salt = passwordUtils.generateSalt(32)
         addTestUsers()
@@ -83,12 +86,13 @@ class CharacterFactoryTest {
                 ),
                 User(id= "TESTUSER3",
                         email = "test_dude@test.com",
-                        uname = "test_boii",
+                        uname = "test_boii2",
                         authorityLevels = listOf(AuthorityLevel.ROLE_USER),
                         passwordHash = passwordUtils.hashPassword("TEST".toCharArray(), salt),
                         passwordSalt = salt
                 )
         ))
+        context = userRepository.findOne("TESTUSER3")
     }
 
     private fun addTestItems() {
@@ -124,29 +128,41 @@ class CharacterFactoryTest {
     }
 
 
-    fun addTestVersion(){
-        versionFactory.initializeVersion("TEST")
+
+    fun addTestVersion() {
+        versionFactory.createVersion("TEST", context)
         statRepository.save(listOf(
                 Stat(
-                        id= "hpTEST",
-                        name= "hp",
+                        id = "hpTEST",
+                        name = "hp",
+                        fname = "Health Points",
                         description = "health points",
                         version = "TEST",
                         skill = false
                 ),
                 Stat(
-                        id= "willTEST",
-                        name= "will",
+                        id = "willTEST",
+                        name = "will",
+                        fname = "Willpower",
                         description = "Willpower",
                         version = "TEST",
                         skill = false
                 ),
                 Stat(
-                        id= "fortTEST",
-                        name= "fort",
+                        id = "fortTEST",
+                        name = "fort",
+                        fname = "Fortitude",
                         description = "Fortitude",
                         version = "TEST",
                         skill = false
+                ),
+                Stat(
+                        id = "historyTEST",
+                        name = "history",
+                        fname = "History",
+                        description = "History",
+                        version = "TEST",
+                        skill = true
                 )
         ))
 

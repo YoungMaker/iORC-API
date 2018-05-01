@@ -187,10 +187,10 @@ extend type Query {
     getClassesByVersion(version: String): [Class]!
     getClassesByName(name: String): [Class]!
 
-    getVersionSheet(version: String!): Version
-    getVersionSkills(version: String!): Version
+    getVersionSheet(version: String!, context: Context!): Version
+    getVersionSkills(version: String!, context: Context!): Version
 
-    getVersionInfoType(version: String!, type: String!): Version
+    getVersionInfoType(version: String!, type: String!, context: Context!): Version
 
     getVersionItems(version: String) : [Item]!
     getVersionItemType(version: String, type: ObjType): [Item]!

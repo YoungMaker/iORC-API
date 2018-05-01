@@ -6,5 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository
 
 interface VersionRepository: MongoRepository<Version, String> {
     fun findByVersion(version: String): Version?
-    fun findByAccess(access: AccessData): List<Version>
+    //fun findByAccess(access: AccessData): List<Version>
 }

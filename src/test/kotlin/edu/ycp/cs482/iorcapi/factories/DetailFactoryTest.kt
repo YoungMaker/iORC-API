@@ -1,7 +1,6 @@
 package edu.ycp.cs482.iorcapi.factories
 
 import edu.ycp.cs482.iorcapi.model.ClassRpg
-import edu.ycp.cs482.iorcapi.repositories.ClassRepository
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.CoreMatchers.notNullValue
 import org.junit.After
@@ -18,9 +17,11 @@ import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.model.RaceQL
 import edu.ycp.cs482.iorcapi.model.attributes.Modifier
 import edu.ycp.cs482.iorcapi.model.attributes.Stat
-import edu.ycp.cs482.iorcapi.repositories.RaceRepository
-import edu.ycp.cs482.iorcapi.repositories.StatRepository
-import edu.ycp.cs482.iorcapi.repositories.VersionInfoRepository
+import edu.ycp.cs482.iorcapi.model.authentication.AuthorityLevel
+import edu.ycp.cs482.iorcapi.model.authentication.Authorizer
+import edu.ycp.cs482.iorcapi.model.authentication.PasswordUtils
+import edu.ycp.cs482.iorcapi.model.authentication.User
+import edu.ycp.cs482.iorcapi.repositories.*
 import graphql.GraphQLException
 
 
@@ -33,26 +34,65 @@ class DetailFactoryTest {
     lateinit var statRepository: StatRepository
     lateinit var versionInfoRepository: VersionInfoRepository
     lateinit var versionFactory: VersionFactory
+    lateinit var userRepository: UserRepository
+    lateinit var versionRepository: VersionRepository
+    lateinit var passwordUtils: PasswordUtils
+    lateinit var salt: ByteArray
+    lateinit var context: User
 
     @Before
     fun setUp() {
         classRepository = RepositoryFactoryBuilder.builder().mock(ClassRepository::class.java)
         raceRepository = RepositoryFactoryBuilder.builder().mock(RaceRepository::class.java)
         statRepository = RepositoryFactoryBuilder.builder().mock(StatRepository::class.java)
+        versionRepository = RepositoryFactoryBuilder.builder().mock(VersionRepository::class.java)
         versionInfoRepository = RepositoryFactoryBuilder.builder().mock(VersionInfoRepository::class.java)
-        versionFactory = VersionFactory(statRepository, versionInfoRepository)
+        userRepository = RepositoryFactoryBuilder.builder().mock(UserRepository::class.java)
+        versionFactory = VersionFactory(statRepository, versionInfoRepository, versionRepository, Authorizer())
+        passwordUtils = PasswordUtils()
+        salt = passwordUtils.generateSalt(32)
+        addTestUsers()
         addTestVersion()
         addTestClasses()
         addTestRaces()
         detailFactory = DetailFactory(raceRepository, classRepository, versionFactory)
     }
 
+    private fun addTestUsers(){
+        userRepository.save(listOf(
+                User(id= "TESTUSER",
+                        email = "test@test.com",
+                        uname = "test_daddy",
+                        authorityLevels = listOf(AuthorityLevel.ROLE_USER),
+                        passwordHash = passwordUtils.hashPassword("TEST".toCharArray(), salt),
+                        passwordSalt = salt
+                ),
+                User(id= "TESTUSER2",
+                        email = "test_admin@test.com",
+                        uname = "test_boii2",
+                        authorityLevels = listOf(AuthorityLevel.ROLE_ADMIN),
+                        passwordHash = passwordUtils.hashPassword("TEST".toCharArray(), salt),
+                        passwordSalt = salt
+                ),
+                User(id= "TESTUSER3",
+                        email = "test_dude@test.com",
+                        uname = "test_boii3",
+                        authorityLevels = listOf(AuthorityLevel.ROLE_USER),
+                        passwordHash = passwordUtils.hashPassword("TEST".toCharArray(), salt),
+                        passwordSalt = salt
+                )
+        ))
+        context = userRepository.findOne("TESTUSER3")
+
+    }
+
     fun addTestVersion(){
-        versionFactory.initializeVersion("TEST")
+        versionFactory.createVersion("TEST", context)
         statRepository.save(listOf(
                 Stat(
                         id= "hpTEST",
                         name= "hp",
+                        fname = "Health Points",
                         description = "health points",
                         version = "TEST",
                         skill = false
@@ -60,6 +100,7 @@ class DetailFactoryTest {
                 Stat(
                         id= "willTEST",
                         name= "will",
+                        fname = "Willpower",
                         description = "Willpower",
                         version = "TEST",
                         skill = false
@@ -67,9 +108,18 @@ class DetailFactoryTest {
                 Stat(
                         id= "fortTEST",
                         name= "fort",
+                        fname = "Fortitude",
                         description = "Fortitude",
                         version = "TEST",
                         skill = false
+                ),
+                Stat(
+                        id ="historyTEST",
+                        name = "history",
+                        fname = "History",
+                        description = "History",
+                        version = "TEST",
+                        skill = true
                 )
         ))
     }

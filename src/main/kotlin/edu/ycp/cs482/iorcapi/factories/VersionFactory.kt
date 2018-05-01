@@ -6,10 +6,7 @@ import edu.ycp.cs482.iorcapi.model.Version
 import edu.ycp.cs482.iorcapi.model.attributes.Stat
 import edu.ycp.cs482.iorcapi.model.attributes.StatQL
 import edu.ycp.cs482.iorcapi.model.attributes.VersionInfo
-import edu.ycp.cs482.iorcapi.model.authentication.AccessData
-import edu.ycp.cs482.iorcapi.model.authentication.AuthorityLevel
-import edu.ycp.cs482.iorcapi.model.authentication.AuthorityMode
-import edu.ycp.cs482.iorcapi.model.authentication.User
+import edu.ycp.cs482.iorcapi.model.authentication.*
 import edu.ycp.cs482.iorcapi.repositories.StatRepository
 import edu.ycp.cs482.iorcapi.repositories.VersionInfoRepository
 import edu.ycp.cs482.iorcapi.repositories.VersionRepository
@@ -21,19 +18,22 @@ import org.springframework.stereotype.Component
 class VersionFactory(
         private val statRepository: StatRepository,
         private val versionInfoRepository: VersionInfoRepository,
-        private val versionRepository: VersionRepository
+        private val versionRepository: VersionRepository,
+        private val authorizer: Authorizer
 ) {
 
-    fun getVersionSkills(version: Version): VersionQL{
+    fun getVersionSkills(version: Version, context: User): VersionQL{
+        authorizer.authorizeVersion(version, context, AuthorityMode.MODE_VIEW) ?: throw  GraphQLException("Forbidden")
         return VersionQL(version.version,
             statRepository.findByVersionAndSkill(version.version, true).map{StatQL(it)})
     }
 
-    fun getVersionInfoByType(version: Version, type: String): VersionQL{
+    fun getVersionInfoByType(version: Version, type: String, context: User): VersionQL{
+        authorizer.authorizeVersion(version, context, AuthorityMode.MODE_VIEW) ?: throw  GraphQLException("Forbidden")
         return VersionQL(version.version, listOf(),  versionInfoRepository.findByVersionAndType(version.version, type))
     }
 
-    fun getVersionStatList(version: Version): List<String>{
+    private fun getVersionStatList(version: Version): List<String>{
         val statList = statRepository.findByVersion(version.version)
         return statList.map { it.name }
     }
@@ -54,18 +54,18 @@ class VersionFactory(
         val stat = Stat((key+version.version), key, name,  description, version.version, skill)
 //        statRepository.findById("str" + version) ?: initializeVersion(version)
         statRepository.save(stat)
-        return constructVersionSheet(version.version)
+        return constructVersionSheet(version)
     }
 
     fun addInfoToVersion(name: String, type: String, value: String, version: Version): VersionQL {
         val info = VersionInfo((name+version.version), version.version, name, type,  value)
 //        versionInfoRepository.findById("currency" + version) ?: initializeVersion(version)
         versionInfoRepository.save(info)
-        return constructVersionSheet(version.version)
+        return constructVersionSheet(version)
     }
 
     fun createVersion(version: String, context: User): VersionQL {
-        //TODO: Check version repo, create version object and store in db.
+        //Checks version repo, creates version object and stores in db.
         if(versionRepository.findByVersion(version)  == null) { // if no current version with this name exists
             val versionObj = Version( version = version,
                     access =  listOf(AccessData(context.id, mapOf()),
@@ -73,22 +73,22 @@ class VersionFactory(
 
                     ))
             versionRepository.save(versionObj)
-            initializeVersion(version)
-            return constructVersionSheet(version)
+            initializeVersion(versionObj)
+            return constructVersionSheet(versionObj)
         } else {
             throw GraphQLException("Version with this name already exists!")
         }
     }
 
 
-    private fun initializeVersion(version: String): VersionQL {
-        statRepository.save(Stat("str"+version, "str", "Strength", "Strength", version, false))
-        statRepository.save(Stat("con"+version, "con", "Constitution", "Constitution", version, false))
-        statRepository.save(Stat("dex"+version, "dex", "Dexterity","Dexterity", version, false))
-        statRepository.save(Stat("int"+version, "int", "Intelligence","Intelligence", version, false))
-        statRepository.save(Stat("wis"+version, "wis", "Wisdom", "Wisdom", version, false))
-        statRepository.save(Stat("cha"+version, "cha", "Charisma","Charisma", version, false))
-        versionInfoRepository.save(VersionInfo("currency"+ version, version, "currency", "currency", "Replace this with the versions currency" ))
+    private fun initializeVersion(version: Version): VersionQL {
+        statRepository.save(Stat("str"+version.version, "str", "Strength", "Strength", version.version, false))
+        statRepository.save(Stat("con"+version.version, "con", "Constitution", "Constitution", version.version, false))
+        statRepository.save(Stat("dex"+version.version, "dex", "Dexterity","Dexterity", version.version, false))
+        statRepository.save(Stat("int"+version.version, "int", "Intelligence","Intelligence", version.version, false))
+        statRepository.save(Stat("wis"+version.version, "wis", "Wisdom", "Wisdom", version.version, false))
+        statRepository.save(Stat("cha"+version.version, "cha", "Charisma","Charisma", version.version, false))
+        versionInfoRepository.save(VersionInfo("currency"+ version.version, version.version, "currency", "currency", "Replace this with the versions currency" ))
         return constructVersionSheet(version)
     }
 
@@ -108,15 +108,19 @@ class VersionFactory(
         return StatQL(stat)
     }
 
-    fun constructVersionSheet(version: String) : VersionQL {
-        hydrateVersion(version) //will error if version does not exist
-        val versionStats = statRepository.findByVersion(version)
-        val versionInfo = versionInfoRepository.findByVersion(version)
+    fun getVersionSheet(version: Version, context: User): VersionQL{
+        authorizer.authorizeVersion(version, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden!")
+        return constructVersionSheet(version)
+    }
+
+    private fun constructVersionSheet(version: Version) : VersionQL {
+        val versionStats = statRepository.findByVersion(version.version)
+        val versionInfo = versionInfoRepository.findByVersion(version.version)
 
         val qlStats = mutableListOf<StatQL>()
         versionStats.mapTo(qlStats){StatQL(it)}
 
-       return VersionQL(version, qlStats, versionInfo)
+       return VersionQL(version.version, qlStats, versionInfo)
     }
 
     fun hydrateVersion(version: String): Version {

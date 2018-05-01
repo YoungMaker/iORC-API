@@ -38,7 +38,7 @@ class CharacterFactory(
                 classid = classql.id,
                 version = version,
                 inventory = listOf(),
-                slots = getSlots(version),
+                slots = getSlots(version, owner),
                 access = AccessData(owner.id, mapOf(Pair(AuthorityLevel.ROLE_ADMIN, AuthorityMode.MODE_VIEW))) // only owner has r/w and admin has r
                 )
         characterRepo.save(char) //should this be insert?
@@ -62,7 +62,7 @@ class CharacterFactory(
                 classid = classql.id,
                 version = char.version,
                 inventory = char.inventory,
-                slots = updateSlotsIfEmpty(char),
+                slots = updateSlotsIfEmpty(char, context),
                 money = char.money,
                 access = char.authority
             )
@@ -71,10 +71,10 @@ class CharacterFactory(
         return hydrateChar(charNew)
     }
 
-    private fun updateSlotsIfEmpty(char: Character): MutableList<Slot>{
+    private fun updateSlotsIfEmpty(char: Character, context: User): MutableList<Slot>{
         val versionSlots = mutableListOf<Slot>()
         if(char.slots.isEmpty()) {
-            versionSlots.addAll(getSlots(char.version))
+            versionSlots.addAll(getSlots(char.version, context))
         }
         else {
             versionSlots.clear()
@@ -94,7 +94,7 @@ class CharacterFactory(
                 classid = char.classid,
                 version = char.version,
                 inventory = char.inventory,
-                slots = updateSlotsIfEmpty(char),
+                slots = updateSlotsIfEmpty(char, context),
                 money =  money,
                 access = char.authority
                 )
@@ -140,8 +140,8 @@ class CharacterFactory(
         return hydrateChars(chars)
     }
 
-    private fun getSlots(version: String): List<Slot>{
-        val vInfoSlots = versionFactory.getVersionInfoByType(versionFactory.hydrateVersion(version), "slot").infoList
+    private fun getSlots(version: String, context: User): List<Slot>{
+        val vInfoSlots = versionFactory.getVersionInfoByType(versionFactory.hydrateVersion(version), "slot", context ).infoList
         val outputList = mutableListOf<Slot>()
         vInfoSlots.mapTo(outputList) { Slot(it.name, "", true) }
         return outputList
@@ -211,7 +211,7 @@ class CharacterFactory(
                 classid = char.classid,
                 version = char.version,
                 inventory = newInventory,
-                slots = updateSlotsIfEmpty(char),
+                slots = updateSlotsIfEmpty(char, context),
                 money = leftMoney,
                 access = char.authority
                 )
