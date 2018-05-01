@@ -16,16 +16,19 @@ class VersionMutationResolver(
     fun createVersion(version: String, context: Context)
         = versionFactory.createVersion(version.toLowerCase().trim(), userFactory.hydrateUser(context))
 
-    fun addInfoToVersion(name: String, version: String, type: String, value: String)
-        = versionFactory.addInfoToVersion(name.trim(), type.trim(), value.trim(), versionFactory.hydrateVersion(version.toLowerCase().trim()))
+    fun addInfoToVersion(name: String, version: String, type: String, value: String, context: Context)
+        = versionFactory.addInfoToVersion(name.trim(), type.trim(), value.trim(),
+            versionFactory.hydrateVersion(version.toLowerCase().trim()), userFactory.hydrateUser(context))
 
-    fun addStatToVersion(key:String, name: String, description: String, version: String, skill: Boolean)
-            = versionFactory.addStatToVersion(key.toLowerCase().trim(), name, description, versionFactory.hydrateVersion(version.toLowerCase().trim()), skill)
+    fun addStatToVersion(key:String, name: String, description: String, version: String, skill: Boolean, context: Context)
+            = versionFactory.addStatToVersion(key.toLowerCase().trim(), name, description,
+            versionFactory.hydrateVersion(version.toLowerCase().trim()), skill, userFactory.hydrateUser(context))
 
-    fun addStatBaseCalcModifier(statKey: String, version: String, key: String, value: Float)
+    fun addStatBaseCalcModifier(statKey: String, version: String, key: String, value: Float, context: Context)
             = versionFactory.addStatModifiers(statKey.toLowerCase().trim(), versionFactory.hydrateVersion(version.toLowerCase().trim()),
-                                                    hashMapOf(Pair(key.toLowerCase(), value)))
+                                                    hashMapOf(Pair(key.toLowerCase(), value)), userFactory.hydrateUser(context))
 
-    fun removeStatBaseCalcModifier(statKey: String, version: String, key: String)
-            = versionFactory.removeStatModifier(statKey.toLowerCase().trim(), versionFactory.hydrateVersion(version.toLowerCase().trim()), key)
+    fun removeStatBaseCalcModifier(statKey: String, version: String, key: String, context: Context)
+            = versionFactory.removeStatModifier(statKey.toLowerCase().trim(), versionFactory.hydrateVersion(version.toLowerCase().trim()), key,
+            userFactory.hydrateUser(context))
 }

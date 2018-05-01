@@ -158,11 +158,11 @@ type Mutation {
     addModifier(id: ID!, type: ObjType!, key: String!, value: Float!) : ModifierResult
     removeModifier(id: ID!, type: ObjType!, key: String!) : ModifierResult
 
-    addStatToVersion(key:String, name: String!, description: String!, version: String!, skill: Boolean!) : Version
-    addStatBaseCalcModifier(statKey: String!, version: String!, key: String!, value: Float!): Stat
-    removeStatBaseCalcModifier(statKey: String!, version: String!, key: String!): Stat
+    addStatToVersion(key:String, name: String!, description: String!, version: String!, skill: Boolean!, context: Context!) : Version
+    addStatBaseCalcModifier(statKey: String!, version: String!, key: String!, value: Float!, context: Context!): Stat
+    removeStatBaseCalcModifier(statKey: String!, version: String!, key: String!, context: Context!): Stat
 
-    addInfoToVersion(name: String!, version: String!, type: String!, value: String!): Version
+    addInfoToVersion(name: String!, version: String!, type: String!, value: String!, context: Context): Version
     createVersion(version: String, context: Context!): Version
 
     addItemToVersion(name: String!, description: String!, price: Float!, classes: [String]!, version: String, type: ObjType! ) : Item

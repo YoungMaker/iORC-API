@@ -53,6 +53,13 @@ class VersionFactoryTest {
                         passwordHash = passwordUtils.hashPassword("TEST".toCharArray(), salt),
                         passwordSalt = salt
                 ),
+                User(id= "TESTUSER1",
+                        email = "test1@test.com",
+                        uname = "test_guy", //user is banned
+                        authorityLevels = listOf(AuthorityLevel.ROLE_USER),
+                        passwordHash = passwordUtils.hashPassword("TEST".toCharArray(), salt),
+                        passwordSalt = salt
+                ),
                 User(id= "TESTUSER2",
                         email = "test_admin@test.com",
                         uname = "test_boii2",
@@ -138,7 +145,9 @@ class VersionFactoryTest {
 
     @Test
     fun addStatToVersion() {
-        val versionSheet = versionFactory.addStatToVersion("rec", "Recognition", "Recognition", versionFactory.hydrateVersion("TEST") , true)
+        val user2 = userRepository.findByUname("test_guy") ?: throw RuntimeException()
+
+        val versionSheet = versionFactory.addStatToVersion("rec", "Recognition", "Recognition", versionFactory.hydrateVersion("TEST") , true, context)
         assertThat(versionSheet.version, `is`(equalTo("TEST")))
         assertThat(versionSheet.stats.contains(StatQL("rec", "Recognition", "Recognition", true, mutableListOf())), `is`(true))
 
@@ -149,6 +158,13 @@ class VersionFactoryTest {
         assertThat(repoSkill?.name, `is`(equalTo(skill.key)))
         assertThat(repoSkill?.description, `is`(equalTo(skill.description)))
         assertThat(repoSkill?.skill, `is`(equalTo(skill.skill)))
+
+        try {
+            versionFactory.addStatToVersion("rec", "Recognition", "Recognition", versionFactory.hydrateVersion("TEST") , true, user2)
+            fail()
+        } catch (e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
     }
 
     @Test

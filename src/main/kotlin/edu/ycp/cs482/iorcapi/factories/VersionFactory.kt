@@ -38,6 +38,7 @@ class VersionFactory(
         return statList.map { it.name }
     }
 
+    //TODO: Do we need to check access here?
     fun checkStatsInVersion(mods: HashMap<String, Float>, version: Version): Boolean {
         val statsList = getVersionStatList(version)
         for((key, value) in mods) {
@@ -50,14 +51,16 @@ class VersionFactory(
         return true
     }
 
-    fun addStatToVersion(key:String, name: String, description: String, version: Version, skill: Boolean): VersionQL {
+    fun addStatToVersion(key:String, name: String, description: String, version: Version, skill: Boolean, context: User): VersionQL {
+        authorizer.authorizeVersion(version, context, AuthorityMode.MODE_EDIT) ?: throw  GraphQLException("Forbidden")
         val stat = Stat((key+version.version), key, name,  description, version.version, skill)
 //        statRepository.findById("str" + version) ?: initializeVersion(version)
         statRepository.save(stat)
         return constructVersionSheet(version)
     }
 
-    fun addInfoToVersion(name: String, type: String, value: String, version: Version): VersionQL {
+    fun addInfoToVersion(name: String, type: String, value: String, version: Version, context: User): VersionQL {
+        authorizer.authorizeVersion(version, context, AuthorityMode.MODE_EDIT) ?: throw  GraphQLException("Forbidden")
         val info = VersionInfo((name+version.version), version.version, name, type,  value)
 //        versionInfoRepository.findById("currency" + version) ?: initializeVersion(version)
         versionInfoRepository.save(info)
@@ -92,7 +95,8 @@ class VersionFactory(
         return constructVersionSheet(version)
     }
 
-    fun addStatModifiers(key : String, version: Version, mods: HashMap<String, Float>): StatQL {
+    fun addStatModifiers(key : String, version: Version, mods: HashMap<String, Float>, context: User): StatQL {
+        authorizer.authorizeVersion(version, context, AuthorityMode.MODE_EDIT) ?: throw  GraphQLException("Forbidden")
         val stat = statRepository.findById((key+version)) ?: throw GraphQLException("Stat does not exist with that id")
 
         stat.unionModifiers(mods)
@@ -100,7 +104,8 @@ class VersionFactory(
         return StatQL(stat)
     }
 
-    fun removeStatModifier(statKey : String, version: Version,  key: String): StatQL {
+    fun removeStatModifier(statKey : String, version: Version,  key: String, context: User): StatQL {
+        authorizer.authorizeVersion(version, context, AuthorityMode.MODE_EDIT) ?: throw  GraphQLException("Forbidden")
         val stat = statRepository.findById((statKey+version)) ?: throw GraphQLException("Stat does not exist with that id")
 
         stat.removeModifier(key)
