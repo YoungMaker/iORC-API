@@ -19,7 +19,8 @@ class DetailFactory(
 
     //TODO: validation?
     fun createNewRace(name: String, description: String, version: String = "") : RaceQL {
-        val race = Race(UUID.randomUUID().toString(), name = name, description = description, version = version)
+        val race = Race(UUID.randomUUID().toString(), name = name, description = description, version = version,
+                feats= emptyList<String>() as MutableList<String>)
         raceRepository.save(race) //should this be insert??
         return hydrateRace(race)
     }
@@ -27,7 +28,8 @@ class DetailFactory(
     fun updateRace(id: String, name: String, description: String, version: String = "") : RaceQL {
         raceRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
 
-        val newRace = Race(id, name = name, description = description, version = version) // creates new one based on old one
+        val newRace = Race(id, name = name, description = description, version = version,
+                feats= emptyList<String>() as MutableList<String>) // creates new one based on old one
         raceRepository.save(newRace) // this should write over the old one with the new parameters
         return hydrateRace(newRace)
     }
@@ -41,6 +43,16 @@ class DetailFactory(
 
         race.unionModifiers(mods)
         raceRepository.save(race) // this should write over the old one with the new parameters
+        return hydrateRace(race)
+    }
+
+    fun addRaceFeats(id:String, feats:List<String>):RaceQL{
+        val race = raceRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
+
+        for(feat in feats){
+            race.feats.add(feat)
+        }
+        raceRepository.save(race)
         return hydrateRace(race)
     }
 
@@ -87,7 +99,8 @@ class DetailFactory(
                 name = name,
                 role = role,
                 version = version,
-                description =  description)
+                description =  description,
+                feats= emptyList<String>() as MutableList<String>)
 
         classRepository.save(rpgClass) //should this be insert??
         return hydrateClass(rpgClass)
@@ -99,7 +112,8 @@ class DetailFactory(
                 name = name,
                 role = role,
                 version = version,
-                description =  description)
+                description =  description,
+                feats= emptyList<String>() as MutableList<String>)
 
         classRepository.save(rpgClass)
         return hydrateClass(rpgClass)
@@ -116,6 +130,16 @@ class DetailFactory(
 
         classRepository.save(rpgClass) // this should write over the old one with the new parameters
         return hydrateClass(rpgClass)
+    }
+
+    fun addClassFeats(id:String, feats:List<String>):ClassQL{
+        val classObj = classRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
+
+        for(feat in feats){
+            classObj.feats.add(feat)
+        }
+        classRepository.save(classObj)
+        return hydrateClass(classObj)
     }
 
 
