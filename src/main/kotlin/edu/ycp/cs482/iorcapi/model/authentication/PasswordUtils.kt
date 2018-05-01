@@ -12,8 +12,8 @@ import org.bouncycastle.cms.RecipientId.password
 
 
 
-
-private val ITERATIONS = 500
+//private val ITERATIONS = 500
+private val ITERATIONS = 10000
 private val KEY_LENGTH = 256
 
 @Component

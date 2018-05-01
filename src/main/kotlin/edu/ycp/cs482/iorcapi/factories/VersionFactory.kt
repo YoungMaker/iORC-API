@@ -114,8 +114,18 @@ class VersionFactory(
     }
 
     fun getVersionSheet(version: Version, context: User): VersionQL{
-        authorizer.authorizeVersion(version, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden!")
+        authorizer.authorizeVersion(version, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden")
         return constructVersionSheet(version)
+    }
+
+    fun addUserToVersion(user: User, version: Version, context: User) {
+        authorizer.authorizeVersion(version, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
+        val dbVersion = versionRepository.findByVersion(version.version) ?: throw GraphQLException("Version Does not exist")
+        val access = mutableListOf<AccessData>()
+        access.addAll(dbVersion.access)
+        access.add(AccessData(user.id, mapOf() ))
+        val newVersion = Version(dbVersion.version,  access)
+        versionRepository.save(newVersion) //writes over old db object with new user added
     }
 
     private fun constructVersionSheet(version: Version) : VersionQL {

@@ -48,4 +48,9 @@ class Authorizer {
 
         return null
     }
+
+    fun authorizeVersion(version: Version, objVersion: String, context: User, mode: AuthorityMode): AccessData?{
+        if(version.version != objVersion){return null} //if the versions do not match- for access by id/search
+        return authorizeVersion(version, context, mode)
+    }
 }
