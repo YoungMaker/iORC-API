@@ -140,7 +140,7 @@ type Query {
 }
 
 type Mutation {
-
+    #character mutations
     updateCharacter(id: ID!, name: String!, abilityPoints: AbilityInput!, raceid: String!, classid: String!, context: Context!): Character!
     createCharacter( name: String!, abilityPoints: AbilityInput!, raceid: String!, classid: String!, version: String!, context: Context!) : Character!
     deleteCharacter(id: ID!, context: Context!): String!
@@ -149,24 +149,30 @@ type Mutation {
     purchaseItem(id:ID!, itemid: ID!, context: Context!): Character!
     setCharacterMoney(id: ID!, money: Float!, context: Context!): Character!
 
-    createRace(name: String!, description: String!, version: String!): Race!
-    updateRace(id: ID!, name: String!, version: String!, description: String!): Race
+    #race mutations
+    createRace(name: String!, description: String!, version: String!, context: Context!): Race!
+    updateRace(id: ID!, name: String!, description: String!, version: String!, context: Context!): Race
 
-    createClass(name: String!, role: String!, version: String!, description: String! ): Class!
-    updateClass(id: ID! name: String!, role: String!, version: String!, description: String! ): Class
+    #class mutations
+    createClass(name: String!, role: String!, description: String!, version: String!, context: Context!): Class!
+    updateClass(id: ID! name: String!, role: String!, description: String!, version: String!, context: Context!): Class!
 
-    addModifier(id: ID!, type: ObjType!, key: String!, value: Float!) : ModifierResult
-    removeModifier(id: ID!, type: ObjType!, key: String!) : ModifierResult
+    #modifier mutations
+    addModifier(id: ID!, type: ObjType!, key: String!, value: Float!, version: String!, context: Context!) : ModifierResult
+    removeModifier(id: ID!, type: ObjType!, key: String!, version: String!, context: Context!) : ModifierResult
 
-    addStatToVersion(key:String, name: String!, description: String!, version: String!, skill: Boolean!) : Version
-    addStatBaseCalcModifier(statKey: String!, version: String!, key: String!, value: Float!): Stat
-    removeStatBaseCalcModifier(statKey: String!, version: String!, key: String!): Stat
+    #version info mutations
+    addStatToVersion(key:String, name: String!, description: String!, version: String!, skill: Boolean!, context: Context!) : Version
+    addStatBaseCalcModifier(statKey: String!, version: String!, key: String!, value: Float!, context: Context!): Stat
+    removeStatBaseCalcModifier(statKey: String!, version: String!, key: String!, context: Context!): Stat
 
-    addInfoToVersion(name: String!, version: String!, type: String!, value: String!): Version
-    initalizeVersion(version: String): Version
+    addInfoToVersion(name: String!, version: String!, type: String!, value: String!, context: Context): Version!
+    createVersion(version: String, context: Context!): Version
 
-    addItemToVersion(name: String!, description: String!, price: Float!, classes: [String]!, version: String, type: ObjType! ) : Item
+    #item mutations
+    addItemToVersion(name: String!, description: String!, price: Float!, classes: [String]!, type: ObjType!, version: String, context: Context! ) : Item!
 
+    #user mutations
     createUser(email:String!, name:String!, password:String!): User
     createAdmin(email:String!, name:String!, password:String!, context: Context!): User!
     loginUser(email:String!, password: String!): ContextOut!
@@ -179,29 +185,35 @@ type Mutation {
 }
 
 extend type Query {
+    #character queries
     getCharacterById(id: ID!, context: Context!) : Character
     getCharactersByName(name: String!, context: Context!): [Character]!
     getCharactersByVersion(version:String!, context: Context!) : [Character]!
     getUsersCharacters(context: Context!) : [Character]!
 
-    getRaceById(id: ID!): Race
-    getRacesByName(name: String!) : [Race]!
-    getRacesByVersion(version: String!) : [Race]!
+    #race queries
+    getRaceById(id: ID!, version: String!, context: Context!): Race
+    getRacesByName(name: String!, version: String!, context: Context!) : [Race]!
+    getRacesByVersion(version: String!, context: Context!) : [Race]!
 
-    getClassById(id:ID!): Class!
-    getClassesByVersion(version: String): [Class]!
-    getClassesByName(name: String): [Class]!
+    #class queries
+    getClassById(id: ID!, version: String!, context: Context!): Class!
+    getClassesByVersion(version: String, context: Context!): [Class]!
+    getClassesByName(name: String, version: String!, context: Context!): [Class]!
 
-    getVersionSheet(version: String!): Version
-    getVersionSkills(version: String!): Version
+    #version queries
+    getVersionSheet(version: String!, context: Context!): Version
+    getVersionSkills(version: String!, context: Context!): Version
 
-    getVersionInfoType(version: String!, type: String!): Version
+    getVersionInfoType(version: String!, type: String!, context: Context!): Version
 
-    getVersionItems(version: String) : [Item]!
-    getVersionItemType(version: String, type: ObjType): [Item]!
-    getItemsByClasses(version: String, classes: [String]!): [Item]!
-    getItemsByClassesIn(version: String, classes: [String]!): [Item]!
+    #item queries
+    getVersionItems(version: String, context: Context!) : [Item]!
+    getVersionItemType(type: ObjType, version: String, context: Context!): [Item]!
+    getItemsByClasses(classes: [String]!, version: String, context: Context!): [Item]!
+    getItemsByClassesIn(classes: [String]!, version: String!, context: Context!): [Item]!
 
+    #user query
     getUserInfo(email:String, context: Context!): User
 }
 

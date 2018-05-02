@@ -1,16 +1,16 @@
 package edu.ycp.cs482.iorcapi.factories
 
-import com.sun.corba.se.impl.orbutil.graph.Graph
+//import com.sun.corba.se.impl.orbutil.graph.Graph
 import edu.ycp.cs482.iorcapi.model.authentication.*
 import edu.ycp.cs482.iorcapi.repositories.UserRepository
 import graphql.GraphQLException
 import java.util.*
 import org.apache.commons.validator.routines.EmailValidator
-import org.springframework.beans.factory.annotation.Autowired
+//import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import java.security.Key
-import java.util.regex.Pattern
+//import java.security.Key
+//import java.util.regex.Pattern
 
 @Component
 class UserFactory(
@@ -79,6 +79,9 @@ class UserFactory(
         val  user = userRepository.findByEmail(email) ?: throw GraphQLException("incorrect user/email combo")
 
         if(passwordUtils.isExpectedPassword(password.toCharArray(), user.passwordSalt, user.passwordHash)){
+            if(!user.authorityLevels.contains(AuthorityLevel.ROLE_ADMIN) && !user.authorityLevels.contains(AuthorityLevel.ROLE_USER)) {
+                throw GraphQLException("User account is banned.")
+            }
             return Context(jwtUtils.createJwt(user.id, privatekey.toByteArray()))
         } else {
             throw GraphQLException("incorrect user/email combo")
@@ -166,7 +169,11 @@ class UserFactory(
 
 
     fun hydrateUser(context: Context) : User {//translates signed JWT tokens into fully hydrated user objects
-        return userRepository.findById(jwtUtils.parseJWT(context.token, privatekey.toByteArray())) ?: throw GraphQLException("Invalid Token!")
+        val user =  userRepository.findById(jwtUtils.parseJWT(context.token, privatekey.toByteArray())) ?: throw GraphQLException("Invalid Token!")
+        if(!user.authorityLevels.contains(AuthorityLevel.ROLE_ADMIN) && !user.authorityLevels.contains(AuthorityLevel.ROLE_USER)) {
+            throw GraphQLException("User account is banned.")
+        }
+        return user
     } //throw invalid token if user doesn't exist, we don't want attackers to be able to find if a user exists this way.
 
     //this only removes the user account. the mutation destroys their characters but leaves any other data intact
