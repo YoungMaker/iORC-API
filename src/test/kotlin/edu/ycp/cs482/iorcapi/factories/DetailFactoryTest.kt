@@ -17,10 +17,7 @@ import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.model.RaceQL
 import edu.ycp.cs482.iorcapi.model.attributes.Modifier
 import edu.ycp.cs482.iorcapi.model.attributes.Stat
-import edu.ycp.cs482.iorcapi.model.authentication.AuthorityLevel
-import edu.ycp.cs482.iorcapi.model.authentication.Authorizer
-import edu.ycp.cs482.iorcapi.model.authentication.PasswordUtils
-import edu.ycp.cs482.iorcapi.model.authentication.User
+import edu.ycp.cs482.iorcapi.model.authentication.*
 import edu.ycp.cs482.iorcapi.repositories.*
 import graphql.GraphQLException
 
@@ -78,6 +75,13 @@ class DetailFactoryTest {
                         email = "test_dude@test.com",
                         uname = "test_boii3",
                         authorityLevels = listOf(AuthorityLevel.ROLE_USER),
+                        passwordHash = passwordUtils.hashPassword("TEST".toCharArray(), salt),
+                        passwordSalt = salt
+                ),
+                User(id= "TESTUSER4",
+                        email = "test_ban@test.com",
+                        uname = "test_banned",
+                        authorityLevels = listOf(), //user is banned
                         passwordHash = passwordUtils.hashPassword("TEST".toCharArray(), salt),
                         passwordSalt = salt
                 )
@@ -186,6 +190,8 @@ class DetailFactoryTest {
         assertThat(race.name, `is`(equalTo("Half-Elf")))
         assertThat(race.version,  `is`(equalTo("TEST")))
         assertThat(race.description,  `is`(equalTo("TESTHALFELF")))
+        assertThat(versionFactory.hydrateVersion("TEST") //if we're allowed to create this then context must be in the version access
+                .access.contains(AccessData(context.id, mapOf())), `is`(true))
 
         //this assumes that the first return will be our own, do not insert anything with this name before here
         val repoRace = raceRepository.findByNameAndVersion("Half-Elf", "TEST")[0]
@@ -231,6 +237,21 @@ class DetailFactoryTest {
         assertThat(raceRevert.version,  `is`(equalTo("TEST")))
         assertThat(raceRevert.description,  `is`(equalTo("TESTHUMAN")))
 
+        //check if user is allowed to edit without being on the version
+        val user2 = userRepository.findById("TESTUSER") ?: throw RuntimeException()
+        try {
+             detailFactory.updateRace(
+                    id = "1.0",
+                    version = versionFactory.hydrateVersion("TEST"),
+                    name = "Human",
+                    description = "TESTHUMAN",
+                    context = user2
+            )
+            fail()
+        } catch (e: GraphQLException) {
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
+
     }
 
     @Test
@@ -249,6 +270,16 @@ class DetailFactoryTest {
         assertThat(race2.description,  `is`(equalTo("TESTHUMAN")))
         assertThat(race2.modifiers.contains(Modifier("wis", 2f)), `is`(true))
         assertThat(race2.modifiers.contains(Modifier("int", 2f)), `is`(true))
+
+        //test if a banned user is allowed to access this item
+        val user2 = userRepository.findById("TESTUSER4") ?: throw RuntimeException()
+        try {
+            detailFactory.getRaceById("1.0", versionFactory.hydrateVersion("TEST"), user2)
+            fail()
+        }catch (e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
+
     }
 
     @Test
@@ -275,6 +306,15 @@ class DetailFactoryTest {
         val raceList = detailFactory.getRacesByVersion(versionFactory.hydrateVersion("TEST"), context)
         assertThat(raceList.count(), `is`(not(equalTo(0))))
         assert(raceList.containsAll(detailFactory.hydrateRaces(raceRepository.findAll())))
+
+        //be sure that a banned user cannot access this item
+        val user2 = userRepository.findById("TESTUSER4") ?: throw RuntimeException()
+        try {
+            detailFactory.getRacesByVersion(versionFactory.hydrateVersion("TEST"), user2)
+            fail()
+        } catch (e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
     }
 
     @Test
@@ -290,6 +330,8 @@ class DetailFactoryTest {
         assertThat(classRpg.version,  `is`(equalTo("TEST")))
         assertThat(classRpg.role,  `is`(equalTo("DEFENDER")))
         assertThat(classRpg.description,  `is`(equalTo("TESTFIGHTER")))
+        assertThat(versionFactory.hydrateVersion("TEST") //if we're allowed to create this then context must be in the version access
+                .access.contains(AccessData(context.id, mapOf())), `is`(true))
 
         //this assumes that the first return will be our own, do not insert anything with this name before here
         val repoClass = classRepository.findByNameAndVersion("Fighter", "TEST")[0] //?: throw RuntimeException()
@@ -337,6 +379,23 @@ class DetailFactoryTest {
         assertThat(classRevert.version,  `is`(equalTo("TEST")))
         assertThat(classRevert.description,  `is`(equalTo("TESTCLERIC")))
 
+        //test that another user that is not in the version is not allowed to edit this item
+        val user2 = userRepository.findById("TESTUSER") ?: throw RuntimeException()
+        try {
+            detailFactory.updateClass(
+                    id = "0.1",
+                    name = "Cleric",
+                    role= "Healer",
+                    version = versionFactory.hydrateVersion("TEST"),
+                    description = "TESTCLERIC",
+                    context = user2
+            )
+            fail()
+        } catch (e: GraphQLException) {
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
+
+
     }
     @Test
     fun getClassById(){
@@ -356,6 +415,15 @@ class DetailFactoryTest {
         assertThat(classRpg2.role, `is`(equalTo("Healer")))
         assertThat(classRpg2.modifiers.contains(Modifier("hp", 12f)), `is`(true))
         assertThat(classRpg2.modifiers.contains(Modifier("fort", 2f)), `is`(true))
+
+        //test that a banned user is not allowed to access this item
+        val user2 = userRepository.findById("TESTUSER4") ?: throw RuntimeException()
+        try {
+            detailFactory.getClassById("1.1", versionFactory.hydrateVersion("TEST"), user2)
+            fail()
+        }catch (e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
     }
 
 
@@ -383,6 +451,15 @@ class DetailFactoryTest {
         assertThat(classRpg2.role, `is`(equalTo("Healer")))
         assertThat(classRpg2.modifiers.contains(Modifier("hp", 12f)), `is`(true))
         assertThat(classRpg2.modifiers.contains(Modifier("fort", 2f)), `is`(true))
+
+        //test that a banned user is not allowed to access this item
+        val user2 = userRepository.findById("TESTUSER4") ?: throw RuntimeException()
+        try {
+            detailFactory.getRacesByName("Ranger", versionFactory.hydrateVersion("TEST"), user2)
+            fail()
+        }catch (e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
     }
 
     @Test
@@ -390,6 +467,15 @@ class DetailFactoryTest {
         val classList = detailFactory.getClassesByVersion(versionFactory.hydrateVersion("TEST"), context)
         assertThat(classList.count(), `is`(not(equalTo(0))))
         assert(classList.containsAll(detailFactory.hydrateClasses(classRepository.findAll())))
+
+        //test that a banned user is not allowed to access these items
+        val user2 = userRepository.findById("TESTUSER4") ?: throw RuntimeException()
+        try {
+            detailFactory.getClassesByVersion(versionFactory.hydrateVersion("TEST"), user2)
+            fail()
+        }catch (e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
     }
 
     @Test

@@ -193,8 +193,8 @@ extend type Query {
 
     #class queries
     getClassById(id: ID!, version: String!, context: Context!): Class!
-    getClassesByVersion(version: String): [Class]!
-    getClassesByName(name: String, context: Context!): [Class]!
+    getClassesByVersion(version: String, context: Context!): [Class]!
+    getClassesByName(name: String, version: String!, context: Context!): [Class]!
 
     #version queries
     getVersionSheet(version: String!, context: Context!): Version

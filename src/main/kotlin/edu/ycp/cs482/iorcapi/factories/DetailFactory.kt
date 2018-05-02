@@ -108,7 +108,7 @@ class DetailFactory(
     fun updateClass(id: String, name: String, role: String, description: String, version: Version, context: User): ClassQL {
 
         val oldClass = classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
-        authorizer.authorizeVersion(version, oldClass.version, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden")
+        authorizer.authorizeVersion(version, oldClass.version, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
         val rpgClass = ClassRpg(id = id,
                 name = name,
                 role = role,
