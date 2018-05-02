@@ -171,6 +171,7 @@ type Mutation {
     createAdmin(email:String!, name:String!, password:String!, context: Context!): User!
     loginUser(email:String!, password: String!): ContextOut!
     deleteAccount(email: String!, password: String!): String
+    updatePassword(email: String!, password:String!, newPassword:String!): User!
 }
 
 extend type Query {

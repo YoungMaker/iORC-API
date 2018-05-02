@@ -4,6 +4,7 @@ import com.google.common.base.Predicates.equalTo
 import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
 import edu.ycp.cs482.iorcapi.model.authentication.*
 import edu.ycp.cs482.iorcapi.repositories.UserRepository
+import graphql.GraphQLException
 import io.jsonwebtoken.impl.crypto.MacProvider
 import org.hamcrest.Matchers
 import org.junit.Before
@@ -78,5 +79,31 @@ class UserFactoryTest {
         val user = userRepository.findByEmail("test@test.com")
         val loggedInUser = userFactory.hydrateUser(token)
         assertThat(loggedInUser.id, Matchers.`is`(Matchers.equalTo(user!!.id)))
+    }
+
+    @Test
+    fun updatePassword(){
+        val user =  userFactory.createUserAccount("bro@test.com", "theboi37", "JoyToTheWo&rld17", AuthorityLevel.ROLE_USER)
+        assertThat(user.email, Matchers.`is`(Matchers.equalTo("bro@test.com")))
+        assertThat(user.uname, Matchers.`is`(Matchers.equalTo("theboi37")))
+
+        try {
+             userFactory.updateUserPassword("bro@test.com", "JoyToTheWo&rld17", "JoyToTheWo&rld17")
+            fail()
+        }catch (e: GraphQLException){
+            assertThat(e.message, Matchers.`is`(Matchers.equalTo("Cannot re-use your last password!")))
+        }
+
+        try {
+            userFactory.updateUserPassword("bro@test.com", "JoyToTheWorld17", "JoyToTheWo&rld17")
+            fail()
+        }catch (e: GraphQLException){
+            assertThat(e.message, Matchers.`is`(Matchers.equalTo("incorrect user/email combo")))
+        }
+        val user2 = userFactory.updateUserPassword("bro@test.com", "JoyToTheWo&rld17", "JoyToTheWorld17&")
+        assertThat(user2.email, Matchers.`is`(Matchers.equalTo(user.email)))
+        assertThat(user2.uname, Matchers.`is`(Matchers.equalTo(user.uname)))
+        assertThat(user2.authorityLevels.contains(AuthorityLevel.ROLE_USER), Matchers.`is`(true))
+        assertThat(user2.authorityLevels.contains(AuthorityLevel.ROLE_ADMIN), Matchers.`is`(false))
     }
 }

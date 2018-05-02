@@ -44,6 +44,29 @@ class UserFactory(
         }
     }
 
+    fun updateUserPassword(email: String, password: String, newPassword: String): UserQL {
+        val  user = userRepository.findByEmail(email) ?: throw GraphQLException("incorrect user/email combo")
+        if(!passwordUtils.isExpectedPassword(password.toCharArray(), user.passwordSalt, user.passwordHash)){
+            throw GraphQLException("incorrect user/email combo")
+        } //basically tokenless login
+
+        //check if the new password is the old!
+        if(passwordUtils.isExpectedPassword(newPassword.toCharArray(), user.passwordSalt, user.passwordHash)){
+            throw GraphQLException("Cannot re-use your last password!")
+        }
+        validateInfo(user.email, user.uname, newPassword) //validate the new password against our rules
+        val salt = passwordUtils.generateSalt(32) //create secure random salt to append to hash
+        val newUser = User(id = user.id,
+                email = user.email,
+                authorityLevels = user.authorityLevels,
+                passwordSalt = salt,
+                uname = user.uname,
+                passwordHash = passwordUtils.hashPassword(newPassword.toCharArray(), salt)
+        )
+        userRepository.save(newUser)
+        return UserQL(newUser) //hydrates to QL compliant authentication
+    }
+
     fun createAdminAccount(email: String, uname: String, password: String, context: User) : UserQL{
         if(context.authorityLevels.contains(AuthorityLevel.ROLE_ADMIN)) { //only admins can create admins
             return createUserAccount(email, uname, password, AuthorityLevel.ROLE_ADMIN)
