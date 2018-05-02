@@ -101,7 +101,7 @@ class CharacterFactory(
     fun purchaseItem(id: String, itemid: String, context: User): CharacterQL{
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
         authorizer.authorizeObject(char, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
-        val item = itemFactory.getItemById(itemid) //checks if item exits, throws exception if it does not
+        val item = itemFactory.getItemById(itemid, versionFactory.hydrateVersion(char.version), context) //checks if item exits, throws exception if it does not
         if((char.money - item.price) >= 0f) {
            return addItemToCharacter(id, itemid, true, context) //purchases item and adds to characters inventory.
         }
@@ -153,7 +153,7 @@ class CharacterFactory(
     fun equipItem(id:String, itemid: String, slotname: String, context: User): CharacterQL{
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
         authorizer.authorizeObject(char, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
-        val item = itemFactory.getItemById(itemid) //checks if item exits, throws exception if it does not
+        val item = itemFactory.getItemById(itemid, versionFactory.hydrateVersion(char.version), context) //checks if item exits, throws exception if it does not
         val theSlotType = Slot(name=slotname, itemId = "", empty = true)
         if(char.slots.contains(theSlotType) && char.inventory.contains(itemid)){ //if slot is empty and you own the item
             if(item.itemClasses.contains(slotname)) { //if item cn be put in slot
@@ -187,7 +187,7 @@ class CharacterFactory(
     fun addItemToCharacter(id: String, itemid: String, buy: Boolean = false, context: User): CharacterQL{
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
         authorizer.authorizeObject(char, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
-        val item = itemFactory.getItemById(itemid) //checks if item exits, throws exception if it does not
+        val item = itemFactory.getItemById(itemid, versionFactory.hydrateVersion(char.version), context) //checks if item exits, throws exception if it does not
         val newInventory = mutableListOf<String>()
         newInventory.addAll(char.inventory)//take your current inventory
         newInventory.add(itemid) //and add the new item
@@ -224,11 +224,11 @@ class CharacterFactory(
     }
 
     //todo: when item isn't found an error will be thrown. Do we want that?
-    fun hydrateItems(itemids: List<String>): List<ItemQL>{
+    fun hydrateItems(itemids: List<String>, version: Version, context: User): List<ItemQL>{
         val outputList = mutableListOf<ItemQL>()
         for(itemid in itemids){
             try {
-                outputList.add(itemFactory.getItemById(itemid))
+                outputList.add(itemFactory.getItemById(itemid, version, context))
             }catch (e: GraphQLException){
                 outputList.add(ItemQL(id= "ERR ITEM", name= "ITEM ERROR",
                         description = "" + e.message,
@@ -238,13 +238,13 @@ class CharacterFactory(
         return outputList
     }
 
-    fun hydrateSlots(slots: List<Slot>): List<SlotQL> {
+    fun hydrateSlots(slots: List<Slot>, version: Version, context: User): List<SlotQL> {
         val outputList = mutableListOf<SlotQL>()
         for(slot in slots){
             if(!slot.empty){
                 try {
                     outputList.add(
-                        SlotQL(name = slot.name, item = itemFactory.getItemById(slot.itemId), empty = slot.empty))
+                        SlotQL(name = slot.name, item = itemFactory.getItemById(slot.itemId, version, context), empty = slot.empty))
                 }catch (e: GraphQLException) {
                     outputList.add(SlotQL(name = slot.name, item = ItemQL(id = "ERR ITEM", name = "ITEM ERROR",
                             description = "" + e.message,
@@ -263,16 +263,17 @@ class CharacterFactory(
 
     //converts referential persistence object to graphQL full representation
     fun hydrateChar(char: Character, context: User) : CharacterQL {
-        val race = detailFactory.getRaceById(char.raceid, versionFactory.hydrateVersion(char.version), context) //this is to check if it exists, this will throw a query exception
-        val classql = detailFactory.getClassById(char.classid, versionFactory.hydrateVersion(char.version), context)
+        val version = versionFactory.hydrateVersion(char.version)
+        val race = detailFactory.getRaceById(char.raceid, version, context) //this is to check if it exists, this will throw a query exception
+        val classql = detailFactory.getClassById(char.classid, version, context)
         return CharacterQL(id = char.id,
                 version =  char.version,
                 name = char.name,
                 abilityPoints =  char.abilityPoints,
                 race = race,
                 classql = classql,
-                inventory = hydrateItems(char.inventory),
-                slots = hydrateSlots(char.slots),
+                inventory = hydrateItems(char.inventory, version, context),
+                slots = hydrateSlots(char.slots, version, context),
                 money = char.money
 
             )

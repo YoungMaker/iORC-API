@@ -166,11 +166,11 @@ type Mutation {
     addStatBaseCalcModifier(statKey: String!, version: String!, key: String!, value: Float!, context: Context!): Stat
     removeStatBaseCalcModifier(statKey: String!, version: String!, key: String!, context: Context!): Stat
 
-    addInfoToVersion(name: String!, version: String!, type: String!, value: String!, context: Context): Version
+    addInfoToVersion(name: String!, version: String!, type: String!, value: String!, context: Context): Version!
     createVersion(version: String, context: Context!): Version
 
     #item mutations
-    addItemToVersion(name: String!, description: String!, price: Float!, classes: [String]!, version: String, type: ObjType! ) : Item
+    addItemToVersion(name: String!, description: String!, price: Float!, classes: [String]!, type: ObjType!, version: String, context: Context! ) : Item!
 
     #user mutations
     createUser(email:String!, name:String!, password:String!): User

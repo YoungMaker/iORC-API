@@ -25,14 +25,14 @@ class ModifierMutationResolver(
         
         
         return when(type) {
-            ObjType.RACE -> detailFactory.addRaceModifiers(id, keyMap, versionObj, userObj)
-            ObjType.CLASS -> detailFactory.addClassModifiers(id, keyMap, versionObj, userObj)
+            ObjType.RACE -> detailFactory.addRaceModifiers(id,keyMap, versionObj, userObj)
+            ObjType.CLASS -> detailFactory.addClassModifiers(id,keyMap, versionObj, userObj)
 
-            ObjType.ITEM  -> itemFactory.addItemModifier(id, keyMap)
-            ObjType.ITEM_SPELL  -> itemFactory.addItemModifier(id, keyMap)
-            ObjType.ITEM_FEAT  -> itemFactory.addItemModifier(id, keyMap)
-            ObjType.ITEM_WEAPON  -> itemFactory.addItemModifier(id, keyMap)
-            ObjType.ITEM_ARMOR  -> itemFactory.addItemModifier(id, keyMap)
+            ObjType.ITEM  -> itemFactory.addItemModifier(id,keyMap, versionObj, userObj)
+            ObjType.ITEM_SPELL  -> itemFactory.addItemModifier(id,keyMap, versionObj, userObj)
+            ObjType.ITEM_FEAT  -> itemFactory.addItemModifier(id,keyMap, versionObj, userObj)
+            ObjType.ITEM_WEAPON  -> itemFactory.addItemModifier(id,keyMap, versionObj, userObj)
+            ObjType.ITEM_ARMOR  -> itemFactory.addItemModifier(id,keyMap, versionObj, userObj)
         }
     }
     //TODO: Support list removal/addition for fewer queries
@@ -45,11 +45,11 @@ class ModifierMutationResolver(
             ObjType.RACE -> detailFactory.removeRaceModifier(id, key.toLowerCase(),  versionObj, userObj)
             ObjType.CLASS -> detailFactory.removeClassModifier(id, key.toLowerCase(), versionObj, userObj)
             
-            ObjType.ITEM -> itemFactory.removeItemModifier(id, key.toLowerCase())
-            ObjType.ITEM_ARMOR -> itemFactory.removeItemModifier(id, key.toLowerCase())
-            ObjType.ITEM_SPELL -> itemFactory.removeItemModifier(id, key.toLowerCase())
-            ObjType.ITEM_WEAPON -> itemFactory.removeItemModifier(id, key.toLowerCase())
-            ObjType.ITEM_FEAT -> itemFactory.removeItemModifier(id, key.toLowerCase())
+            ObjType.ITEM -> itemFactory.removeItemModifier(id, key.toLowerCase(),  versionObj, userObj)
+            ObjType.ITEM_ARMOR -> itemFactory.removeItemModifier(id, key.toLowerCase(),  versionObj, userObj)
+            ObjType.ITEM_SPELL -> itemFactory.removeItemModifier(id, key.toLowerCase(),  versionObj, userObj)
+            ObjType.ITEM_WEAPON -> itemFactory.removeItemModifier(id, key.toLowerCase(),  versionObj, userObj)
+            ObjType.ITEM_FEAT -> itemFactory.removeItemModifier(id, key.toLowerCase(),  versionObj, userObj)
 
         }
     }
