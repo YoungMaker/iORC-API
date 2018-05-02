@@ -299,6 +299,16 @@ class DetailFactoryTest {
         assertThat(raceList2[0].description, `is`(equalTo("TESTHUMAN")))
         assertThat(raceList2[0].modifiers.contains(Modifier("wis", 2f)), `is`(true))
         assertThat(raceList2[0].modifiers.contains(Modifier("int", 2f)), `is`(true))
+
+        //test if a banned user has access
+        val user2 = userRepository.findById("TESTUSER4") ?: throw RuntimeException()
+        try {
+            //fail if access is allowed
+            detailFactory.getRacesByName("Orc", versionFactory.hydrateVersion("TEST"), user2)
+            fail()
+        } catch(e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
     }
 
     @Test
@@ -524,6 +534,36 @@ class DetailFactoryTest {
         assertThat(classRpg2.modifiers.contains(Modifier("will", 2f)), `is`(true))
         assertThat(classRpg2.modifiers.contains(Modifier("wis", 2f)), `is`(false))
 
+        //banned user tests
+        val user2 = userRepository.findById("TESTUSER4") ?: throw RuntimeException()
+
+        //add race
+        try {
+            detailFactory.addRaceModifiers("0.0", hashMapOf(Pair("wis", 2f)), versionFactory.hydrateVersion("TEST"), user2)
+        }catch(e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
+
+        //add class
+        try {
+            detailFactory.addClassModifiers("1.1", hashMapOf(Pair("wis", 2f)), versionFactory.hydrateVersion("TEST"), user2)
+        }catch(e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
+
+        //remove race
+        try {
+            detailFactory.removeRaceModifier("0.0", "wis", versionFactory.hydrateVersion("TEST"), user2)
+        }catch(e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
+
+        //remove class
+        try {
+            detailFactory.removeClassModifier("1.1", "wis", versionFactory.hydrateVersion("TEST"), user2)
+        }catch(e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
 
     }
 

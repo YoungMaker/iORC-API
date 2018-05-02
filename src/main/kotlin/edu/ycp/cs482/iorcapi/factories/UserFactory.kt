@@ -1,16 +1,16 @@
 package edu.ycp.cs482.iorcapi.factories
 
-import com.sun.corba.se.impl.orbutil.graph.Graph
+//import com.sun.corba.se.impl.orbutil.graph.Graph
 import edu.ycp.cs482.iorcapi.model.authentication.*
 import edu.ycp.cs482.iorcapi.repositories.UserRepository
 import graphql.GraphQLException
 import java.util.*
 import org.apache.commons.validator.routines.EmailValidator
-import org.springframework.beans.factory.annotation.Autowired
+//import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import java.security.Key
-import java.util.regex.Pattern
+//import java.security.Key
+//import java.util.regex.Pattern
 
 @Component
 class UserFactory(
