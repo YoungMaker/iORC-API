@@ -540,6 +540,7 @@ class DetailFactoryTest {
         //add race
         try {
             detailFactory.addRaceModifiers("0.0", hashMapOf(Pair("wis", 2f)), versionFactory.hydrateVersion("TEST"), user2)
+            fail()
         }catch(e: GraphQLException){
             assertThat(e.message, `is`(equalTo("Forbidden")))
         }
@@ -547,6 +548,7 @@ class DetailFactoryTest {
         //add class
         try {
             detailFactory.addClassModifiers("1.1", hashMapOf(Pair("wis", 2f)), versionFactory.hydrateVersion("TEST"), user2)
+            fail()
         }catch(e: GraphQLException){
             assertThat(e.message, `is`(equalTo("Forbidden")))
         }
@@ -554,6 +556,7 @@ class DetailFactoryTest {
         //remove race
         try {
             detailFactory.removeRaceModifier("0.0", "wis", versionFactory.hydrateVersion("TEST"), user2)
+            fail()
         }catch(e: GraphQLException){
             assertThat(e.message, `is`(equalTo("Forbidden")))
         }
@@ -561,8 +564,39 @@ class DetailFactoryTest {
         //remove class
         try {
             detailFactory.removeClassModifier("1.1", "wis", versionFactory.hydrateVersion("TEST"), user2)
+            fail()
         }catch(e: GraphQLException){
             assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
+
+    }
+
+    //add race and class to a non-existing version
+    @Test
+    fun addToNEVersion(){
+        try {
+            detailFactory.createNewRace(
+                    name = "Half-Elf",
+                    version = versionFactory.hydrateVersion("4e"),
+                    description = "TEST Invalid version",
+                    context = context
+            )
+            fail()
+        }catch(e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("That version does not exist")))
+        }
+
+        try {
+            detailFactory.createNewClass(
+                    name = "Fighter",
+                    version = versionFactory.hydrateVersion("4e"),
+                    role = "DEFENDER",
+                    description = "Test Invalid version",
+                    context = context
+            )
+            fail()
+        }catch(e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("That version does not exist")))
         }
 
     }
