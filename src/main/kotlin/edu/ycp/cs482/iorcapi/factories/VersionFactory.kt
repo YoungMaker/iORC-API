@@ -50,11 +50,22 @@ class VersionFactory(
         return constructVersionSheet(version)
     }
 
+    fun removeStatFromVersion(key:String, version:String):String{
+        val statID = (key+version)
+        statRepository.delete(statID)
+        return "Stat %S deleted from version".format(statID)
+    }
+
     fun addInfoToVersion(name: String, type: String, value: String, version: String): Version {
         val info = VersionInfo((name+version), version, name, type,  value)
         versionInfoRepository.findById("currency" + version) ?: initializeVersion(version)
         versionInfoRepository.save(info)
         return constructVersionSheet(version)
+    }
+
+    fun removeInfoFromVersion(id:String):String{
+        versionInfoRepository.delete(id)
+        return "Info %S deleted from version".format(id)
     }
 
     fun initializeVersion(version: String): Version {
