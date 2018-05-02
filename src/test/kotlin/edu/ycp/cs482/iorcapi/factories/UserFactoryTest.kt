@@ -114,4 +114,43 @@ class UserFactoryTest {
         assertThat(user2.authorityLevels.contains(AuthorityLevel.ROLE_USER), Matchers.`is`(true))
         assertThat(user2.authorityLevels.contains(AuthorityLevel.ROLE_ADMIN), Matchers.`is`(false))
     }
+
+    @Test
+    fun banAccount(){
+        val user = userRepository.findById("TESTUSER") ?: throw RuntimeException()
+        val nonAdmin = userRepository.findById("TESTUSER3") ?: throw RuntimeException()
+        assertThat(user.authorityLevels.contains(AuthorityLevel.ROLE_USER), Matchers.`is`(true))
+
+        try{
+            userFactory.banUserAccount(user.id, nonAdmin)
+            fail()
+        } catch (e: GraphQLException){
+            assertThat(e.message, Matchers.`is`(Matchers.equalTo("Forbidden")))
+        }
+
+        val ban = userFactory.banUserAccount(user.id, context)
+        assertThat(ban, Matchers.`is`(Matchers.equalTo("User TESTUSER was banned")))
+        val user2 = userRepository.findById("TESTUSER") ?: throw RuntimeException()
+        assertThat(user2.authorityLevels.contains(AuthorityLevel.ROLE_USER), Matchers.`is`(false))
+
+
+        val unban = userFactory.unbanUserAccount(user.id, context)
+        assertThat(unban.authorityLevels.contains(AuthorityLevel.ROLE_USER), Matchers.`is`(true))
+    }
+
+    @Test
+    fun elevateAccount(){
+        val user = userRepository.findById("TESTUSER") ?: throw RuntimeException()
+        val nonAdmin = userRepository.findById("TESTUSER3") ?: throw RuntimeException()
+
+        try {
+            userFactory.elevateUserAccount(user.id, nonAdmin)
+            fail()
+        } catch (e: GraphQLException){
+            assertThat(e.message, Matchers.`is`(Matchers.equalTo("Forbidden")))
+        }
+
+        val user2 = userFactory.elevateUserAccount(user.id, context)
+        assertThat(user2.authorityLevels.contains(AuthorityLevel.ROLE_ADMIN), Matchers.`is`(true))
+    }
 }

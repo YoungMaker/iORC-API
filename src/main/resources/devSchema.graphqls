@@ -172,6 +172,10 @@ type Mutation {
     loginUser(email:String!, password: String!): ContextOut!
     deleteAccount(email: String!, password: String!): String
     updatePassword(email: String!, password:String!, newPassword:String!): User!
+
+    banAccount(id: ID, context: Context!): String!
+    unbanAccount(id: ID!, context: Context!): User!
+    elevateUserAccount(id: ID!, context: Context!): User!
 }
 
 extend type Query {

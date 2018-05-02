@@ -85,6 +85,57 @@ class UserFactory(
         }
     }
 
+    fun banUserAccount(id: String, context: User): String{
+        if(context.authorityLevels.contains(AuthorityLevel.ROLE_ADMIN)){
+            val user = userRepository.findById(id) ?: throw GraphQLException("User does not exist")
+            val newUser = User(id = user.id,
+                    email = user.email,
+                    authorityLevels = listOf(),
+                    passwordSalt = user.passwordSalt,
+                    uname = user.uname,
+                    passwordHash = user.passwordHash
+            )
+            userRepository.save(newUser)
+            return "User $id was banned"
+        } else {
+            throw GraphQLException("Forbidden")
+        }
+    }
+
+    fun unbanUserAccount(id: String, context: User): UserQL{
+        if(context.authorityLevels.contains(AuthorityLevel.ROLE_ADMIN)){
+            val user = userRepository.findById(id) ?: throw GraphQLException("User does not exist")
+            val newUser = User(id = user.id,
+                    email = user.email,
+                    authorityLevels = listOf(AuthorityLevel.ROLE_USER),
+                    passwordSalt = user.passwordSalt,
+                    uname = user.uname,
+                    passwordHash = user.passwordHash
+            )
+            userRepository.save(newUser)
+            return UserQL(newUser)
+        } else {
+            throw GraphQLException("Forbidden")
+        }
+    }
+
+    fun elevateUserAccount(id: String, context: User): UserQL {
+        if(context.authorityLevels.contains(AuthorityLevel.ROLE_ADMIN)){
+            val user = userRepository.findById(id) ?: throw GraphQLException("User does not exist")
+            val newUser = User(id = user.id,
+                    email = user.email,
+                    authorityLevels = listOf(AuthorityLevel.ROLE_USER, AuthorityLevel.ROLE_ADMIN),
+                    passwordSalt = user.passwordSalt,
+                    uname = user.uname,
+                    passwordHash = user.passwordHash
+            )
+            userRepository.save(newUser)
+            return UserQL(newUser)
+        } else {
+            throw GraphQLException("Forbidden")
+        }
+    }
+
     fun getUserInfo(email: String, context: User): UserQL{
         val user = userRepository.findByEmail(email) ?: throw GraphQLException("")
         if(user.id == context.id){

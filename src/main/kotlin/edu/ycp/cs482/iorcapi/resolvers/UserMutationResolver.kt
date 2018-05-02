@@ -24,4 +24,13 @@ class UserMutationResolver(
         userFactory.deleteUser(email, user) //removes user account data
         return "User: " + user.id + " was deleted. Thank you for using iOrc. Goodbye!"
     }
+
+    fun banAccount(id: String, context: Context) =
+            userFactory.banUserAccount(id, userFactory.hydrateUser(context))
+
+    fun unbanAccount(id: String, context: Context) =
+            userFactory.unbanUserAccount(id, userFactory.hydrateUser(context))
+
+    fun elevateUserAccount(id: String, context: Context) =
+            userFactory.elevateUserAccount(id, userFactory.hydrateUser(context))
 }
