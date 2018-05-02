@@ -203,10 +203,10 @@ extend type Query {
     getVersionInfoType(version: String!, type: String!, context: Context!): Version
 
     #item queries
-    getVersionItems(version: String) : [Item]!
-    getVersionItemType(version: String, type: ObjType): [Item]!
-    getItemsByClasses(version: String, classes: [String]!): [Item]!
-    getItemsByClassesIn(version: String, classes: [String]!): [Item]!
+    getVersionItems(version: String, context: Context!) : [Item]!
+    getVersionItemType(type: ObjType, version: String, context: Context!): [Item]!
+    getItemsByClasses(classes: [String]!, version: String, context: Context!): [Item]!
+    getItemsByClassesIn(classes: [String]!, version: String!, context: Context!): [Item]!
 
     #user query
     getUserInfo(email:String, context: Context!): User
