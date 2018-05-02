@@ -63,7 +63,7 @@ class DetailFactory(
 
     fun getRaceById(id: String, version: Version, context: User) : RaceQL{
         val race = raceRepository.findById(id) ?: throw throw GraphQLException("Race does not exist with that id")
-        authorizer.authorizeVersion(version, race.version, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
+        authorizer.authorizeVersion(version, race.version, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden")
         return RaceQL(race)
     }
 
@@ -93,7 +93,7 @@ class DetailFactory(
 
     /** Class functionality: **/
 
-    fun createNewClass(name: String, role: String,  version: Version, description: String, context: User): ClassQL {
+    fun createNewClass(name: String, role: String,  description: String, version: Version, context: User): ClassQL {
         authorizer.authorizeVersion(version, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
         val rpgClass = ClassRpg(id = UUID.randomUUID().toString(),
                 name = name,
@@ -105,7 +105,7 @@ class DetailFactory(
         return ClassQL(rpgClass)
     }
 
-    fun updateClass(id: String, name: String, role: String, version: Version, description: String, context: User): ClassQL {
+    fun updateClass(id: String, name: String, role: String, description: String, version: Version, context: User): ClassQL {
 
         val oldClass = classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
         authorizer.authorizeVersion(version, oldClass.version, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden")
@@ -121,7 +121,7 @@ class DetailFactory(
 
     fun addClassModifiers(id: String, mods: HashMap<String, Float>, version: Version, context: User): ClassQL {
         val rpgClass = classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
-        authorizer.authorizeVersion(version, rpgClass.version, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden")
+        authorizer.authorizeVersion(version, rpgClass.version, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
         if(!versionFactory.checkStatsInVersion(mods, versionFactory.hydrateVersion(rpgClass.version))){
             throw GraphQLException("This Modifier is not in the version sheet!")
         }
@@ -133,22 +133,29 @@ class DetailFactory(
     }
 
 
-    fun removeClassModifier(id: String, key: String ): ClassQL {
+    fun removeClassModifier(id: String, key: String, version: Version, context: User): ClassQL {
         val rpgClass = classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
-
+        authorizer.authorizeVersion(version, rpgClass.version, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
         rpgClass.removeModifier(key)
 
         classRepository.save(rpgClass) // this should write over the old one with the new parameters
         return ClassQL(rpgClass)
     }
 
-    fun getClassById(id: String) : ClassQL{
-        val rpgClass = classRepository.findById(id) ?: throw throw GraphQLException("Race does not exist with that id")
+    fun getClassById(id: String, version: Version, context: User) : ClassQL{
+        val rpgClass = classRepository.findById(id) ?: throw throw GraphQLException("Class does not exist with that id")
+        authorizer.authorizeVersion(version, rpgClass.version, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden")
         return ClassQL(rpgClass)
     }
 
-    fun getClassesByName(name: String) = hydrateClasses(classRepository.findByName(name))
-    fun getClassesByVersion(version: String) = hydrateClasses(classRepository.findByVersion(version))
+    fun getClassesByName(name: String, version: Version, context: User): List<ClassQL> {
+        authorizer.authorizeVersion(version, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden")
+        return hydrateClasses(classRepository.findByNameAndVersion(name, version.version))
+    }
+    fun getClassesByVersion(version: Version, context: User): List<ClassQL> {
+        authorizer.authorizeVersion(version, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden")
+        return hydrateClasses(classRepository.findByVersion(version.version))
+    }
 
 
     fun hydrateClasses(classes: List<ClassRpg>) : List<ClassQL> {

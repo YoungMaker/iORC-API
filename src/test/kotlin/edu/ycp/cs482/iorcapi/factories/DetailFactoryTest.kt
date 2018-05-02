@@ -55,7 +55,7 @@ class DetailFactoryTest {
         addTestVersion()
         addTestClasses()
         addTestRaces()
-        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory)
+        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory, Authorizer())
     }
 
     private fun addTestUsers(){
@@ -179,15 +179,16 @@ class DetailFactoryTest {
     fun createNewRace() {
         val race = detailFactory.createNewRace(
                         name = "Half-Elf",
-                        version = "TEST",
-                        description = "TESTHALFELF"
+                        version = versionFactory.hydrateVersion("TEST"),
+                        description = "TESTHALFELF",
+                        context = context
                         )
         assertThat(race.name, `is`(equalTo("Half-Elf")))
         assertThat(race.version,  `is`(equalTo("TEST")))
         assertThat(race.description,  `is`(equalTo("TESTHALFELF")))
 
         //this assumes that the first return will be our own, do not insert anything with this name before here
-        val repoRace = raceRepository.findByName("Half-Elf")[0]
+        val repoRace = raceRepository.findByNameAndVersion("Half-Elf", "TEST")[0]
 
         assertThat(repoRace, notNullValue())
         assertThat(repoRace.name, `is`(equalTo(race.name)))
@@ -199,9 +200,10 @@ class DetailFactoryTest {
     fun updateRace(){
         val race = detailFactory.updateRace(
                 id = "1.0",
-                version = "TEST",
+                version = versionFactory.hydrateVersion("TEST"),
                 name = "Human",
-                description = "TESTHUMAN1"
+                description = "TESTHUMAN1",
+                context = context
         )
 
         assertThat(race.name, `is`(equalTo("Human")))
@@ -209,7 +211,7 @@ class DetailFactoryTest {
         assertThat(race.description,  `is`(equalTo("TESTHUMAN1")))
 
         //this assumes that the first return will be our own, do not insert anything with this name before here
-        val repoRace = raceRepository.findByName("Human")[0]
+        val repoRace = raceRepository.findByNameAndVersion("Human", "TEST")[0]
 
         assertThat(repoRace, notNullValue())
         assertThat(repoRace.name, `is`(equalTo(race.name)))
@@ -219,9 +221,10 @@ class DetailFactoryTest {
 
         val raceRevert = detailFactory.updateRace(
                 id = "1.0",
-                version = "TEST",
+                version = versionFactory.hydrateVersion("TEST"),
                 name = "Human",
-                description = "TESTHUMAN"
+                description = "TESTHUMAN",
+                context = context
         )
 
         assertThat(raceRevert.name, `is`(equalTo("Human")))
@@ -232,8 +235,8 @@ class DetailFactoryTest {
 
     @Test
     fun getRaceById() {
-        val race = detailFactory.getRaceById("0.0")
-        val race2 = detailFactory.getRaceById("1.0")
+        val race = detailFactory.getRaceById("0.0", versionFactory.hydrateVersion("TEST"), context)
+        val race2 = detailFactory.getRaceById("1.0", versionFactory.hydrateVersion("TEST"), context)
 
         assertThat(race.name,  `is`(equalTo("Orc")))
         assertThat(race.version,  `is`(equalTo("TEST")))
@@ -250,8 +253,8 @@ class DetailFactoryTest {
 
     @Test
     fun getRacesByName() {
-        val raceList = detailFactory.getRacesByName("Orc")
-        val raceList2 = detailFactory.getRacesByName("Human")
+        val raceList = detailFactory.getRacesByName("Orc", versionFactory.hydrateVersion("TEST"), context)
+        val raceList2 = detailFactory.getRacesByName("Human", versionFactory.hydrateVersion("TEST"), context)
         assertThat(raceList.count(), `is`(not(equalTo(0))))
 
         assertThat(raceList[0].name,  `is`(equalTo("Orc")))
@@ -269,7 +272,7 @@ class DetailFactoryTest {
 
     @Test
     fun getRacesByVersion() {
-        val raceList = detailFactory.getRacesByVersion("TEST")
+        val raceList = detailFactory.getRacesByVersion(versionFactory.hydrateVersion("TEST"), context)
         assertThat(raceList.count(), `is`(not(equalTo(0))))
         assert(raceList.containsAll(detailFactory.hydrateRaces(raceRepository.findAll())))
     }
@@ -278,9 +281,10 @@ class DetailFactoryTest {
     fun createNewClass(){
         val classRpg = detailFactory.createNewClass(
                 name = "Fighter",
-                version = "TEST",
+                version = versionFactory.hydrateVersion("TEST"),
                 role = "DEFENDER",
-                description = "TESTFIGHTER"
+                description = "TESTFIGHTER",
+                context = context
         )
         assertThat(classRpg.name, `is`(equalTo("Fighter")))
         assertThat(classRpg.version,  `is`(equalTo("TEST")))
@@ -288,7 +292,7 @@ class DetailFactoryTest {
         assertThat(classRpg.description,  `is`(equalTo("TESTFIGHTER")))
 
         //this assumes that the first return will be our own, do not insert anything with this name before here
-        val repoClass = classRepository.findByName("Fighter")[0]
+        val repoClass = classRepository.findByNameAndVersion("Fighter", "TEST")[0] //?: throw RuntimeException()
 
         assertThat(repoClass, notNullValue())
         assertThat(repoClass.name, `is`(equalTo(classRpg.name)))
@@ -303,8 +307,9 @@ class DetailFactoryTest {
                 id = "0.1",
                 name = "Cleric",
                 role= "Healer",
-                version = "TEST",
-                description = "TESTCLERIC2"
+                version = versionFactory.hydrateVersion("TEST"),
+                description = "TESTCLERIC2",
+                context = context
         )
 
         assertThat(classRpg.name, `is`(equalTo("Cleric")))
@@ -312,7 +317,7 @@ class DetailFactoryTest {
         assertThat(classRpg.description,  `is`(equalTo("TESTCLERIC2")))
 
         //this assumes that the first return will be our own, do not insert anything with this name before here
-        val repoClassRpg = classRepository.findByName("Cleric")[0]
+        val repoClassRpg = classRepository.findByNameAndVersion("Cleric", "TEST")[0]
 
         assertThat(repoClassRpg, notNullValue())
         assertThat(repoClassRpg.name, `is`(equalTo(classRpg.name)))
@@ -324,8 +329,9 @@ class DetailFactoryTest {
                 id = "0.1",
                 name = "Cleric",
                 role= "Healer",
-                version = "TEST",
-                description = "TESTCLERIC"
+                version = versionFactory.hydrateVersion("TEST"),
+                description = "TESTCLERIC",
+                context = context
         )
         assertThat(classRevert.name, `is`(equalTo("Cleric")))
         assertThat(classRevert.version,  `is`(equalTo("TEST")))
@@ -334,8 +340,8 @@ class DetailFactoryTest {
     }
     @Test
     fun getClassById(){
-        val classRpg = detailFactory.getClassById("1.1")
-        val classRpg2 = detailFactory.getClassById("0.1")
+        val classRpg = detailFactory.getClassById("1.1", versionFactory.hydrateVersion("TEST"), context)
+        val classRpg2 = detailFactory.getClassById("0.1", versionFactory.hydrateVersion("TEST"), context)
 
         assertThat(classRpg.name,  `is`(equalTo("Ranger")))
         assertThat(classRpg.version,  `is`(equalTo("TEST")))
@@ -355,8 +361,8 @@ class DetailFactoryTest {
 
     @Test
     fun getClassesByName(){
-        val classRpgList1 = detailFactory.getClassesByName("Ranger")
-        val classRpgList2 = detailFactory.getClassesByName("Cleric")
+        val classRpgList1 = detailFactory.getClassesByName("Ranger", versionFactory.hydrateVersion("TEST"), context)
+        val classRpgList2 = detailFactory.getClassesByName("Cleric", versionFactory.hydrateVersion("TEST"), context)
 
         assertThat(classRpgList1.count(), `is`(not(equalTo(0))))
         assertThat(classRpgList1.count(), `is`(not(equalTo(0))))
@@ -381,14 +387,14 @@ class DetailFactoryTest {
 
     @Test
     fun getClassesByVersion() {
-        val classList = detailFactory.getClassesByVersion("TEST")
+        val classList = detailFactory.getClassesByVersion(versionFactory.hydrateVersion("TEST"), context)
         assertThat(classList.count(), `is`(not(equalTo(0))))
         assert(classList.containsAll(detailFactory.hydrateClasses(classRepository.findAll())))
     }
 
     @Test
     fun addRemoveModifiers(){
-        val race = detailFactory.addRaceModifiers("0.0", hashMapOf(Pair("wis", 2f)))
+        val race = detailFactory.addRaceModifiers("0.0", hashMapOf(Pair("wis", 2f)), versionFactory.hydrateVersion("TEST"), context)
 
         assertThat(race.modifiers.count(), `is`(equalTo(3)) )
 
@@ -399,10 +405,10 @@ class DetailFactoryTest {
         assertThat(race.modifiers.contains(Modifier("dex", 2f)), `is`(true))
         assertThat(race.modifiers.contains(Modifier("int", 2f)), `is`(true))
 
-        val race2 = detailFactory.removeRaceModifier("0.0", "wis")
+        val race2 = detailFactory.removeRaceModifier("0.0", "wis", versionFactory.hydrateVersion("TEST"), context)
 
         try {
-            detailFactory.addRaceModifiers("0.0", hashMapOf(Pair("kit", 2f)))
+            detailFactory.addRaceModifiers("0.0", hashMapOf(Pair("kit", 2f)), versionFactory.hydrateVersion("TEST"), context)
         } catch (e: GraphQLException) {
             assertThat(e.message, `is`(equalTo("This Modifier is not in the version sheet!")))
         }
@@ -413,7 +419,7 @@ class DetailFactoryTest {
         assertThat(race2.modifiers.contains(Modifier("int", 2f)), `is`(true))
         assertThat(race2.modifiers.contains(Modifier("wis", 2f)), `is`(false))
 
-        val classRpg = detailFactory.addClassModifiers("1.1", hashMapOf(Pair("wis", 2f)))
+        val classRpg = detailFactory.addClassModifiers("1.1", hashMapOf(Pair("wis", 2f)), versionFactory.hydrateVersion("TEST"), context)
 
         assertThat(classRpg.modifiers.count(), `is`(equalTo(3)) )
 
@@ -425,7 +431,7 @@ class DetailFactoryTest {
         assertThat(classRpg.modifiers.contains(Modifier("will", 2f)), `is`(true))
         assertThat(classRpg.modifiers.contains(Modifier("wis", 2f)), `is`(true))
 
-        val classRpg2 = detailFactory.removeClassModifier("1.1", "wis")
+        val classRpg2 = detailFactory.removeClassModifier("1.1", "wis", versionFactory.hydrateVersion("TEST"), context)
 
         assertThat(classRpg2.modifiers.count(), `is`(equalTo(2)) )
         assertThat(classRpg2.modifiers.contains(Modifier("hp", 12f)), `is`(true))

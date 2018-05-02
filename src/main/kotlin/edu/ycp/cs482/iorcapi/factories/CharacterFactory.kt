@@ -1,9 +1,6 @@
 package edu.ycp.cs482.iorcapi.factories
 
-import edu.ycp.cs482.iorcapi.model.Character
-import edu.ycp.cs482.iorcapi.model.CharacterQL
-import edu.ycp.cs482.iorcapi.model.ItemQL
-import edu.ycp.cs482.iorcapi.model.Race
+import edu.ycp.cs482.iorcapi.model.*
 import edu.ycp.cs482.iorcapi.model.attributes.*
 import edu.ycp.cs482.iorcapi.model.authentication.*
 import edu.ycp.cs482.iorcapi.repositories.CharacterRepository
@@ -26,9 +23,8 @@ class CharacterFactory(
 
     //TODO: check if UUID already used. See issue #16
     fun createNewCharacter(name: String, abilityPoints: AbilityInput, raceid: String, classid: String, version: String, owner: User) : CharacterQL {
-        val race = detailFactory.getRaceById(raceid) //this is to check if it exists, this will throw a query exception
-        val classql = detailFactory.getClassById(classid)
-
+        val race = detailFactory.getRaceById(raceid, versionFactory.hydrateVersion(version), owner) //this is to check if it exists, this will throw a query exception
+        val classql = detailFactory.getClassById(classid, versionFactory.hydrateVersion(version), owner)
         val abils = Ability(abilityPoints.str, abilityPoints.con, abilityPoints.dex, abilityPoints._int, abilityPoints.wis, abilityPoints.cha)
 
         val char = Character(UUID.randomUUID().toString(),
@@ -43,14 +39,14 @@ class CharacterFactory(
                 )
         characterRepo.save(char) //should this be insert?
 
-        return hydrateChar(char)
+        return hydrateChar(char, owner)
     }
 
     fun updateCharacter(id: String, name: String, abilityPoints: AbilityInput, raceid: String, classid: String, context: User) : CharacterQL {
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
         authorizer.authorizeObject(char, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
-        val race = detailFactory.getRaceById(raceid) //this is to check if it exists, this will throw a query exception
-        val classql = detailFactory.getClassById(classid)
+        val race = detailFactory.getRaceById(raceid, versionFactory.hydrateVersion(char.version), context) //this is to check if it exists, this will throw a query exception
+        val classql = detailFactory.getClassById(classid, versionFactory.hydrateVersion(char.version), context)
 
         val abils = Ability(abilityPoints.str, abilityPoints.con, abilityPoints.dex, abilityPoints._int, abilityPoints.wis, abilityPoints.cha)
 
@@ -68,7 +64,7 @@ class CharacterFactory(
             )
         characterRepo.save(charNew) //should this be insert?
 
-        return hydrateChar(charNew)
+        return hydrateChar(charNew, context)
     }
 
     private fun updateSlotsIfEmpty(char: Character, context: User): MutableList<Slot>{
@@ -99,7 +95,7 @@ class CharacterFactory(
                 access = char.authority
                 )
         characterRepo.save(charNew) //should this be insert?
-        return hydrateChar(charNew)
+        return hydrateChar(charNew, context)
     }
 
     fun purchaseItem(id: String, itemid: String, context: User): CharacterQL{
@@ -118,14 +114,14 @@ class CharacterFactory(
     fun getCharacterById(id:String, context: User) : CharacterQL {
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
         authorizer.authorizeObject(char, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden")
-        return hydrateChar(char)
+        return hydrateChar(char, context)
     }
 
     fun getCharactersByName(name: String, context: User) =
-            hydrateChars(characterRepo.findByNameAndAuthority_Owner(name, context.id))
+            hydrateChars(characterRepo.findByNameAndAuthority_Owner(name, context.id), context)
 
     fun getUserCharacters(context: User)
-        = hydrateChars(characterRepo.findByAuthority_Owner(context.id))
+        = hydrateChars(characterRepo.findByAuthority_Owner(context.id), context)
 
     fun purgeUsersCharacters(context: User) { //called when a user deletes his account
         val charList = characterRepo.findByAuthority_Owner(context.id)
@@ -137,7 +133,7 @@ class CharacterFactory(
     fun getCharactersByVersion(version: String, context: User): List<CharacterQL> {
         val chars = characterRepo.findByVersion(version)
         authorizer.authorizeObjects(chars, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden")
-        return hydrateChars(chars)
+        return hydrateChars(chars, context)
     }
 
     private fun getSlots(version: String, context: User): List<Slot>{
@@ -177,7 +173,7 @@ class CharacterFactory(
                         access = char.authority
                 )
                 characterRepo.save(charNew) //overwrite the character
-                return hydrateChar(charNew)
+                return hydrateChar(charNew, context)
             }
             else {
                 throw GraphQLException("Character cannot put that item in slot")
@@ -216,14 +212,14 @@ class CharacterFactory(
                 access = char.authority
                 )
         characterRepo.save(charNew)
-        return hydrateChar(charNew)
+        return hydrateChar(charNew, context)
     }
 
     ///maps a list to an output lits of CharacterQL graphQL objects
-    fun hydrateChars(chars: List<Character>) : List<CharacterQL> {
+    fun hydrateChars(chars: List<Character>, context: User) : List<CharacterQL> {
         val output = mutableListOf<CharacterQL>()
 
-        chars.mapTo(output) { hydrateChar(it) }
+        chars.mapTo(output) { hydrateChar(it, context) }
         return output
     }
 
@@ -266,9 +262,9 @@ class CharacterFactory(
     }
 
     //converts referential persistence object to graphQL full representation
-    fun hydrateChar(char: Character) : CharacterQL {
-        val race = detailFactory.getRaceById(char.raceid)
-        val classql = detailFactory.getClassById(char.classid)
+    fun hydrateChar(char: Character, context: User) : CharacterQL {
+        val race = detailFactory.getRaceById(char.raceid, versionFactory.hydrateVersion(char.version), context) //this is to check if it exists, this will throw a query exception
+        val classql = detailFactory.getClassById(char.classid, versionFactory.hydrateVersion(char.version), context)
         return CharacterQL(id = char.id,
                 version =  char.version,
                 name = char.name,

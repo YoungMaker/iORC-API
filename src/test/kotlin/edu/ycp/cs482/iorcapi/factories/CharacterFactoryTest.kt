@@ -55,7 +55,7 @@ class CharacterFactoryTest {
         addTestClasses()
         addTestRaces()
         addTestCharacters()
-        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory)
+        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory, Authorizer())
         itemFactory = ItemFactory(itemRepository)
         characterFactory = CharacterFactory(characterRepository, detailFactory, versionFactory, itemFactory, Authorizer())
     }
@@ -277,7 +277,7 @@ class CharacterFactoryTest {
                 version = "TEST",
                 owner = owner
         )
-        val classRpg = detailFactory.getClassById("1.1")
+        val classRpg = detailFactory.getClassById("1.1", versionFactory.hydrateVersion("TEST"), owner)
         assertThat(character.name, CoreMatchers.`is`(equalTo("Harold")))
         assertThat(character.abilityPoints.str, `is`(equalTo(13)))
         assertThat(character.abilityPoints.con, `is`(equalTo(12)))
