@@ -11,6 +11,7 @@ import edu.ycp.cs482.iorcapi.model.authentication.Authorizer
 import edu.ycp.cs482.iorcapi.model.authentication.PasswordUtils
 import edu.ycp.cs482.iorcapi.model.authentication.User
 import edu.ycp.cs482.iorcapi.repositories.*
+import graphql.GraphQLException
 import org.junit.Test
 import org.hamcrest.CoreMatchers.*
 import org.junit.Assert.*
@@ -160,6 +161,23 @@ class ItemFactoryTest {
         assertThat(repoItem?.name, `is` (equalTo(item.name)))
         assertThat(repoItem?.price, `is` (equalTo(item.price)))
         assertThat(repoItem?.description, `is`(equalTo(item.description)))
+
+        val user2 = userRepository.findOne("TESTUSER")
+
+        try{
+            itemFactory.addItem(
+                    name = "Battle Axe of the Bold",
+                    description = "A battle axe that is wielded by scholars to ward off lunch money thieves.",
+                    price = 520f,
+                    itemClasses = listOf("axe", "military_weapon", "melee_weapon"),
+                    version = versionFactory.hydrateVersion("TEST"),
+                    type = ObjType.ITEM_WEAPON,
+                    context = user2
+            )
+            fail()
+        } catch (e: GraphQLException) {
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
     }
 
     @Test
@@ -183,6 +201,8 @@ class ItemFactoryTest {
         assertThat(repoItems[1].name, `is` (equalTo(itemFactList[1].name)))
         assertThat(repoItems[1].price, `is` (equalTo(itemFactList[1].price)))
         assertThat(repoItems[1].description, `is` (equalTo(itemFactList[1].description)))
+
+
     }
 
     @Test
@@ -222,7 +242,8 @@ class ItemFactoryTest {
 
     @Test
     fun addRemoveItemMutations() {
-        var item = itemFactory.addItemModifier("Battle Axe of the Not so BoldTEST", hashMapOf(Pair("dmg", 2.6f)), versionFactory.hydrateVersion("TEST"), context)
+        var item = itemFactory.addItemModifier("Battle Axe of the Not so BoldTEST",
+                hashMapOf(Pair("dmg", 2.6f)), versionFactory.hydrateVersion("TEST"), context)
 
         assertThat(item.modifiers.count(), `is`(not(equalTo(0))))
         assertThat(item.modifiers.contains(Modifier("dmg", 2.6f)), `is`(true))
@@ -231,6 +252,16 @@ class ItemFactoryTest {
 
         assertThat(item.modifiers.count(), `is`((equalTo(0))))
         assertThat(item.modifiers.contains(Modifier("dmg", 2.6f)), `is`(false))
+
+        val user2 = userRepository.findOne("TESTUSER")
+
+        try{
+            itemFactory.addItemModifier("Battle Axe of the Not so BoldTEST",
+                    hashMapOf(Pair("dmg", 2.6f)), versionFactory.hydrateVersion("TEST"), user2)
+            fail()
+        } catch (e: GraphQLException) {
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
     }
 
 }
