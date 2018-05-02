@@ -97,7 +97,7 @@ class VersionFactory(
 
     fun addStatModifiers(key : String, version: Version, mods: HashMap<String, Float>, context: User): StatQL {
         authorizer.authorizeVersion(version, context, AuthorityMode.MODE_EDIT) ?: throw  GraphQLException("Forbidden")
-        val stat = statRepository.findById((key+version)) ?: throw GraphQLException("Stat does not exist with that id")
+        val stat = statRepository.findById((key+version.version)) ?: throw GraphQLException("Stat does not exist with that id")
 
         stat.unionModifiers(mods)
         statRepository.save(stat) // this should write over the old one with the new parameters
@@ -106,7 +106,7 @@ class VersionFactory(
 
     fun removeStatModifier(statKey : String, version: Version,  key: String, context: User): StatQL {
         authorizer.authorizeVersion(version, context, AuthorityMode.MODE_EDIT) ?: throw  GraphQLException("Forbidden")
-        val stat = statRepository.findById((statKey+version)) ?: throw GraphQLException("Stat does not exist with that id")
+        val stat = statRepository.findById((statKey+version.version)) ?: throw GraphQLException("Stat does not exist with that id")
 
         stat.removeModifier(key)
         statRepository.save(stat) // this should write over the old one with the new parameters
@@ -118,14 +118,15 @@ class VersionFactory(
         return constructVersionSheet(version)
     }
 
-    fun addUserToVersion(user: User, version: Version, context: User) {
+    fun addUserToVersion(user: User, version: Version, context: User): VersionQL {
         authorizer.authorizeVersion(version, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
         val dbVersion = versionRepository.findByVersion(version.version) ?: throw GraphQLException("Version Does not exist")
         val access = mutableListOf<AccessData>()
         access.addAll(dbVersion.access)
         access.add(AccessData(user.id, mapOf() ))
         val newVersion = Version(dbVersion.version,  access)
-        versionRepository.save(newVersion) //writes over old db object with new user added
+        versionRepository.save(newVersion) //writes over old db object with new user
+        return constructVersionSheet(newVersion)
     }
 
     private fun constructVersionSheet(version: Version) : VersionQL {

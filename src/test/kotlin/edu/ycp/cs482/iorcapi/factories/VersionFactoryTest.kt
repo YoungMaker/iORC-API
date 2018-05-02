@@ -1,6 +1,7 @@
 package edu.ycp.cs482.iorcapi.factories
 
 import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
+import edu.ycp.cs482.iorcapi.model.attributes.Modifier
 import edu.ycp.cs482.iorcapi.model.attributes.Stat
 import edu.ycp.cs482.iorcapi.model.attributes.StatQL
 import edu.ycp.cs482.iorcapi.model.authentication.*
@@ -169,11 +170,40 @@ class VersionFactoryTest {
 
     @Test
     fun addStatModifiers() {
-       // val versionSheet = versionFactory.addStatModifiers("test_mod", versionFactory.hydrateVersion("TEST") mods = listOf())
+        val versionSheet = versionFactory.addStatToVersion("rec", "Recognition", "Recognition", versionFactory.hydrateVersion("TEST") , false, context)
+        assertThat(versionSheet.version, `is`(equalTo("TEST")))
+        assertThat(versionSheet.stats.contains(StatQL("rec", "Recognition", "Recognition", false, mutableListOf())), `is`(true))
+
+        val stat = versionFactory.addStatModifiers("rec",
+                versionFactory.hydrateVersion("TEST"), hashMapOf(Pair("test", 2.0f)), context)
+
+        assertThat(stat.modifiers.contains(Modifier("test", 2.0f)), `is`(true))
+
+
+        val stat2 = versionFactory.removeStatModifier("rec",
+                versionFactory.hydrateVersion("TEST"), "test", context)
+
+        assertThat(stat2.modifiers.contains(Modifier("test", 2.0f)), `is`(false))
+        assertThat(stat2.modifiers.isEmpty(), `is`(true))
+
     }
 
     @Test
-    fun removeStatModifier(){
+    fun addUserToVersion(){
+        val user2 = userRepository.findByUname("test_guy") ?: throw RuntimeException()
+
+        //user can't add himself
+        try{
+            versionFactory.addUserToVersion(user2, versionFactory.hydrateVersion("TEST"), user2)
+            fail()
+        } catch (e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Forbidden")))
+        }
+
+        val versionSheet = versionFactory.addUserToVersion(user2, versionFactory.hydrateVersion("TEST"), context)
+        //both users can now edit the version
+        versionFactory.addStatToVersion("rec", "Recognition", "Recognition", versionFactory.hydrateVersion("TEST") , true, user2)
+        versionFactory.addStatToVersion("con", "Constitution", "const", versionFactory.hydrateVersion("TEST") , true, context)
 
     }
 
