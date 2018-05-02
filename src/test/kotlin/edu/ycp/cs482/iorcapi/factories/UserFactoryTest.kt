@@ -23,6 +23,7 @@ class UserFactoryTest {
     lateinit var userRepository: UserRepository
     lateinit var passwordUtils: PasswordUtils
     lateinit var salt: ByteArray
+    lateinit var context: User
 
 
     private fun addTestUsers() {
@@ -49,6 +50,8 @@ class UserFactoryTest {
                         passwordSalt = salt
                 )
         ))
+        //admin context!
+        context = userRepository.findById("TESTUSER2") ?: throw RuntimeException()
     }
 
     @Before
@@ -71,6 +74,11 @@ class UserFactoryTest {
 
     @Test
     fun createAdminAccount() {
+        val user =  userFactory.createAdminAccount("bro@test.com", "theboi37", "JoyToTheWo&rld17", context)
+        assertThat(user.email, Matchers.`is`(Matchers.equalTo("bro@test.com")))
+        assertThat(user.uname, Matchers.`is`(Matchers.equalTo("theboi37")))
+        assertThat(user.authorityLevels.contains(AuthorityLevel.ROLE_USER), Matchers.`is`(false))
+        assertThat(user.authorityLevels.contains(AuthorityLevel.ROLE_ADMIN), Matchers.`is`(true))
     }
 
     @Test
