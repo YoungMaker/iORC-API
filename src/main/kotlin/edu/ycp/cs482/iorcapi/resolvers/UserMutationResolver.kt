@@ -33,4 +33,7 @@ class UserMutationResolver(
 
     fun elevateUserAccount(id: String, context: Context) =
             userFactory.elevateUserAccount(id, userFactory.hydrateUser(context))
+
+    fun updatePassword(email: String, password: String, newPassword: String)=
+            userFactory.updateUserPassword(email, password, newPassword)
 }

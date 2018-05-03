@@ -21,6 +21,7 @@ class UserFactory(
 
     @Value("\${privatekey}") //pulled from secret config file.
     private val privatekey: String = "THISISADEFAULTKEY_USEDFORTESTINGONLY1122334dfadfaefadfeadfefadf" //default key used in test environment
+    val MAX_TOKENS: Int = 5 //maximum active token count
 
     fun createUserAccount(email: String, uname: String, password: String, level: AuthorityLevel = AuthorityLevel.ROLE_USER) : UserQL{
         validateInfo(email, uname, password)
@@ -32,7 +33,8 @@ class UserFactory(
                         authorityLevels = listOf(level),
                         passwordSalt = salt,
                         uname = uname,
-                        passwordHash = passwordUtils.hashPassword(password.toCharArray(), salt)
+                        passwordHash = passwordUtils.hashPassword(password.toCharArray(), salt),
+                        tokenList = listOf()
                 )
                 userRepository.save(user)
                 return UserQL(user) //hydrates to QL compliant authentication
@@ -61,7 +63,8 @@ class UserFactory(
                 authorityLevels = user.authorityLevels,
                 passwordSalt = salt,
                 uname = user.uname,
-                passwordHash = passwordUtils.hashPassword(newPassword.toCharArray(), salt)
+                passwordHash = passwordUtils.hashPassword(newPassword.toCharArray(), salt),
+                tokenList = user.tokenList
         )
         userRepository.save(newUser)
         return UserQL(newUser) //hydrates to QL compliant authentication
@@ -75,6 +78,7 @@ class UserFactory(
         }
     }
 
+    //Stores token if its not above the max
     fun loginUser(email:String, password: String): Context {
         val  user = userRepository.findByEmail(email) ?: throw GraphQLException("incorrect user/email combo")
 
@@ -82,7 +86,61 @@ class UserFactory(
             if(!user.authorityLevels.contains(AuthorityLevel.ROLE_ADMIN) && !user.authorityLevels.contains(AuthorityLevel.ROLE_USER)) {
                 throw GraphQLException("User account is banned.")
             }
-            return Context(jwtUtils.createJwt(user.id, privatekey.toByteArray()))
+            if(user.tokenList.size >= MAX_TOKENS) {
+                throw GraphQLException("Max logins reached")
+            }
+            val token = Context(jwtUtils.createJwt(user.id, privatekey.toByteArray())) //create token
+            val newTokenList = mutableListOf<Context>()
+            newTokenList.addAll(user.tokenList) //add old tokens
+            newTokenList.add(token)
+            val newUser = User(id = user.id,
+                    email = user.email,
+                    authorityLevels = user.authorityLevels,
+                    passwordSalt = user.passwordSalt,
+                    uname = user.uname,
+                    passwordHash = user.passwordHash,
+                    tokenList = newTokenList
+            )
+            userRepository.save(newUser) //write over the old user with new token values
+            return token
+        } else {
+            throw GraphQLException("incorrect user/email combo")
+        }
+    }
+
+    fun deregisterToken(context: Context): String {
+        val tokenParse = jwtUtils.parseJWT(context.token, privatekey.toByteArray()) //will contain "-expired" if expired
+
+        val user = userRepository.findById(tokenParse.removeSuffix("-expired")) ?: throw GraphQLException("Invalid Token!") //will remove "-expired" if it exists
+        if(!user.tokenList.contains(context)) { throw GraphQLException("Invalid Token!") }
+        val newTokenList = mutableListOf<Context>()
+        newTokenList.addAll(user.tokenList) //add old tokens
+        newTokenList.remove(context)
+        val newUser = User(id = user.id,
+                email = user.email,
+                authorityLevels = user.authorityLevels,
+                passwordSalt = user.passwordSalt,
+                uname = user.uname,
+                passwordHash = user.passwordHash,
+                tokenList = newTokenList
+        )
+        userRepository.save(newUser) //write over the old user with new token values
+        return "Token de-registered on user " + user.id
+    }
+
+    fun logout(email: String, password: String): UserQL {
+        val  user = userRepository.findByEmail(email) ?: throw GraphQLException("incorrect user/email combo")
+        if(passwordUtils.isExpectedPassword(password.toCharArray(), user.passwordSalt, user.passwordHash)) {
+            val newUser = User(id = user.id,
+                    email = user.email,
+                    authorityLevels = listOf(AuthorityLevel.ROLE_USER),
+                    passwordSalt = user.passwordSalt,
+                    uname = user.uname,
+                    passwordHash = user.passwordHash,
+                    tokenList = listOf() //clears old token list, all login tokens are deregistered
+            )
+            userRepository.save(newUser)
+            return UserQL(newUser)
         } else {
             throw GraphQLException("incorrect user/email combo")
         }
@@ -96,7 +154,8 @@ class UserFactory(
                     authorityLevels = listOf(),
                     passwordSalt = user.passwordSalt,
                     uname = user.uname,
-                    passwordHash = user.passwordHash
+                    passwordHash = user.passwordHash,
+                    tokenList = user.tokenList
             )
             userRepository.save(newUser)
             return "User $id was banned"
@@ -113,7 +172,8 @@ class UserFactory(
                     authorityLevels = listOf(AuthorityLevel.ROLE_USER),
                     passwordSalt = user.passwordSalt,
                     uname = user.uname,
-                    passwordHash = user.passwordHash
+                    passwordHash = user.passwordHash,
+                    tokenList = user.tokenList
             )
             userRepository.save(newUser)
             return UserQL(newUser)
@@ -130,7 +190,8 @@ class UserFactory(
                     authorityLevels = listOf(AuthorityLevel.ROLE_USER, AuthorityLevel.ROLE_ADMIN),
                     passwordSalt = user.passwordSalt,
                     uname = user.uname,
-                    passwordHash = user.passwordHash
+                    passwordHash = user.passwordHash,
+                    tokenList = user.tokenList
             )
             userRepository.save(newUser)
             return UserQL(newUser)
@@ -167,9 +228,15 @@ class UserFactory(
         return validator.isValid(email)
     }
 
-
+    //TODO: remove token from store if expired
     fun hydrateUser(context: Context) : User {//translates signed JWT tokens into fully hydrated user objects
-        val user =  userRepository.findById(jwtUtils.parseJWT(context.token, privatekey.toByteArray())) ?: throw GraphQLException("Invalid Token!")
+        val tokenParse = jwtUtils.parseJWT(context.token, privatekey.toByteArray())
+        if(tokenParse.contains("-expired")){
+            deregisterToken(context)
+            throw GraphQLException("Invalid Token!")
+        }
+        val user =  userRepository.findById(tokenParse) ?: throw GraphQLException("Invalid token!")
+        if(!user.tokenList.contains(context)) { throw GraphQLException("Invalid Token!")} //if token isn't in the list
         if(!user.authorityLevels.contains(AuthorityLevel.ROLE_ADMIN) && !user.authorityLevels.contains(AuthorityLevel.ROLE_USER)) {
             throw GraphQLException("User account is banned.")
         }

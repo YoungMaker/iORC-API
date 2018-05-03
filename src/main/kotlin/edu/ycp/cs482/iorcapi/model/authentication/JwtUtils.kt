@@ -42,7 +42,7 @@ class JwtUtils {
             if(claims.body.expiration.after(Date(System.currentTimeMillis()))){
                 return claims.body.subject
             }else{
-                throw GraphQLException("Invalid Token!")
+                return claims.body.subject + "-expired"
             }
         }catch (e: SignatureException) {
             throw GraphQLException("Invalid Token!")
