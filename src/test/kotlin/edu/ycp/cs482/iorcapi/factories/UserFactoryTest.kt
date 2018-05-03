@@ -87,6 +87,33 @@ class UserFactoryTest {
         val user = userRepository.findByEmail("test@test.com")
         val loggedInUser = userFactory.hydrateUser(token)
         assertThat(loggedInUser.id, Matchers.`is`(Matchers.equalTo(user!!.id)))
+        assertThat(user.tokenList.contains(token), Matchers.`is`(true))
+        try{
+            for( i in 1..userFactory.MAX_TOKENS){
+                userFactory.loginUser("test@test.com", "TEST")
+            }
+            fail()
+        } catch (e: GraphQLException) {
+            assertThat(e.message, Matchers.`is`(Matchers.equalTo("Max logins reached")))
+        }
+        //TODO: have expired token test! should deregister from the user immediately, then throw exception
+        userFactory.logout("test@test.com", "TEST") //logout clears ALL the active tokens
+        val user2 = userRepository.findByEmail("test@test.com")
+        assertThat(user2!!.tokenList.contains(token), Matchers.`is`(false)) //no longer contains the original token
+        val token2 = userFactory.loginUser("test@test.com", "TEST") //we can login again now that all tokens were cleared
+        assertThat(user.tokenList.contains(token), Matchers.`is`(true))
+        userFactory.deregisterToken(token2)
+        val user3 = userRepository.findByEmail("test@test.com")
+        assertThat(user3!!.tokenList.contains(token2), Matchers.`is`(false))
+    }
+
+    @Test
+    fun deleteAccount(){
+        val token = userFactory.loginUser("test@test.com", "TEST")
+        userFactory.deleteUser("test@test.com", userFactory.hydrateUser(token))
+
+        assertNull(userRepository.findByEmail("test@test.com"))
+
     }
 
     @Test

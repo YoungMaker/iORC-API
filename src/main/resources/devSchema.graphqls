@@ -176,6 +176,8 @@ type Mutation {
     createUser(email:String!, name:String!, password:String!): User
     createAdmin(email:String!, name:String!, password:String!, context: Context!): User!
     loginUser(email:String!, password: String!): ContextOut!
+    logoutUser(email:String, password: String!): User #kills all sessions
+    logout(context: Context!): String #kills current session
     deleteAccount(email: String!, password: String!): String
     updatePassword(email: String!, password:String!, newPassword:String!): User!
 

@@ -8,7 +8,8 @@ data class User(
         val uname: String,
         val authorityLevels: List<AuthorityLevel>,
         val passwordHash: ByteArray,
-        val passwordSalt: ByteArray
+        val passwordSalt: ByteArray,
+        val tokenList: List<Context> = listOf()
 )
 
 data class UserQL(

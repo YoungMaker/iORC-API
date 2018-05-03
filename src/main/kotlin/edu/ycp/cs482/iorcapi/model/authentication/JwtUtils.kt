@@ -38,12 +38,10 @@ class JwtUtils {
             val claims = Jwts.parser()
                     .setSigningKey(key)
                     .parseClaimsJws(token)
+            return claims.body.subject
+        }catch (e: ExpiredJwtException) {
+            return e.claims.subject + "-expired"
 
-            if(claims.body.expiration.after(Date(System.currentTimeMillis()))){
-                return claims.body.subject
-            }else{
-                throw GraphQLException("Invalid Token!")
-            }
         }catch (e: SignatureException) {
             throw GraphQLException("Invalid Token!")
         }
