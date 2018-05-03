@@ -15,9 +15,24 @@ class ItemFactory(
     //TODO: Enforce validation of item types?
     fun addItem(name: String, description: String, price: Float,
                 itemClasses: List<String>, version: String, type: ObjType): ItemQL{
-        val item = Item((name+version), name, description, price, mapOf(), itemClasses, version, type)
+        //create item id by adding name and version strings
+        val itemId = (name.trim()+version.trim())
+        //check if item already exists
+        if(itemRepository.exists(itemId)){
+            throw GraphQLException("Item already exists in repository")
+        }
+
+        val item = Item(itemId, name, description, price, mapOf(), itemClasses, version, type)
         itemRepository.save(item)
         return ItemQL(item)
+    }
+
+    fun deleteItem(id:String):String{
+        if(!itemRepository.exists(id)){
+            return "Item %S does not exist".format(id)
+        }
+        itemRepository.delete(id)
+        return "Item %S has been deleted".format(id)
     }
 
     fun getVersionItems(version: String)

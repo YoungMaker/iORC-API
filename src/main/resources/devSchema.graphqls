@@ -61,6 +61,7 @@ type Race {
     name: String!
     description: String!
     version: String!
+    feats: [Item]
     modifiers: [Modifier]
     type: ObjType
 }
@@ -71,6 +72,7 @@ type Class {
     role: String!,
     description: String!,
     version: String!,
+    feats: [Item]
     modifiers: [Modifier],
     type: ObjType
 }
@@ -119,27 +121,40 @@ type Mutation {
     createCharacter( name: String!, abilityPoints: AbilityInput!, raceid: String!, classid: String!, version: String!) : Character!
     deleteCharacter(id: ID!): String!
     addItemToCharacter(id:ID!, itemid: ID!): Character!
+    removeItemFromCharacter(id:ID!, itemid:ID!):Character!
     equipItem(id:ID!, itemid: ID!, slotid: String!): Character!
+    unequipItem(id:ID!, itemid:ID!, slotid:String!):Character!
     purchaseItem(id:ID!, itemid: ID!): Character!
     setCharacterMoney(id: ID!, money: Float!): Character!
 
     createRace(name: String!, description: String!, version: String!): Race!
     updateRace(id: ID!, name: String!, version: String!, description: String!): Race
+    addFeatsToRace(id:ID!, feats:[String]):Race!
+    removeFeatsFromRace(id:ID!, feats:[String]):Race!
+    deleteRace(id: ID!): String!
+    reformatRace(version:String!):[Race]!
 
     createClass(name: String!, role: String!, version: String!, description: String! ): Class!
     updateClass(id: ID! name: String!, role: String!, version: String!, description: String! ): Class
+    addFeatsToClass(id:ID!, feats:[String]):Class!
+    removeFeatsFromClass(id:ID!, feats:[String]):Class!
+    reformatClass(version:String!):[Class]!
+
 
     addModifier(id: ID!, type: ObjType!, key: String!, value: Float!) : ModifierResult
     removeModifier(id: ID!, type: ObjType!, key: String!) : ModifierResult
 
     addStatToVersion(key:String, name: String!, description: String!, version: String!, skill: Boolean!) : Version
+    removeStatFromVersion(key:String!, version:String!):String!
     addStatBaseCalcModifier(statKey: String!, version: String!, key: String!, value: Float!): Stat
     removeStatBaseCalcModifier(statKey: String!, version: String!, key: String!): Stat
 
     addInfoToVersion(name: String!, version: String!, type: String!, value: String!): Version
+    removeInfoFromVersion(id: ID!): String!
     initalizeVersion(version: String): Version
 
     addItemToVersion(name: String!, description: String!, price: Float!, classes: [String]!, version: String, type: ObjType! ) : Item
+    removeItem(id: ID!):String!
 }
 
 extend type Query {

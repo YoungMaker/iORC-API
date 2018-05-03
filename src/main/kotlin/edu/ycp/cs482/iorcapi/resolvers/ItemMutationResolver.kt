@@ -12,4 +12,6 @@ class ItemMutationResolver(
     fun addItemToVersion(name: String, description: String, price: Float,
     itemClasses: List<String>, version: String, type: ObjType)
         = itemFactory.addItem(name, description,price, itemClasses, version, type)
+
+    fun removeItem(id: String):String = itemFactory.deleteItem(id)
 }
