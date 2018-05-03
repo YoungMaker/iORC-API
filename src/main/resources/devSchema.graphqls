@@ -61,6 +61,7 @@ type Race {
     name: String!
     description: String!
     version: String!
+    feats: [Item]
     modifiers: [Modifier]
     type: ObjType
 }
@@ -71,6 +72,7 @@ type Class {
     role: String!,
     description: String!,
     version: String!,
+    feats: [Item]
     modifiers: [Modifier],
     type: ObjType
 }

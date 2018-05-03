@@ -4,6 +4,7 @@ import edu.ycp.cs482.iorcapi.model.attributes.Modifiable
 import edu.ycp.cs482.iorcapi.model.attributes.Modifier
 import edu.ycp.cs482.iorcapi.model.attributes.ObjType
 import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.PersistenceConstructor
 
 class ClassRpg (
         @Id val id: String,
@@ -15,7 +16,12 @@ class ClassRpg (
         val version: String,
         val type: ObjType = ObjType.CLASS
 
-) :  Modifiable(modifiers)
+) :  Modifiable(modifiers) {
+    @PersistenceConstructor
+    constructor(id: String, name: String, role: String, description: String,
+                modifiers: Map<String, Float> = mapOf(), version: String, type : ObjType = ObjType.RACE):
+            this(id, name, role, description, listOf(), modifiers, version, type)
+}
 
 
 data class ClassQL(
