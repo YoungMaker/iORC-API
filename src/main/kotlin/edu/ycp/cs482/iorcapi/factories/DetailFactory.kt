@@ -53,7 +53,8 @@ class DetailFactory(
             if(race.id != raceID){
                 val newRace = Race(raceID, name=race.name,
                         description=race.description,
-                        version=race.version)
+                        version=race.version,
+                        feats = race.feats)
                 //add the new race object to repo
                 raceRepository.save(newRace)
                 addRaceModifiers(raceID, race.modifiers as HashMap<String, Float>)
@@ -213,7 +214,8 @@ class DetailFactory(
                         description=classObj.description,
                         version=classObj.version,
                         role=classObj.role,
-                        type=classObj.type)
+                        type=classObj.type,
+                        feats = classObj.feats)
                 //add the new race object to repo
                 classRepository.save(newClass)
                 addClassModifiers(classID, classObj.modifiers as HashMap<String, Float>)
@@ -237,7 +239,7 @@ class DetailFactory(
         val rpgClass = classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
 
         if(!versionFactory.checkStatsInVersion(mods, rpgClass.version)){
-            throw GraphQLException("This Modifier is not in the version sheet! %S".format(mods))
+            throw GraphQLException("This Modifier is not in the version sheet! %s".format(mods))
         }
 
         rpgClass.unionModifiers(mods)
