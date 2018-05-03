@@ -1,11 +1,8 @@
 package edu.ycp.cs482.iorcapi.factories
 
 import edu.ycp.cs482.iorcapi.model.*
-import edu.ycp.cs482.iorcapi.model.attributes.Modifiable
-import edu.ycp.cs482.iorcapi.model.attributes.Modifier
 import edu.ycp.cs482.iorcapi.repositories.ClassRepository
 import edu.ycp.cs482.iorcapi.repositories.RaceRepository
-import graphql.ErrorType
 import graphql.GraphQLException
 import org.springframework.stereotype.Component
 import java.util.UUID
@@ -14,7 +11,8 @@ import java.util.UUID
 class DetailFactory(
     private val raceRepository: RaceRepository,
     private val classRepository: ClassRepository,
-    private val versionFactory: VersionFactory
+    private val versionFactory: VersionFactory,
+    private val itemFactory: ItemFactory
 ){
 
     /** Race functionality **/
@@ -27,18 +25,21 @@ class DetailFactory(
         if(raceRepository.exists(raceId)){
             throw GraphQLException("Item already exists in repository")
         }
+  
+        val race = Race(raceId, name = name, description = description, version = version,
+                feats= listOf())
 
-        val race = Race(raceId, name = name, description = description, version = version)
         raceRepository.save(race) //should this be insert??
-        return RaceQL(race)
+        return hydrateRace(race)
     }
 
     fun updateRace(id: String, name: String, description: String, version: String = "") : RaceQL {
         raceRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
 
-        val newRace = Race(id, name = name, description = description, version = version) // creates new one based on old one
+        val newRace = Race(id, name = name, description = description, version = version,
+                feats= listOf()) // creates new one based on old one
         raceRepository.save(newRace) // this should write over the old one with the new parameters
-        return RaceQL(newRace)
+        return hydrateRace(newRace)
     }
 
     //transform old race ids to new system (can be modified for other purposes later)
@@ -81,7 +82,51 @@ class DetailFactory(
 
         race.unionModifiers(mods)
         raceRepository.save(race) // this should write over the old one with the new parameters
-        return RaceQL(race)
+        return hydrateRace(race)
+    }
+
+    fun addRaceFeats(id:String, feats:List<String>):RaceQL{
+        val race = raceRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
+        // db items are immutable, re-create a new race obj and save over the old
+        for(feat in feats){
+            itemFactory.getItemById(feat) // this will check if they exist and throw an error if it does not
+        }
+        val newFeats = mutableListOf<String>()
+        newFeats.addAll(race.feats)
+        newFeats.addAll(feats)
+        val newRace = Race(
+                id= race.id,
+                name = race.name,
+                description = race.description,
+                modifiers = race.modifiers,
+                version = race.version,
+                type = race.type,
+                feats = newFeats)
+
+
+        raceRepository.save(newRace)
+        return hydrateRace(newRace)
+    }
+
+    fun removeRaceFeats(id:String, feats:List<String>):RaceQL{
+        val race = raceRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
+        // db items are immutable, re-create a new race obj and save over the old
+        if(!race.feats.containsAll(feats)) { throw GraphQLException("Race does not contain that feat!")}
+        val newFeats = mutableListOf<String>()
+        newFeats.addAll(race.feats)
+        newFeats.removeAll(feats)
+        val newRace = Race(
+                id= race.id,
+                name = race.name,
+                description = race.description,
+                modifiers = race.modifiers,
+                version = race.version,
+                type = race.type,
+                feats = newFeats)
+
+
+        raceRepository.save(newRace)
+        return hydrateRace(newRace)
     }
 
     fun removeRaceModifier(id: String, key: String): RaceQL {
@@ -89,12 +134,12 @@ class DetailFactory(
 
         race.removeModifier(key)
         raceRepository.save(race) // this should write over the old one with the new parameters
-        return RaceQL(race)
+        return hydrateRace(race)
     }
 
     fun getRaceById(id: String) : RaceQL{
         val race = raceRepository.findById(id) ?: throw throw GraphQLException("Race does not exist with that id")
-        return RaceQL(race)
+        return hydrateRace(race)
     }
 
     fun getRacesByName(name: String) = hydrateRaces(raceRepository.findByName(name))
@@ -104,8 +149,13 @@ class DetailFactory(
 
     fun hydrateRaces(races: List<Race>) : List<RaceQL> {
         val output = mutableListOf<RaceQL>()
-        races.mapTo(output){RaceQL(it)}
+        races.mapTo(output){hydrateRace(it)}
         return output
+    }
+
+    fun hydrateRace(race: Race):RaceQL{
+        val featsList = hydrateFeats(race.feats)
+        return RaceQL(race, featsList)
     }
 
     //depreciated
@@ -130,10 +180,11 @@ class DetailFactory(
                 name = name,
                 role = role,
                 version = version,
-                description =  description)
+                description =  description,
+                feats= listOf())
 
         classRepository.save(rpgClass) //should this be insert??
-        return ClassQL(rpgClass)
+        return hydrateClass(rpgClass)
     }
 
     fun updateClass(id: String, name: String, role: String, version: String, description: String): ClassQL {
@@ -142,10 +193,11 @@ class DetailFactory(
                 name = name,
                 role = role,
                 version = version,
-                description =  description)
+                description =  description,
+                feats= listOf())
 
         classRepository.save(rpgClass)
-        return ClassQL(rpgClass)
+        return hydrateClass(rpgClass)
     }
 
     //used to change old class ids to new id format (can be modified for other purposes later)
@@ -191,7 +243,54 @@ class DetailFactory(
         rpgClass.unionModifiers(mods)
 
         classRepository.save(rpgClass) // this should write over the old one with the new parameters
-        return ClassQL(rpgClass)
+        return hydrateClass(rpgClass)
+    }
+
+    fun addClassFeats(id:String, feats:List<String>):ClassQL{
+        val classObj = classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
+        // db items are immutable, re-create a new class obj and save over the old
+        for(feat in feats){
+            itemFactory.getItemById(feat) // this will check if they exist and throw an error if it does not
+        }
+        val newFeats = mutableListOf<String>()
+        newFeats.addAll(classObj.feats)
+        newFeats.addAll(feats)
+        val newClassObj = ClassRpg(
+                id= classObj.id,
+                name = classObj.name,
+                role = classObj.role,
+                description = classObj.description,
+                modifiers = classObj.modifiers,
+                version = classObj.version,
+                type = classObj.type,
+                feats = newFeats)
+
+
+        classRepository.save(newClassObj)
+        return hydrateClass(newClassObj)
+    }
+
+    fun removeClassFeats(id:String, feats:List<String>):ClassQL{
+        val classObj = classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
+        // db items are immutable, re-create a new class obj and save over the old
+
+        if(!classObj.feats.containsAll(feats)) {throw GraphQLException("Class does not contain that feat!")}
+        val newFeats = mutableListOf<String>()
+        newFeats.addAll(classObj.feats)
+        newFeats.removeAll(feats)
+        val newClassObj = ClassRpg(
+                id= classObj.id,
+                name = classObj.name,
+                role = classObj.role,
+                description = classObj.description,
+                modifiers = classObj.modifiers,
+                version = classObj.version,
+                type = classObj.type,
+                feats = newFeats)
+
+
+        classRepository.save(newClassObj)
+        return hydrateClass(newClassObj)
     }
 
 
@@ -201,12 +300,12 @@ class DetailFactory(
         rpgClass.removeModifier(key)
 
         classRepository.save(rpgClass) // this should write over the old one with the new parameters
-        return ClassQL(rpgClass)
+        return hydrateClass(rpgClass)
     }
 
     fun getClassById(id: String) : ClassQL{
         val rpgClass = classRepository.findById(id) ?: throw throw GraphQLException("Race does not exist with that id")
-        return ClassQL(rpgClass)
+        return hydrateClass(rpgClass)
     }
 
     fun getClassesByName(name: String) = hydrateClasses(classRepository.findByName(name))
@@ -215,8 +314,28 @@ class DetailFactory(
 
     fun hydrateClasses(classes: List<ClassRpg>) : List<ClassQL> {
         val output = mutableListOf<ClassQL>()
-        classes.mapTo(output){ClassQL(it)}
+        classes.mapTo(output){hydrateClass(it)}
         return output
+    }
+
+    fun hydrateClass(classRPG: ClassRpg):ClassQL{
+        val featsList = hydrateFeats(classRPG.feats)
+        return ClassQL(classRPG, featsList)
+    }
+
+    fun hydrateFeats(featIDs: List<String>): List<ItemQL>{
+        val outputList = mutableListOf<ItemQL>()
+        for(featID in featIDs){
+            try {
+                outputList.add(itemFactory.getItemById(featID))
+            }
+            catch(e: GraphQLException){
+                outputList.add(ItemQL(id= "ERR ITEM", name= "ITEM ERROR",
+                        description = "" + e.message,
+                        modifiers = listOf(), price= -1f, version = "ERR"))
+            }
+        }
+        return outputList
     }
 
     //depreciated
