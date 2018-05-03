@@ -36,4 +36,10 @@ class UserMutationResolver(
 
     fun updatePassword(email: String, password: String, newPassword: String)=
             userFactory.updateUserPassword(email, password, newPassword)
+
+    fun logoutUser(email: String, password: String) =
+            userFactory.logout(email, password)
+
+    fun logout(context: Context) =
+            userFactory.deregisterToken(context)
 }
