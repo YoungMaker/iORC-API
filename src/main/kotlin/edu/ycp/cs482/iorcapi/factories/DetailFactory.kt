@@ -69,6 +69,27 @@ class DetailFactory(
         return hydrateRace(newRace)
     }
 
+    fun removeRaceFeats(id:String, feats:List<String>):RaceQL{
+        val race = raceRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
+        // db items are immutable, re-create a new race obj and save over the old
+        if(!race.feats.containsAll(feats)) { throw GraphQLException("Race does not contain that feat!")}
+        val newFeats = mutableListOf<String>()
+        newFeats.addAll(race.feats)
+        newFeats.removeAll(feats)
+        val newRace = Race(
+                id= race.id,
+                name = race.name,
+                description = race.description,
+                modifiers = race.modifiers,
+                version = race.version,
+                type = race.type,
+                feats = newFeats)
+
+
+        raceRepository.save(newRace)
+        return hydrateRace(newRace)
+    }
+
     fun removeRaceModifier(id: String, key: String): RaceQL {
         val race = raceRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
 
@@ -154,6 +175,29 @@ class DetailFactory(
         val newFeats = mutableListOf<String>()
         newFeats.addAll(classObj.feats)
         newFeats.addAll(feats)
+        val newClassObj = ClassRpg(
+                id= classObj.id,
+                name = classObj.name,
+                role = classObj.role,
+                description = classObj.description,
+                modifiers = classObj.modifiers,
+                version = classObj.version,
+                type = classObj.type,
+                feats = newFeats)
+
+
+        classRepository.save(newClassObj)
+        return hydrateClass(newClassObj)
+    }
+
+    fun removeClassFeats(id:String, feats:List<String>):ClassQL{
+        val classObj = classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
+        // db items are immutable, re-create a new class obj and save over the old
+
+        if(!classObj.feats.containsAll(feats)) {throw GraphQLException("Class does not contain that feat!")}
+        val newFeats = mutableListOf<String>()
+        newFeats.addAll(classObj.feats)
+        newFeats.removeAll(feats)
         val newClassObj = ClassRpg(
                 id= classObj.id,
                 name = classObj.name,

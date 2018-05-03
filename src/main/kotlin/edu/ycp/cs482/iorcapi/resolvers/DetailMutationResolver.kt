@@ -24,5 +24,7 @@ class DetailMutationResolver(
             = detailFactory.updateRace(id, name, version, description)
     fun addFeatsToRace(id:String, feats:List<String>) = detailFactory.addRaceFeats(id, feats)
 
+    fun removeFeatsFromRace(id:String, feats: List<String>)= detailFactory.removeRaceFeats(id, feats)
+    fun removeFeatsFromClass(id:String, feats: List<String>)= detailFactory.removeClassFeats(id, feats)
 
 }

@@ -225,6 +225,9 @@ class DetailFactoryTest {
         } catch (e: GraphQLException){
             assertThat(e.message, `is`(equalTo("Item Does not exist in that version with that name")))
         }
+
+        val race3 = detailFactory.removeRaceFeats("1.0", listOf("TESTFEAT") )
+        assertThat(race3.feats.isEmpty(), `is`(true))
     }
 
     @Test
@@ -323,6 +326,9 @@ class DetailFactoryTest {
         } catch (e: GraphQLException){
             assertThat(e.message, `is`(equalTo("Item Does not exist in that version with that name")))
         }
+
+        val class3Rpg = detailFactory.removeClassFeats("0.1", listOf("TESTFEAT") )
+        assertThat(class3Rpg.feats.isEmpty(), `is`(true))
     }
 
     @Test
