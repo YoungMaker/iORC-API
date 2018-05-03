@@ -1,7 +1,6 @@
 package edu.ycp.cs482.iorcapi.factories
 
 import edu.ycp.cs482.iorcapi.model.ClassRpg
-import edu.ycp.cs482.iorcapi.repositories.ClassRepository
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.CoreMatchers.notNullValue
 import org.junit.After
@@ -13,12 +12,13 @@ import org.junit.Assert.*
 import org.springframework.boot.test.context.SpringBootTest
 
 import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
+import edu.ycp.cs482.iorcapi.model.Item
+import edu.ycp.cs482.iorcapi.model.ItemQL
 import edu.ycp.cs482.iorcapi.model.Race
 import edu.ycp.cs482.iorcapi.model.attributes.Modifier
+import edu.ycp.cs482.iorcapi.model.attributes.ObjType
 import edu.ycp.cs482.iorcapi.model.attributes.Stat
-import edu.ycp.cs482.iorcapi.repositories.RaceRepository
-import edu.ycp.cs482.iorcapi.repositories.StatRepository
-import edu.ycp.cs482.iorcapi.repositories.VersionInfoRepository
+import edu.ycp.cs482.iorcapi.repositories.*
 import graphql.GraphQLException
 
 
@@ -31,6 +31,8 @@ class DetailFactoryTest {
     lateinit var statRepository: StatRepository
     lateinit var versionInfoRepository: VersionInfoRepository
     lateinit var versionFactory: VersionFactory
+    lateinit var itemRepository: ItemRepository
+    lateinit var itemFactory: ItemFactory
 
     @Before
     fun setUp() {
@@ -38,11 +40,13 @@ class DetailFactoryTest {
         raceRepository = RepositoryFactoryBuilder.builder().mock(RaceRepository::class.java)
         statRepository = RepositoryFactoryBuilder.builder().mock(StatRepository::class.java)
         versionInfoRepository = RepositoryFactoryBuilder.builder().mock(VersionInfoRepository::class.java)
+        itemRepository = RepositoryFactoryBuilder.builder().mock(ItemRepository::class.java)
         versionFactory = VersionFactory(statRepository, versionInfoRepository)
+        itemFactory = ItemFactory(itemRepository)
         addTestVersion()
         addTestClasses()
         addTestRaces()
-        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory)
+        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory, itemFactory)
     }
 
     fun addTestVersion(){
@@ -70,6 +74,19 @@ class DetailFactoryTest {
                         skill = false
                 )
         ))
+        itemRepository.save(listOf(
+                Item(
+                        id="TESTFEAT",
+                        name = "Accidental Tells",
+                        description = "When making Insight checks, roll twice if target is in range of Mantle of Misfortune.",
+                        price = 0.0f,
+                        modifiers = mapOf(),
+                        itemClasses = listOf("feat_tiefling", "passive"),
+                        version = "TEST",
+                        type = ObjType.ITEM_FEAT
+                )
+        ))
+
     }
 
     fun addTestClasses() {
@@ -116,6 +133,7 @@ class DetailFactoryTest {
 
     }
 
+
     @After
     fun tearDown() {
         classRepository.deleteAll()
@@ -133,6 +151,7 @@ class DetailFactoryTest {
         assertThat(race.name, `is`(equalTo("Half-Elf")))
         assertThat(race.version,  `is`(equalTo("TEST")))
         assertThat(race.description,  `is`(equalTo("TESTHALFELF")))
+        assertThat(race.feats.isEmpty(), `is`(true))
 
         //this assumes that the first return will be our own, do not insert anything with this name before here
         val repoRace = raceRepository.findByName("Half-Elf")[0]
@@ -176,6 +195,36 @@ class DetailFactoryTest {
         assertThat(raceRevert.version,  `is`(equalTo("TEST")))
         assertThat(raceRevert.description,  `is`(equalTo("TESTHUMAN")))
 
+    }
+
+
+    @Test
+    fun addRaceFeats(){
+        val race = raceRepository.findById("1.0")
+        assertThat(race!!.name, `is`(equalTo("Human")))
+        assertThat(race.version,  `is`(equalTo("TEST")))
+        assertThat(race.description,  `is`(equalTo("TESTHUMAN")))
+        assertThat(race.feats.isEmpty(), `is`(true))
+
+        val race2 = detailFactory.addRaceFeats("1.0", listOf("TESTFEAT") )
+
+        assertThat(race2.feats.contains( ItemQL(
+                id="TESTFEAT",
+                name = "Accidental Tells",
+                description = "When making Insight checks, roll twice if target is in range of Mantle of Misfortune.",
+                price = 0.0f,
+                modifiers = listOf(),
+                itemClasses = listOf("feat_tiefling", "passive"),
+                version = "TEST",
+                type = ObjType.ITEM_FEAT
+        )), `is`(true))
+
+        try{
+            detailFactory.addRaceFeats("1.0", listOf("fasdfasd") ) //try to add feat that doesnt' exist
+            fail()
+        } catch (e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Item Does not exist in that version with that name")))
+        }
     }
 
     @Test
@@ -234,6 +283,7 @@ class DetailFactoryTest {
         assertThat(classRpg.version,  `is`(equalTo("TEST")))
         assertThat(classRpg.role,  `is`(equalTo("DEFENDER")))
         assertThat(classRpg.description,  `is`(equalTo("TESTFIGHTER")))
+        assertThat(classRpg.feats.isEmpty(), `is`(true))
 
         //this assumes that the first return will be our own, do not insert anything with this name before here
         val repoClass = classRepository.findByName("Fighter")[0]
@@ -243,6 +293,36 @@ class DetailFactoryTest {
         assertThat(repoClass.version,  `is`(equalTo(classRpg.version)))
         assertThat(repoClass.role,  `is`(equalTo(classRpg.role)))
         assertThat(repoClass.description,  `is`(equalTo(classRpg.description)))
+    }
+
+    @Test
+    fun addClassFeats(){
+        val classRpg = classRepository.findById("0.1")
+        assertThat(classRpg!!.name, `is`(equalTo("Cleric")))
+        assertThat(classRpg.version,  `is`(equalTo("TEST")))
+        assertThat(classRpg.role,  `is`(equalTo("Healer")))
+        assertThat(classRpg.description,  `is`(equalTo("TESTCLERIC")))
+        assertThat(classRpg.feats.isEmpty(), `is`(true))
+
+        val class2Rpg = detailFactory.addClassFeats("0.1", listOf("TESTFEAT") )
+
+        assertThat(class2Rpg.feats.contains( ItemQL(
+                id="TESTFEAT",
+                name = "Accidental Tells",
+                description = "When making Insight checks, roll twice if target is in range of Mantle of Misfortune.",
+                price = 0.0f,
+                modifiers = listOf(),
+                itemClasses = listOf("feat_tiefling", "passive"),
+                version = "TEST",
+                type = ObjType.ITEM_FEAT
+        )), `is`(true))
+
+        try{
+            detailFactory.addClassFeats("0.1", listOf("fasdfasd") ) //try to add feat that doesnt' exist
+            fail()
+        } catch (e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Item Does not exist in that version with that name")))
+        }
     }
 
     @Test

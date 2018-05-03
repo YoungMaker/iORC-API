@@ -10,7 +10,7 @@ class ClassRpg (
         val name: String,
         val role: String,
         val description: String,
-        val feats: MutableList<String> = mutableListOf(),
+        val feats: List<String> = listOf(),
         modifiers: Map<String, Float> = mapOf(),
         val version: String,
         val type: ObjType = ObjType.CLASS

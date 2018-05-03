@@ -41,8 +41,8 @@ class CharacterFactoryTest {
         addTestClasses()
         addTestRaces()
         addTestCharacters()
-        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory)
         itemFactory = ItemFactory(itemRepository)
+        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory, itemFactory)
         characterFactory = CharacterFactory(characterRepository, detailFactory, versionFactory, itemFactory)
     }
 

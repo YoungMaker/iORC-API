@@ -12,7 +12,7 @@ class Race(
     val name: String,
     val description: String,
     val version: String,
-    val feats: MutableList<String> = mutableListOf(),
+    val feats: List<String> = listOf(),
     modifiers: Map<String, Float> = mapOf(),
     val type : ObjType = ObjType.RACE
 ) : Modifiable(modifiers)

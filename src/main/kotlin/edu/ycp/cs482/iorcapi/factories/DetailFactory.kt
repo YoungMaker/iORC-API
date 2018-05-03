@@ -20,7 +20,7 @@ class DetailFactory(
     //TODO: validation?
     fun createNewRace(name: String, description: String, version: String = "") : RaceQL {
         val race = Race(UUID.randomUUID().toString(), name = name, description = description, version = version,
-                feats= emptyList<String>() as MutableList<String>)
+                feats= listOf())
         raceRepository.save(race) //should this be insert??
         return hydrateRace(race)
     }
@@ -29,7 +29,7 @@ class DetailFactory(
         raceRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
 
         val newRace = Race(id, name = name, description = description, version = version,
-                feats= emptyList<String>() as MutableList<String>) // creates new one based on old one
+                feats= listOf()) // creates new one based on old one
         raceRepository.save(newRace) // this should write over the old one with the new parameters
         return hydrateRace(newRace)
     }
@@ -48,12 +48,25 @@ class DetailFactory(
 
     fun addRaceFeats(id:String, feats:List<String>):RaceQL{
         val race = raceRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
-
+        // db items are immutable, re-create a new race obj and save over the old
         for(feat in feats){
-            race.feats.add(feat)
+            itemFactory.getItemById(feat) // this will check if they exist and throw an error if it does not
         }
-        raceRepository.save(race)
-        return hydrateRace(race)
+        val newFeats = mutableListOf<String>()
+        newFeats.addAll(race.feats)
+        newFeats.addAll(feats)
+        val newRace = Race(
+                id= race.id,
+                name = race.name,
+                description = race.description,
+                modifiers = race.modifiers,
+                version = race.version,
+                type = race.type,
+                feats = newFeats)
+
+
+        raceRepository.save(newRace)
+        return hydrateRace(newRace)
     }
 
     fun removeRaceModifier(id: String, key: String): RaceQL {
@@ -100,7 +113,7 @@ class DetailFactory(
                 role = role,
                 version = version,
                 description =  description,
-                feats= emptyList<String>() as MutableList<String>)
+                feats= listOf())
 
         classRepository.save(rpgClass) //should this be insert??
         return hydrateClass(rpgClass)
@@ -113,7 +126,7 @@ class DetailFactory(
                 role = role,
                 version = version,
                 description =  description,
-                feats= emptyList<String>() as MutableList<String>)
+                feats= listOf())
 
         classRepository.save(rpgClass)
         return hydrateClass(rpgClass)
@@ -133,13 +146,27 @@ class DetailFactory(
     }
 
     fun addClassFeats(id:String, feats:List<String>):ClassQL{
-        val classObj = classRepository.findById(id) ?: throw GraphQLException("Race does not exist with that id")
-
+        val classObj = classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
+        // db items are immutable, re-create a new class obj and save over the old
         for(feat in feats){
-            classObj.feats.add(feat)
+            itemFactory.getItemById(feat) // this will check if they exist and throw an error if it does not
         }
-        classRepository.save(classObj)
-        return hydrateClass(classObj)
+        val newFeats = mutableListOf<String>()
+        newFeats.addAll(classObj.feats)
+        newFeats.addAll(feats)
+        val newClassObj = ClassRpg(
+                id= classObj.id,
+                name = classObj.name,
+                role = classObj.role,
+                description = classObj.description,
+                modifiers = classObj.modifiers,
+                version = classObj.version,
+                type = classObj.type,
+                feats = newFeats)
+
+
+        classRepository.save(newClassObj)
+        return hydrateClass(newClassObj)
     }
 
 
