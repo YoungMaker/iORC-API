@@ -12,10 +12,11 @@ import org.junit.Assert.*
 import org.springframework.boot.test.context.SpringBootTest
 
 import com.mmnaseri.utils.spring.data.dsl.factory.RepositoryFactoryBuilder
-import edu.ycp.cs482.iorcapi.model.ModTools
+import edu.ycp.cs482.iorcapi.model.Item
+import edu.ycp.cs482.iorcapi.model.ItemQL
 import edu.ycp.cs482.iorcapi.model.Race
-import edu.ycp.cs482.iorcapi.model.RaceQL
 import edu.ycp.cs482.iorcapi.model.attributes.Modifier
+import edu.ycp.cs482.iorcapi.model.attributes.ObjType
 import edu.ycp.cs482.iorcapi.model.attributes.Stat
 import edu.ycp.cs482.iorcapi.model.authentication.*
 import edu.ycp.cs482.iorcapi.repositories.*
@@ -36,6 +37,8 @@ class DetailFactoryTest {
     lateinit var passwordUtils: PasswordUtils
     lateinit var salt: ByteArray
     lateinit var context: User
+    lateinit var itemRepository: ItemRepository
+    lateinit var itemFactory: ItemFactory
 
     @Before
     fun setUp() {
@@ -49,10 +52,13 @@ class DetailFactoryTest {
         passwordUtils = PasswordUtils()
         salt = passwordUtils.generateSalt(32)
         addTestUsers()
+        itemRepository = RepositoryFactoryBuilder.builder().mock(ItemRepository::class.java)
+        versionFactory = VersionFactory(statRepository, versionInfoRepository, versionRepository, Authorizer())
+        itemFactory = ItemFactory(itemRepository)
         addTestVersion()
         addTestClasses()
         addTestRaces()
-        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory, Authorizer())
+        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory,  Authorizer(), itemFactory)
     }
 
     private fun addTestUsers(){
@@ -126,6 +132,19 @@ class DetailFactoryTest {
                         skill = true
                 )
         ))
+        itemRepository.save(listOf(
+                Item(
+                        id="TESTFEAT",
+                        name = "Accidental Tells",
+                        description = "When making Insight checks, roll twice if target is in range of Mantle of Misfortune.",
+                        price = 0.0f,
+                        modifiers = mapOf(),
+                        itemClasses = listOf("feat_tiefling", "passive"),
+                        version = "TEST",
+                        type = ObjType.ITEM_FEAT
+                )
+        ))
+
     }
 
     fun addTestClasses() {
@@ -141,7 +160,7 @@ class DetailFactoryTest {
                 ClassRpg(
                         id = "0.1",
                         name = "Cleric",
-                        role= "Healer",
+                        role = "Healer",
                         version = "TEST",
                         description = "TESTCLERIC",
                         modifiers = mapOf( Pair("hp", 12f), Pair("fort", 2f))
@@ -172,6 +191,7 @@ class DetailFactoryTest {
 
     }
 
+
     @After
     fun tearDown() {
         classRepository.deleteAll()
@@ -192,6 +212,7 @@ class DetailFactoryTest {
         assertThat(race.description,  `is`(equalTo("TESTHALFELF")))
         assertThat(versionFactory.hydrateVersion("TEST") //if we're allowed to create this then context must be in the version access
                 .access.contains(AccessData(context.id, mapOf())), `is`(true))
+        assertThat(race.feats.isEmpty(), `is`(true))
 
         //this assumes that the first return will be our own, do not insert anything with this name before here
         val repoRace = raceRepository.findByNameAndVersion("Half-Elf", "TEST")[0]
@@ -252,6 +273,39 @@ class DetailFactoryTest {
             assertThat(e.message, `is`(equalTo("Forbidden")))
         }
 
+    }
+
+
+    @Test
+    fun addRaceFeats(){
+        val race = raceRepository.findById("1.0")
+        assertThat(race!!.name, `is`(equalTo("Human")))
+        assertThat(race.version,  `is`(equalTo("TEST")))
+        assertThat(race.description,  `is`(equalTo("TESTHUMAN")))
+        assertThat(race.feats.isEmpty(), `is`(true))
+
+        val race2 = detailFactory.addRaceFeats("1.0", listOf("TESTFEAT") )
+
+        assertThat(race2.feats.contains( ItemQL(
+                id="TESTFEAT",
+                name = "Accidental Tells",
+                description = "When making Insight checks, roll twice if target is in range of Mantle of Misfortune.",
+                price = 0.0f,
+                modifiers = listOf(),
+                itemClasses = listOf("feat_tiefling", "passive"),
+                version = "TEST",
+                type = ObjType.ITEM_FEAT
+        )), `is`(true))
+
+        try{
+            detailFactory.addRaceFeats("1.0", listOf("fasdfasd") ) //try to add feat that doesnt' exist
+            fail()
+        } catch (e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Item Does not exist in that version with that name")))
+        }
+
+        val race3 = detailFactory.removeRaceFeats("1.0", listOf("TESTFEAT") )
+        assertThat(race3.feats.isEmpty(), `is`(true))
     }
 
     @Test
@@ -342,6 +396,7 @@ class DetailFactoryTest {
         assertThat(classRpg.description,  `is`(equalTo("TESTFIGHTER")))
         assertThat(versionFactory.hydrateVersion("TEST") //if we're allowed to create this then context must be in the version access
                 .access.contains(AccessData(context.id, mapOf())), `is`(true))
+        assertThat(classRpg.feats.isEmpty(), `is`(true))
 
         //this assumes that the first return will be our own, do not insert anything with this name before here
         val repoClass = classRepository.findByNameAndVersion("Fighter", "TEST")[0] //?: throw RuntimeException()
@@ -351,6 +406,39 @@ class DetailFactoryTest {
         assertThat(repoClass.version,  `is`(equalTo(classRpg.version)))
         assertThat(repoClass.role,  `is`(equalTo(classRpg.role)))
         assertThat(repoClass.description,  `is`(equalTo(classRpg.description)))
+    }
+
+    @Test
+    fun addClassFeats(){
+        val classRpg = classRepository.findById("0.1")
+        assertThat(classRpg!!.name, `is`(equalTo("Cleric")))
+        assertThat(classRpg.version,  `is`(equalTo("TEST")))
+        assertThat(classRpg.role,  `is`(equalTo("Healer")))
+        assertThat(classRpg.description,  `is`(equalTo("TESTCLERIC")))
+        assertThat(classRpg.feats.isEmpty(), `is`(true))
+
+        val class2Rpg = detailFactory.addClassFeats("0.1", listOf("TESTFEAT") )
+
+        assertThat(class2Rpg.feats.contains( ItemQL(
+                id="TESTFEAT",
+                name = "Accidental Tells",
+                description = "When making Insight checks, roll twice if target is in range of Mantle of Misfortune.",
+                price = 0.0f,
+                modifiers = listOf(),
+                itemClasses = listOf("feat_tiefling", "passive"),
+                version = "TEST",
+                type = ObjType.ITEM_FEAT
+        )), `is`(true))
+
+        try{
+            detailFactory.addClassFeats("0.1", listOf("fasdfasd") ) //try to add feat that doesnt' exist
+            fail()
+        } catch (e: GraphQLException){
+            assertThat(e.message, `is`(equalTo("Item Does not exist in that version with that name")))
+        }
+
+        val class3Rpg = detailFactory.removeClassFeats("0.1", listOf("TESTFEAT") )
+        assertThat(class3Rpg.feats.isEmpty(), `is`(true))
     }
 
     @Test

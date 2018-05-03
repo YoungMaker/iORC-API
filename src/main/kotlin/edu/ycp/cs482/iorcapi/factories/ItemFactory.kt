@@ -21,9 +21,24 @@ class ItemFactory(
     fun addItem(name: String, description: String, price: Float,
                 itemClasses: List<String>, type: ObjType, version: Version,  context: User): ItemQL{
         authorizer.authorizeVersion(version, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
-        val item = Item((name+version.version), name, description, price, mapOf(), itemClasses, version.version, type)
+        val itemId = (name.trim()+version.version)
+        //check if item already exists
+        if(itemRepository.exists(itemId)){
+            throw GraphQLException("Item already exists in repository")
+        }
+
+        val item = Item(itemId, name, description, price, mapOf(), itemClasses, version.version, type)
         itemRepository.save(item)
         return ItemQL(item)
+    }
+
+    //TODO: update for ACL
+    fun deleteItem(id:String):String{
+        if(!itemRepository.exists(id)){
+            return "Item %S does not exist".format(id)
+        }
+        itemRepository.delete(id)
+        return "Item %S has been deleted".format(id)
     }
 
     fun getVersionItems(version: Version, context: User): List<ItemQL> {
@@ -32,7 +47,7 @@ class ItemFactory(
     }
 
     fun getVersionItemType(type: ObjType, version: Version, context: User): List<ItemQL> {
-        authorizer.authorizeVersion(version, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden") 
+        authorizer.authorizeVersion(version, context, AuthorityMode.MODE_VIEW) ?: throw GraphQLException("Forbidden")
         return itemRepository.findByVersionAndType(version.version, type).map { ItemQL(it) }
     }
     fun getItemsByClasses(classes: List<String>,version: Version, context: User): List<ItemQL> {

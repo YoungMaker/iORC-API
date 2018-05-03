@@ -87,6 +87,7 @@ type Race {
     name: String!
     description: String!
     version: String!
+    feats: [Item]
     modifiers: [Modifier]
     type: ObjType
 }
@@ -97,6 +98,7 @@ type Class {
     role: String!,
     description: String!,
     version: String!,
+    feats: [Item]
     modifiers: [Modifier],
     type: ObjType
 }
@@ -152,10 +154,19 @@ type Mutation {
     #race mutations
     createRace(name: String!, description: String!, version: String!, context: Context!): Race!
     updateRace(id: ID!, name: String!, description: String!, version: String!, context: Context!): Race
+    #todo: update for ACL, add context
+    addFeatsToRace(id:ID!, feats:[String]):Race!
+    removeFeatsFromRace(id:ID!, feats:[String]):Race!
+    deleteRace(id: ID!): String!
+    reformatRace(version:String!):[Race]!
 
     #class mutations
     createClass(name: String!, role: String!, description: String!, version: String!, context: Context!): Class!
     updateClass(id: ID! name: String!, role: String!, description: String!, version: String!, context: Context!): Class!
+    #todo: add ACL
+    addFeatsToClass(id:ID!, feats:[String]):Class!
+    removeFeatsFromClass(id:ID!, feats:[String]):Class!
+    reformatClass(version:String!):[Class]!
 
     #modifier mutations
     addModifier(id: ID!, type: ObjType!, key: String!, value: Float!, version: String!, context: Context!) : ModifierResult

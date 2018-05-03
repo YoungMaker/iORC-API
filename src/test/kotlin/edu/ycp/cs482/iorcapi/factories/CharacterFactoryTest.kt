@@ -204,7 +204,7 @@ class CharacterFactoryTest {
                 ClassRpg(
                         id = "0.1",
                         name = "Cleric",
-                        role= "Healer",
+                        role = "Healer",
                         version = "TEST",
                         description = "TESTCLERIC",
                         modifiers = mapOf( Pair("hp", 12f), Pair("fort", 2f))
