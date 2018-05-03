@@ -171,6 +171,43 @@ class CharacterFactory(
         }
     }
 
+    fun unequipItem(id:String, itemid:String, slotname:String):CharacterQL{
+        //get character data
+        val char = characterRepo.findById(id) ?: throw GraphQLException("character with id %S does not exist".format(id))
+        //check that item in selected slot exists and check for specified slot in character
+        val item = itemFactory.getItemById(itemid)
+        val slot = Slot(name=slotname, itemId=itemid, empty=false)
+        if (char.slots.contains(slot)){
+            //create new list of slots
+            val newSlots = mutableListOf<Slot>()
+            val emptySlot = Slot(name=slotname, itemId="", empty=true)
+            //add all slots, remove specified slot and re-add as an empty slot
+            //with just looking at the equip function it looks like the item still remains in the inventory
+            //as such we do not need to add the item back to the inventory
+            newSlots.addAll(char.slots)
+            newSlots.remove(slot)
+            newSlots.add(emptySlot)
+            //create updated character object
+            val newChar = Character(
+                    id=char.id,
+                    name=char.name,
+                    abilityPoints=char.abilityPoints,
+                    raceid=char.raceid,
+                    classid=char.classid,
+                    version=char.version,
+                    inventory=char.inventory,
+                    money=char.money,
+                    slots=newSlots
+            )
+            //save and hydrate character object
+            characterRepo.save(newChar)
+            return hydrateChar(newChar)
+        } else{
+            //error message for character not containing the slot requested for item removal
+            throw GraphQLException("Invalid character slot name: %S".format(slotname))
+        }
+    }
+
     //adding item to character in non-buying mode does not interact with money. This is good for later trading system.
     fun addItemToCharacter(id: String, itemid: String, buy: Boolean = false): CharacterQL{
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character does not exist with that id")
@@ -197,6 +234,26 @@ class CharacterFactory(
                 slots = updateSlotsIfEmpty(char),
                 money = leftMoney
                 )
+        characterRepo.save(charNew)
+        return hydrateChar(charNew)
+    }
+
+    fun removeItemFromCharacter(id:String,itemid:String):CharacterQL{
+        val char = characterRepo.findById(id) ?: throw GraphQLException("Character with given ID does not exist")
+        val newInventory = mutableListOf<String>()
+        newInventory.addAll(char.inventory)
+        newInventory.remove(itemid)
+
+        val charNew = Character(id=char.id,
+                name=char.name,
+                abilityPoints=char.abilityPoints,
+                raceid=char.raceid,
+                classid=char.classid,
+                version=char.version,
+                inventory=newInventory,
+                slots=updateSlotsIfEmpty(char),
+                money=char.money
+            )
         characterRepo.save(charNew)
         return hydrateChar(charNew)
     }

@@ -19,8 +19,16 @@ class DetailFactory(
 
     //TODO: validation?
     fun createNewRace(name: String, description: String, version: String = "") : RaceQL {
-        val race = Race(UUID.randomUUID().toString(), name = name, description = description, version = version,
+        //create ID
+        val raceId = (name.trim()+version.trim())
+        //check for duplicate IDs
+        if(raceRepository.exists(raceId)){
+            throw GraphQLException("Item already exists in repository")
+        }
+  
+        val race = Race(raceId, name = name, description = description, version = version,
                 feats= listOf())
+
         raceRepository.save(race) //should this be insert??
         return hydrateRace(race)
     }
@@ -32,6 +40,37 @@ class DetailFactory(
                 feats= listOf()) // creates new one based on old one
         raceRepository.save(newRace) // this should write over the old one with the new parameters
         return hydrateRace(newRace)
+    }
+
+    //transform old race ids to new system (can be modified for other purposes later)
+    //this is only meant to be run when needed and should not be able to be called normally
+    fun reformatRaces(version: String):List<RaceQL>{
+        //get races from repo
+        val races = raceRepository.findByVersion(version)
+
+        for(race in races){
+            val raceID = (race.name.trim()+race.version.trim())
+            if(race.id != raceID){
+                val newRace = Race(raceID, name=race.name,
+                        description=race.description,
+                        version=race.version)
+                //add the new race object to repo
+                raceRepository.save(newRace)
+                addRaceModifiers(raceID, race.modifiers as HashMap<String, Float>)
+
+                //delete old race object from repo
+                raceRepository.delete(race.id)
+            }
+        }
+        return getRacesByVersion(version)
+    }
+
+    fun deleteRace(id:String):String{
+        if(!raceRepository.exists(id)){
+            return "Race %S has does not exist".format(id)
+        }
+        raceRepository.delete(id)
+        return "Race %S has been deleted".format(id)
     }
 
     fun addRaceModifiers(id : String, mods: HashMap<String, Float>): RaceQL {
@@ -129,7 +168,15 @@ class DetailFactory(
     /** Class functionality: **/
 
     fun createNewClass(name: String, role: String,  version: String, description: String): ClassQL {
-        val rpgClass = ClassRpg(id = UUID.randomUUID().toString(),
+        //create ID
+        val classID = (name.trim() + version.trim())
+
+        //check for duplicate based on ID
+        if(raceRepository.exists(classID)){
+            throw GraphQLException("Item already exists in repository")
+        }
+
+        val rpgClass = ClassRpg(id = classID,
                 name = name,
                 role = role,
                 version = version,
@@ -153,11 +200,44 @@ class DetailFactory(
         return hydrateClass(rpgClass)
     }
 
+    //used to change old class ids to new id format (can be modified for other purposes later)
+    fun reformatClasses(version: String):List<ClassQL>{
+        //get classes from repo
+        val classes = classRepository.findByVersion(version)
+
+        for(classObj in classes){
+            //check for classes with old method of ID creation
+            val classID = (classObj.name.trim()+classObj.version.trim())
+            if(classObj.id != classID){
+                val newClass = ClassRpg(classID, name=classObj.name,
+                        description=classObj.description,
+                        version=classObj.version,
+                        role=classObj.role,
+                        type=classObj.type)
+                //add the new race object to repo
+                classRepository.save(newClass)
+                addClassModifiers(classID, classObj.modifiers as HashMap<String, Float>)
+
+                //delete old race object from repo
+                classRepository.delete(classObj.id)
+            }
+        }
+        return getClassesByVersion(version)
+    }
+
+    fun deleteClass(id:String):String{
+        if(!classRepository.exists(id)){
+            return "Class %S does not exist".format(id)
+        }
+        classRepository.delete(id)
+        return "Class %S has been deleted".format(id)
+    }
+
     fun addClassModifiers(id: String, mods: HashMap<String, Float>): ClassQL {
         val rpgClass = classRepository.findById(id) ?: throw GraphQLException("Class does not exist with that id")
 
         if(!versionFactory.checkStatsInVersion(mods, rpgClass.version)){
-            throw GraphQLException("This Modifier is not in the version sheet!")
+            throw GraphQLException("This Modifier is not in the version sheet! %S".format(mods))
         }
 
         rpgClass.unionModifiers(mods)
