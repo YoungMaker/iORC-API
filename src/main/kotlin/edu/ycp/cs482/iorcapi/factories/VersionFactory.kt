@@ -60,10 +60,12 @@ class VersionFactory(
     }
 
     //TODO: update for ACL
-    fun removeStatFromVersion(key:String, version:String):String{
-        val statID = (key+version)
-        statRepository.delete(statID)
-        return "Stat %S deleted from version".format(statID)
+    fun removeStatFromVersion(key:String, version: Version, context: User):String{
+        val stat =statRepository.findById((key+version)) ?: throw GraphQLException("Stat does not exist with that id")
+        authorizer.authorizeVersion(version, stat.version, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
+
+        statRepository.delete(stat)
+        return "Stat %s deleted from version".format(stat.id)
     }
 
     fun addInfoToVersion(name: String, type: String, value: String, version: Version, context: User): VersionQL {
@@ -75,9 +77,11 @@ class VersionFactory(
     }
 
         //TODO update for ACL
-    fun removeInfoFromVersion(id:String):String{
-        versionInfoRepository.delete(id)
-        return "Info %S deleted from version".format(id)
+    fun removeInfoFromVersion(id:String, version: Version, context: User):String{
+            val info =versionInfoRepository.findById(id) ?: throw GraphQLException("Info does not exist with that id")
+            authorizer.authorizeVersion(version, info.version, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
+            versionInfoRepository.delete(info)
+            return "Info %S deleted from version".format(info.id)
     }
 
     fun createVersion(version: String, context: User): VersionQL {

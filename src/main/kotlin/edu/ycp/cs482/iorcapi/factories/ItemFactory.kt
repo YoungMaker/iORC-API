@@ -33,10 +33,12 @@ class ItemFactory(
     }
 
     //TODO: update for ACL
-    fun deleteItem(id:String):String{
+    fun deleteItem(id: String, version: Version, context: User):String{
         if(!itemRepository.exists(id)){
             return "Item %S does not exist".format(id)
         }
+        val item = itemRepository.findById(id)
+        authorizer.authorizeVersion(version, item!!.version, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden!")
         itemRepository.delete(id)
         return "Item %S has been deleted".format(id)
     }

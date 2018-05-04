@@ -3,6 +3,8 @@ package edu.ycp.cs482.iorcapi.config
 import com.mongodb.Mongo
 import com.mongodb.MongoClient
 import com.mongodb.MongoClientURI
+import graphql.GraphQLError
+import graphql.servlet.GraphQLErrorHandler
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

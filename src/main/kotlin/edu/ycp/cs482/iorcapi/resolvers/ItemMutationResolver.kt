@@ -19,5 +19,7 @@ class ItemMutationResolver(
         = itemFactory.addItem(name, description,price, itemClasses, type,
             versionFactory.hydrateVersion(version.toLowerCase().trim()), userFactory.hydrateUser(context))
    //TODO: update for ACL
-    fun removeItem(id: String):String = itemFactory.deleteItem(id)
+    fun removeItem(id: String, version: String, context: Context):String
+           = itemFactory.deleteItem(id,
+           versionFactory.hydrateVersion(version.toLowerCase().trim()), userFactory.hydrateUser(context))
 }

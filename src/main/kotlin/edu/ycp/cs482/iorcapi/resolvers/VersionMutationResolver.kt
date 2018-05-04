@@ -21,15 +21,19 @@ class VersionMutationResolver(
             versionFactory.hydrateVersion(version.toLowerCase().trim()), userFactory.hydrateUser(context))
 
     //TODO: Update for ACL
-    fun removeInfoFromVersion(id:String) = versionFactory.removeInfoFromVersion(id)
+    fun removeInfoFromVersion(id:String, version: String, context: Context) =
+            versionFactory.removeInfoFromVersion(id, versionFactory.hydrateVersion(version.toLowerCase().trim()),
+            userFactory.hydrateUser(context) )
 
     fun addStatToVersion(key:String, name: String, description: String, version: String, skill: Boolean, context: Context)
             = versionFactory.addStatToVersion(key.toLowerCase().trim(), name, description,
             versionFactory.hydrateVersion(version.toLowerCase().trim()), skill, userFactory.hydrateUser(context))
 
     //TODO: Update for ACL
-    fun removeStatFromVersion(key:String, version:String)
-            = versionFactory.removeStatFromVersion(key.toLowerCase(), version.toLowerCase())
+    fun removeStatFromVersion(key:String, version:String, context: Context)
+            = versionFactory.removeStatFromVersion(key.toLowerCase(), versionFactory.hydrateVersion(version.toLowerCase().trim()),
+            userFactory.hydrateUser(context))
+
 
     fun addStatBaseCalcModifier(statKey: String, version: String, key: String, value: Float, context: Context)
             = versionFactory.addStatModifiers(statKey.toLowerCase().trim(), versionFactory.hydrateVersion(version.toLowerCase().trim()),

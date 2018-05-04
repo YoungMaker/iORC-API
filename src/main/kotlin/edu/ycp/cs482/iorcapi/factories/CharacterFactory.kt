@@ -258,6 +258,7 @@ class CharacterFactory(
     //TODO: update for ACL
     fun removeItemFromCharacter(id:String,itemid:String, context: User):CharacterQL{
         val char = characterRepo.findById(id) ?: throw GraphQLException("Character with given ID does not exist")
+        authorizer.authorizeObject(char, context, AuthorityMode.MODE_EDIT) ?: throw GraphQLException("Forbidden")
         val newInventory = mutableListOf<String>()
         newInventory.addAll(char.inventory)
         newInventory.remove(itemid)

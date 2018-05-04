@@ -67,6 +67,7 @@ class UserFactory(
                 tokenList = user.tokenList
         )
         userRepository.save(newUser)
+        logout(email, newPassword) //should log you out of all tokens!
         return UserQL(newUser) //hydrates to QL compliant authentication
     }
 
@@ -80,7 +81,7 @@ class UserFactory(
 
     //Stores token if its not above the max
     fun loginUser(email:String, password: String): Context {
-        val  user = userRepository.findByEmail(email) ?: throw GraphQLException("incorrect user/email combo")
+        val  user = userRepository.findByEmail(email) ?: throw RuntimeException("incorrect user/email combo")
 
         if(passwordUtils.isExpectedPassword(password.toCharArray(), user.passwordSalt, user.passwordHash)){
             if(!user.authorityLevels.contains(AuthorityLevel.ROLE_ADMIN) && !user.authorityLevels.contains(AuthorityLevel.ROLE_USER)) {
@@ -133,7 +134,7 @@ class UserFactory(
         if(passwordUtils.isExpectedPassword(password.toCharArray(), user.passwordSalt, user.passwordHash)) {
             val newUser = User(id = user.id,
                     email = user.email,
-                    authorityLevels = listOf(AuthorityLevel.ROLE_USER),
+                    authorityLevels = user.authorityLevels,
                     passwordSalt = user.passwordSalt,
                     uname = user.uname,
                     passwordHash = user.passwordHash,

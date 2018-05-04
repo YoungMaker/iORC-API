@@ -179,9 +179,12 @@ type Mutation {
 
     addInfoToVersion(name: String!, version: String!, type: String!, value: String!, context: Context): Version!
     createVersion(version: String, context: Context!): Version
+    removeInfoFromVersion(id: ID!, version: String!, context: Context!): String
+    removeStatFromVersion(key: String!, version: String!, context: Context!): String
 
     #item mutations
     addItemToVersion(name: String!, description: String!, price: Float!, classes: [String]!, type: ObjType!, version: String, context: Context! ) : Item!
+    removeItem(id: String!, version: String!, context: Context!): String
 
     #user mutations
     createUser(email:String!, name:String!, password:String!): User
