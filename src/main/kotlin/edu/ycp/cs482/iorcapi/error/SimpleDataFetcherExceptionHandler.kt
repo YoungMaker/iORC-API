@@ -4,12 +4,14 @@ import graphql.ExceptionWhileDataFetching
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.ExecutionPath
+import graphql.execution.SimpleDataFetcherExceptionHandler
 import graphql.language.SourceLocation
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 
-
-class SimpleDataFetcherExceptionHandler : DataFetcherExceptionHandler {
+@Component
+class CustomDataFetcherExceptionHandler : SimpleDataFetcherExceptionHandler() {
 
     override fun accept(handlerParameters: DataFetcherExceptionHandlerParameters) {
         val exception = handlerParameters.exception
@@ -23,6 +25,6 @@ class SimpleDataFetcherExceptionHandler : DataFetcherExceptionHandler {
 
     companion object {
 
-        private val log = LoggerFactory.getLogger(SimpleDataFetcherExceptionHandler::class.java)
+        private val log = LoggerFactory.getLogger(CustomDataFetcherExceptionHandler::class.java)
     }
 }

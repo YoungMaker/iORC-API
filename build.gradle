@@ -38,7 +38,7 @@ compileTestKotlin {
 jar {
 	baseName = "api-iorc"
 	group    = "edu.ycp.cs482.iorcapi"
-	version  = "0.0.1-dev"
+	version  = "0.1.0-dep"
 	manifest { attributes "Main-Class": "edu.ycp.cs482.IorcApiApplication" }
 }
 
@@ -80,9 +80,8 @@ dependencies {
 	compile "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
 	//this needs to be here for some reason otherwise bean registration fails
 	compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.2")
-
+	compile('commons-validator:commons-validator:1.6')
 	compile('com.graphql-java:graphql-spring-boot-starter:4.0.0')
-
 	compile('com.graphql-java:graphiql-spring-boot-starter:4.0.0')
 	compile('com.graphql-java:graphql-java-tools:4.3.0')
 	compile('org.springframework.cloud:spring-cloud-starter-oauth2')
@@ -91,14 +90,12 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-mongodb')
 	compile('org.springframework.boot:spring-boot-starter-data-rest')
 	compile('org.springframework.retry:spring-retry')
-	//compile('org.springframework.boot:spring-boot-starter-security')
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
 	compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
-	testCompile('org.springframework.boot:spring-boot-starter-test')
-	//testCompile('org.springframework.security:spring-security-test')
-
+	compile('io.jsonwebtoken:jjwt:0.9.0')
 	compile('com.mmnaseri.utils:spring-data-mock:1.1.4')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
 
 }
 
