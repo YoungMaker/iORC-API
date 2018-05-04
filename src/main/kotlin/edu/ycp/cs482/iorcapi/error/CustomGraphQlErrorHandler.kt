@@ -10,9 +10,7 @@ class CustomGraphQlErrorHandler: GraphQLErrorHandler {
 
     override fun processErrors(errors: MutableList<GraphQLError>?): MutableList<GraphQLError> {
         val errorList = mutableListOf<GraphQLError>()
-        for(error in errors!!){
-            errorList.add(GenericGraphQLError(error.message))
-        }
+        errors!!.mapTo(errorList) { GenericGraphQLError(it.message) }
         return errorList
     }
 

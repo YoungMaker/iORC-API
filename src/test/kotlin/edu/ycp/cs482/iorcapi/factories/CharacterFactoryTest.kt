@@ -45,6 +45,7 @@ class CharacterFactoryTest {
         versionInfoRepository = RepositoryFactoryBuilder.builder().mock(VersionInfoRepository::class.java)
         userRepository = RepositoryFactoryBuilder.builder().mock(UserRepository::class.java)
         itemRepository = RepositoryFactoryBuilder.builder().mock(ItemRepository::class.java)
+        itemFactory = ItemFactory(itemRepository, Authorizer())
         versionRepository = RepositoryFactoryBuilder.builder().mock(VersionRepository::class.java)
         versionFactory = VersionFactory(statRepository, versionInfoRepository, versionRepository, Authorizer())
         passwordUtils = PasswordUtils()
@@ -55,7 +56,7 @@ class CharacterFactoryTest {
         addTestClasses()
         addTestRaces()
         addTestCharacters()
-        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory, Authorizer())
+        detailFactory = DetailFactory(raceRepository, classRepository, versionFactory, Authorizer(), itemFactory)
         itemFactory = ItemFactory(itemRepository, Authorizer())
         characterFactory = CharacterFactory(characterRepository, detailFactory, versionFactory, itemFactory, Authorizer())
     }

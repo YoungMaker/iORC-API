@@ -54,7 +54,7 @@ class DetailFactoryTest {
         addTestUsers()
         itemRepository = RepositoryFactoryBuilder.builder().mock(ItemRepository::class.java)
         versionFactory = VersionFactory(statRepository, versionInfoRepository, versionRepository, Authorizer())
-        itemFactory = ItemFactory(itemRepository)
+        itemFactory = ItemFactory(itemRepository, Authorizer())
         addTestVersion()
         addTestClasses()
         addTestRaces()
@@ -284,7 +284,7 @@ class DetailFactoryTest {
         assertThat(race.description,  `is`(equalTo("TESTHUMAN")))
         assertThat(race.feats.isEmpty(), `is`(true))
 
-        val race2 = detailFactory.addRaceFeats("1.0", listOf("TESTFEAT") )
+        val race2 = detailFactory.addRaceFeats("1.0", listOf("TESTFEAT"), versionFactory.hydrateVersion("TEST"), context)
 
         assertThat(race2.feats.contains( ItemQL(
                 id="TESTFEAT",
@@ -298,13 +298,13 @@ class DetailFactoryTest {
         )), `is`(true))
 
         try{
-            detailFactory.addRaceFeats("1.0", listOf("fasdfasd") ) //try to add feat that doesnt' exist
+            detailFactory.addRaceFeats("1.0", listOf("fasdfasd"), versionFactory.hydrateVersion("TEST"), context ) //try to add feat that doesnt' exist
             fail()
         } catch (e: GraphQLException){
             assertThat(e.message, `is`(equalTo("Item Does not exist in that version with that name")))
         }
 
-        val race3 = detailFactory.removeRaceFeats("1.0", listOf("TESTFEAT") )
+        val race3 = detailFactory.removeRaceFeats("1.0", listOf("TESTFEAT"), versionFactory.hydrateVersion("TEST"), context)
         assertThat(race3.feats.isEmpty(), `is`(true))
     }
 
@@ -369,7 +369,7 @@ class DetailFactoryTest {
     fun getRacesByVersion() {
         val raceList = detailFactory.getRacesByVersion(versionFactory.hydrateVersion("TEST"), context)
         assertThat(raceList.count(), `is`(not(equalTo(0))))
-        assert(raceList.containsAll(detailFactory.hydrateRaces(raceRepository.findAll())))
+        assert(raceList.containsAll(detailFactory.hydrateRaces(raceRepository.findAll(), context)))
 
         //be sure that a banned user cannot access this item
         val user2 = userRepository.findById("TESTUSER4") ?: throw RuntimeException()
@@ -417,7 +417,7 @@ class DetailFactoryTest {
         assertThat(classRpg.description,  `is`(equalTo("TESTCLERIC")))
         assertThat(classRpg.feats.isEmpty(), `is`(true))
 
-        val class2Rpg = detailFactory.addClassFeats("0.1", listOf("TESTFEAT") )
+        val class2Rpg = detailFactory.addClassFeats("0.1", listOf("TESTFEAT"),versionFactory.hydrateVersion("TEST"), context)
 
         assertThat(class2Rpg.feats.contains( ItemQL(
                 id="TESTFEAT",
@@ -431,13 +431,13 @@ class DetailFactoryTest {
         )), `is`(true))
 
         try{
-            detailFactory.addClassFeats("0.1", listOf("fasdfasd") ) //try to add feat that doesnt' exist
+            detailFactory.addClassFeats("0.1", listOf("fasdfasd"), versionFactory.hydrateVersion("TEST"), context) //try to add feat that doesnt' exist
             fail()
         } catch (e: GraphQLException){
             assertThat(e.message, `is`(equalTo("Item Does not exist in that version with that name")))
         }
 
-        val class3Rpg = detailFactory.removeClassFeats("0.1", listOf("TESTFEAT") )
+        val class3Rpg = detailFactory.removeClassFeats("0.1", listOf("TESTFEAT"), versionFactory.hydrateVersion("TEST"), context )
         assertThat(class3Rpg.feats.isEmpty(), `is`(true))
     }
 
@@ -564,7 +564,7 @@ class DetailFactoryTest {
     fun getClassesByVersion() {
         val classList = detailFactory.getClassesByVersion(versionFactory.hydrateVersion("TEST"), context)
         assertThat(classList.count(), `is`(not(equalTo(0))))
-        assert(classList.containsAll(detailFactory.hydrateClasses(classRepository.findAll())))
+        assert(classList.containsAll(detailFactory.hydrateClasses(classRepository.findAll(), context)))
 
         //test that a banned user is not allowed to access these items
         val user2 = userRepository.findById("TESTUSER4") ?: throw RuntimeException()
