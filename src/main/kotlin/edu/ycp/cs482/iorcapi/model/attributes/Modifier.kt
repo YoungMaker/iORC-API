@@ -1,10 +1,16 @@
 package edu.ycp.cs482.iorcapi.model.attributes
 
-import org.springframework.data.annotation.Id
+import edu.ycp.cs482.iorcapi.model.Accessible
+import edu.ycp.cs482.iorcapi.model.authentication.AccessData
+import edu.ycp.cs482.iorcapi.model.authentication.AuthorityLevel
+import edu.ycp.cs482.iorcapi.model.authentication.AuthorityMode
 
 open class Modifiable(
-        var modifiers: Map<String, Float> = mapOf()
-) {
+        var modifiers: Map<String, Float> = mapOf(),
+        access: AccessData = AccessData("", mapOf(
+                Pair(AuthorityLevel.ROLE_USER, AuthorityMode.MODE_VIEW),
+                Pair(AuthorityLevel.ROLE_ADMIN, AuthorityMode.MODE_EDIT)))
+): Accessible(access) {
     fun unionModifiers(mods: Map<String, Float>){
         val finalMods = HashMap<String, Float>(modifiers)
         finalMods.putAll(mods)
